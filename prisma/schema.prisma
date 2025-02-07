@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String      @id @unique
+  name      String
+  telephone String?
+  email     String      @unique
+  typeUser  TypeUser
+  manutences Manutence[]
+  chats     Chat[]
+}
+
+enum TypeUser {
+  ADMIN
+  DEFAULT
+}
+
+model Manutence {
+  id         String          @id @unique
+  photos     Json
+  video      Json
+  message    String
+  status     StatusManutence
+  createdAt  DateTime
+  userId     String
+  user       User            @relation(fields: [userId], references: [id])
+}
+
+enum StatusManutence {
+  FINALIZED
+  IN_PROGRESS
+}
+
+model Chat {
+  id         String   @id @unique
+  message    String
+  createdAt  DateTime
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model NotificationsManutence {
+  id                  String    @id @unique
+  count_notifications Int
+  readAt             DateTime
+  createdAt          DateTime
+}
