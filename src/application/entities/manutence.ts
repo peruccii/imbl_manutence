@@ -1,5 +1,7 @@
+import { randomUUID } from "crypto"
 import { StatusManutence } from "../enums/StatusManutence"
 import { Message } from "../fieldsValidations/message"
+import { Replace } from "../helpers/replace"
 import { User } from "./user"
 
 export interface ManutenceProps {
@@ -15,7 +17,13 @@ export class Manutence {
     private props: ManutenceProps
     private _id: string
 
-    constructor() {}
+      constructor(props: Replace<ManutenceProps, { createdAt?: Date }>, id?: string) {
+            this._id = id ?? randomUUID();
+            this.props = {
+              ...props,
+              createdAt: props.createdAt ?? new Date(),
+            };
+        }
 
     public get id(): string {
         return this._id
