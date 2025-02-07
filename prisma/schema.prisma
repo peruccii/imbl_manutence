@@ -26,7 +26,7 @@ model Manutence {
   id         String          @id @unique
   photos     Json
   video      Json
-  message    String
+  message    String          @db.Text
   status     StatusManutence
   createdAt  DateTime
   userId     String
@@ -40,7 +40,7 @@ enum StatusManutence {
 
 model Chat {
   id         String   @id @unique
-  message    String
+  message    String   @db.Text
   createdAt  DateTime
   userId     String
   user       User     @relation(fields: [userId], references: [id])
