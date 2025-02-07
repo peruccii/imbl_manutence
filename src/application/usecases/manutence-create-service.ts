@@ -1,5 +1,6 @@
 import { User } from "../entities/user"
 import { makeManutenceFactory } from "../factories/manutence-factory"
+import { UserRepository } from "../repositories/user-repository"
 
 export interface CreateManutenceRequest {
     message: string
@@ -9,11 +10,16 @@ export interface CreateManutenceRequest {
 }
 
 export class ManutenceCreateService {
-    constructor() {
+    constructor(private readonly userRepository: UserRepository) {
 
     }
 
     async execute(request_manutence: CreateManutenceRequest) {
-        const manutence = makeManutenceFactory({...request_manutence})
+        
+        const client = await this.userRepository.findOne(request_manutence.client?.id)
+
+        if (!client) throw new Error("user not found")
+
+        makeManutenceFactory({...request_manutence, client: client})
     }
 }
