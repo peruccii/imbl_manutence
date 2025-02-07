@@ -17,7 +17,7 @@ export class ManutenceCreateService {
     async execute(request_manutence: CreateManutenceRequest) {
         
         const client = await this.userRepository.findOne(request_manutence.client?.id)
-
+        // TODO: Move this logic below to display this message on prisma find one logic
         if (!client) throw new Error("user not found")
 
         makeManutenceFactory({...request_manutence, client: client})
