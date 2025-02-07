@@ -12,7 +12,7 @@ export class Name {
     constructor(name: string) {
         const isNameLengthValid = this.validateNameLength(name)
 
-        if (!isNameLengthValid) throw new Error()
+        if (!isNameLengthValid) throw new Error("NAME LENGTH INVALID")
 
         this.name = name
     }

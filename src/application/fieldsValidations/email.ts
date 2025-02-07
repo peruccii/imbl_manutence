@@ -18,8 +18,8 @@ export class Email {
         const isEmailLengthValid = this.validateEmailLength(email);
         const isEmailValid = this.validateEmailIsValid(email);
     
-        if (!isEmailLengthValid) throw new Error(); // todo: custom error
-        if (!isEmailValid) throw new Error(); // todo: custom error
+        if (!isEmailLengthValid) throw new Error("EMAIL LENGTH INVALID"); // todo: custom error
+        if (!isEmailValid) throw new Error("EMAIL FORMAT INVALID"); // todo: custom error
     
         this.email = email;
     }

@@ -12,7 +12,7 @@ export class Message {
      constructor(message: string) {
         const isMessageLenghtValid = this.validMessageLenght(message)
 
-        if (!isMessageLenghtValid) throw new Error() // todo: custom error
+        if (!isMessageLenghtValid) throw new Error("MESSAGE LENGT INVALID") // todo: custom error
 
         this.message = message
      }

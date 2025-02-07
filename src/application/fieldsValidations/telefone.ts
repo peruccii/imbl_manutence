@@ -13,7 +13,7 @@ export class Telefone {
     constructor(telefone: string) {
         const isTelefoneRegexValid = this.validateTelefoneRegex(telefone)
 
-        if (!isTelefoneRegexValid) throw new Error()
+        if (!isTelefoneRegexValid) throw new Error("TELEFONE INVALID")
 
         this.telefone = telefone
     }
