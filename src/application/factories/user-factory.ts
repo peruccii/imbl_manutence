@@ -1,5 +1,4 @@
 import { User } from "../entities/user";
-import { userType } from "../enums/userType";
 import { Email } from "../fieldsValidations/email";
 import { Name } from "../fieldsValidations/name";
 import { Telefone } from "../fieldsValidations/telefone";

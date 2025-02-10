@@ -3,15 +3,15 @@ import { Replace } from "../helpers/replace"
 import { Email } from "../fieldsValidations/email"
 import { Name } from "../fieldsValidations/name"
 import { Telefone } from "../fieldsValidations/telefone"
-import { userType } from "../enums/userType"
 import { Manutence } from "./manutence"
+import { Role } from "../enums/role.enum"
 
 export interface UserProps {
     name: Name
     telefone: Telefone | null
     email: Email
     createdAt: Date
-    userType: userType
+    userType: Role
     password: string
     manutence: Manutence[]
 }
@@ -65,11 +65,11 @@ export class User {
         this.props.telefone = telefone
     }
 
-    public get userType(): userType {
+    public get userType(): Role {
         return this.userType
     }
 
-    public set userType(userType: userType) {
+    public set userType(userType: Role) {
         this.props.userType = userType
     }
 }

@@ -1,9 +1,9 @@
-import { userType } from "../enums/userType"
+import { Role } from "../enums/role.enum"
 
 export interface CreateUserRequest {
     name: string
     telefone: string | null
     password: string
     email: string
-    userType: userType.DEFAULT
+    userType: Role.USER
 }
