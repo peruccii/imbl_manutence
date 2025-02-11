@@ -1,2 +1,2 @@
 export const DtoManutenceUserTypeMessage =
-  'userType must be either ADMIN or DEFAULT';
+  'typeUser must be either ADMIN or DEFAULT';

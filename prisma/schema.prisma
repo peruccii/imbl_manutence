@@ -12,12 +12,12 @@ model User {
   name      String
   telephone String?
   email     String      @unique
-  typeUser  TypeUser
+  typeUser  Role
   manutences Manutence[]
   chats     Chat[]
 }
 
-enum TypeUser {
+enum Role {
   ADMIN
   DEFAULT
 }

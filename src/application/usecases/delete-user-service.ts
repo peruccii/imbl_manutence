@@ -1,7 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import { UserNotFoundError } from '../errors/user-not-found.errors';
 import { UserNotFoundMessage } from '../messages/user-not-found';
 import { UserRepository } from '../repositories/user-repository';
 
+@Injectable()
 export class DeleteUserService {
   constructor(private readonly userRepository: UserRepository) {}
 

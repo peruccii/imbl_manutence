@@ -11,7 +11,7 @@ export function makeUserFactory(override: Override) {
     name: new Name(override.name),
     email: new Email(override.email),
     telefone: override.telefone ? new Telefone(override.telefone) : null,
-    userType: override.userType,
+    typeUser: override.typeUser,
     password: override.password,
     manutence: [],
   });

@@ -5,5 +5,5 @@ export interface CreateUserRequest {
   telefone: string | null;
   password: string;
   email: string;
-  userType: Role.USER;
+  typeUser: Role.USER;
 }

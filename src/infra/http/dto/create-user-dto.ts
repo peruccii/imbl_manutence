@@ -10,5 +10,5 @@ export class CreateUserDTO {
   @IsEmail()
   email: string;
   @IsIn(['ADMIN', 'DEFAULT'], { message: DtoManutenceUserTypeMessage })
-  userType: 'ADMIN' | 'DEFAULT';
+  typeUser: 'ADMIN' | 'DEFAULT';
 }

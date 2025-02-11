@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   UploadedFile,
   UploadedFiles,
@@ -16,10 +18,9 @@ import { Roles } from 'src/roles/roles.decorator';
 import { ManutenceCreateDto } from '../dto/create-manutence-dto';
 import multerConfig from 'src/application/config/multer-config';
 import { MulterFileS3, MulterFilesS3 } from '../MulterType/s3multer-type';
+import { FindOneParams } from '../dto/find-one-manutence-dto';
 
-export type Multer = Express.MulterS3.File[]
-
-@Controller()
+@Controller('manutence')
 export class ManutenceController {
   constructor(
     private readonly manutence_service: ManutenceCreateService,
@@ -48,5 +49,10 @@ export class ManutenceController {
     const obj = { photos, video };
     this.fileUploadService.handleFileUpload(obj);
     return await this.manutence_service.execute(request);
+  }
+
+  @Get(':id')
+  async getManutence(@Param() param: FindOneParams) {
+
   }
 }

@@ -1,7 +1,7 @@
 import { Manutence } from '../entities/manutence';
 import { StatusManutence } from '../enums/StatusManutence';
 import { Message } from '../fieldsValidations/message';
-import { CreateManutenceRequest } from '../usecases/manutence-create-service';
+import { CreateManutenceRequest } from '../interfaces/manutence-create-request';
 
 type Override = CreateManutenceRequest;
 

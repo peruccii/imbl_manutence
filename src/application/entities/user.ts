@@ -11,7 +11,7 @@ export interface UserProps {
   telefone: Telefone | null;
   email: Email;
   createdAt: Date;
-  userType: Role;
+  typeUser: Role;
   password: string;
   manutence: Manutence[];
 }
@@ -64,11 +64,11 @@ export class User {
     this.props.telefone = telefone;
   }
 
-  public get userType(): Role {
-    return this.userType;
+  public get typeUser(): Role {
+    return this.typeUser;
   }
 
-  public set userType(userType: Role) {
-    this.props.userType = userType;
+  public set typeUser(typeUser: Role) {
+    this.props.typeUser = typeUser;
   }
 }
