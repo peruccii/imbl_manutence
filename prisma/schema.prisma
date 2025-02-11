@@ -36,6 +36,8 @@ model Manutence {
 enum StatusManutence {
   FINALIZED
   IN_PROGRESS
+  CANCELLED
+  CREATED
 }
 
 model Chat {

@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { ManutenceRepository } from "src/application/repositories/manutence-repository";
 import { Manutence } from "src/application/entities/manutence";
+import { PrismaManutenceMapper } from "../mappers/prisma-manutence-mapper";
 
 @Injectable()
 export class PrismaManutenceRepository implements ManutenceRepository {
@@ -14,11 +15,10 @@ export class PrismaManutenceRepository implements ManutenceRepository {
     }
 
   async create(manutence: Manutence): Promise<void> {
-    const raw = PrismaInviteMapper.toPrisma(manutence);
+    const raw = PrismaManutenceMapper.toPrisma(manutence);
     await this.prisma.manutence.create({
       data: {
         ...raw,
-        date: raw.date || null,
       },
     });
   }
@@ -27,11 +27,11 @@ export class PrismaManutenceRepository implements ManutenceRepository {
     await this.prisma.manutence.delete({ where: { id: id } });
   }
 
-  async findMany(): Promise<Manutence[]> {
-    const users = await this.prisma.manutence.findMany();
+  async findMany(): Promise<Manutence[] | []> {
+    const manutences = await this.prisma.manutence.findMany();
 
-    return users.map((invite) => {
-      return PrismaInviteMapper.toDomain(invite);
+    return manutences.map((manutence) => {
+      return PrismaManutenceMapper.toDomain(manutence);
     });
   }
 }

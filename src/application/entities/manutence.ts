@@ -48,6 +48,14 @@ export class Manutence {
     this.props.video = video;
   }
 
+  public get photos(): string[] {
+    return this.photos;
+  }
+
+  public set photos(photos: string[]) {
+    this.props.photos = photos;
+  }
+
   public get status_manutence(): StatusManutence {
     return this.status_manutence;
   }
