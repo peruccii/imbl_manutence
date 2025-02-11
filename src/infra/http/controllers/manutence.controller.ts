@@ -14,6 +14,10 @@ import { ManutenceCreateService } from 'src/application/usecases/manutence-creat
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Roles } from 'src/roles/roles.decorator';
 import { ManutenceCreateDto } from '../dto/create-manutence-dto';
+import multerConfig from 'src/application/config/multer-config';
+import { MulterFileS3, MulterFilesS3 } from '../MulterType/s3multer-type';
+
+export type Multer = Express.MulterS3.File[]
 
 @Controller()
 export class ManutenceController {
@@ -25,13 +29,22 @@ export class ManutenceController {
   @UseGuards(AuthGuard)
   @Post('create')
   @Roles(Role.USER)
-  @UseInterceptors(FileInterceptor('photos', { limits: { files: 10 } }))
-  @UseInterceptors(FileInterceptor('video', { limits: { files: 1 } }))
+  @UseInterceptors(FileInterceptor('photos', multerConfig))
+  @UseInterceptors(FileInterceptor('video', multerConfig))
   async createManutence(
     @Body() request: ManutenceCreateDto,
-    @UploadedFiles() photos: Express.Multer.File[],
-    @UploadedFile() video: Express.Multer.File,
+    @UploadedFiles() photos: MulterFilesS3,
+    @UploadedFile() video: MulterFileS3,
   ) {
+
+    const uploadedFiles = {
+      photos: photos.map((file) => file.location),
+      video: video.location,  
+    };
+
+    request.photos = uploadedFiles.photos;
+    request.video = uploadedFiles.video;
+
     const obj = { photos, video };
     this.fileUploadService.handleFileUpload(obj);
     return await this.manutence_service.execute(request);
