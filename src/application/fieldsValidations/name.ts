@@ -1,19 +1,19 @@
 export class Name {
-    private readonly name: string
+  private readonly name: string;
 
-    public get value(): string {
-        return this.name
-    }
+  public get value(): string {
+    return this.name;
+  }
 
-    private validateNameLength(name: string): boolean {
-        return name.length >= 5 && name.length <= 55;
-    }
+  private validateNameLength(name: string): boolean {
+    return name.length >= 5 && name.length <= 55;
+  }
 
-    constructor(name: string) {
-        const isNameLengthValid = this.validateNameLength(name)
+  constructor(name: string) {
+    const isNameLengthValid = this.validateNameLength(name);
 
-        if (!isNameLengthValid) throw new Error("NAME LENGTH INVALID")
+    if (!isNameLengthValid) throw new Error('NAME LENGTH INVALID');
 
-        this.name = name
-    }
+    this.name = name;
+  }
 }

@@ -1,17 +1,20 @@
-import { HttpException, HttpStatus } from "@nestjs/common";
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class DefaultSetupError extends Error {
-    httpStatus: HttpStatus;
+  httpStatus: HttpStatus;
 
-    constructor(message: string) {
-        super(message);
-        this.name = 'DefaultSetupError'; 
-    }
+  constructor(message: string) {
+    super(message);
+    this.name = 'De faultSetupError';
+  }
 
-    error() {
-        throw new HttpException({
-            status: this.httpStatus,
-            error: this.message,
-        }, this.httpStatus);
-    }
+  error() {
+    throw new HttpException(
+      {
+        status: this.httpStatus,
+        error: this.message,
+      },
+      this.httpStatus,
+    );
+  }
 }

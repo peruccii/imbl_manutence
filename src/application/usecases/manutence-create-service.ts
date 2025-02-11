@@ -21,8 +21,8 @@ export class ManutenceCreateService {
     // TODO: Move this logic below to display this message on prisma find one logic
     if (!client) {
       const err = new UserNotFoundError(UserNotFoundMessage);
-      err.error()
-      return 
+      err.error();
+      return;
     }
 
     // create with firebase url video and photos ??

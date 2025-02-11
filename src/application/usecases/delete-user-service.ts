@@ -10,8 +10,8 @@ export class DeleteUserService {
 
     if (!userExists) {
       const err = new UserNotFoundError(UserNotFoundMessage);
-      err.error()
-      return 
+      err.error();
+      return;
     }
 
     return this.userRepository.delete(id);

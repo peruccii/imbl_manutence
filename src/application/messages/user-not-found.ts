@@ -1,1 +1,1 @@
-export const UserNotFoundMessage = 'USER_NOT_FOUND'
+export const UserNotFoundMessage = 'USER_NOT_FOUND';

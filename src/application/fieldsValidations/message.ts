@@ -1,19 +1,19 @@
 export class Message {
-    private readonly message: string
+  private readonly message: string;
 
-    public get value(): string {
-        return this.message
-    }
+  public get value(): string {
+    return this.message;
+  }
 
-    private validMessageLenght(message: string): boolean {
-        return message.length >= 5 && message.length <= 255;
-    }
+  private validMessageLenght(message: string): boolean {
+    return message.length >= 5 && message.length <= 255;
+  }
 
-     constructor(message: string) {
-        const isMessageLenghtValid = this.validMessageLenght(message)
+  constructor(message: string) {
+    const isMessageLenghtValid = this.validMessageLenght(message);
 
-        if (!isMessageLenghtValid) throw new Error("MESSAGE LENGT INVALID") // todo: custom error
+    if (!isMessageLenghtValid) throw new Error('MESSAGE LENGT INVALID'); // todo: custom error
 
-        this.message = message
-     }
+    this.message = message;
+  }
 }

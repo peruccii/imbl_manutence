@@ -15,14 +15,14 @@ export class UserCreateService {
     const userExists = await this.userRepository.findOne(request.email);
 
     if (userExists) {
-      const err = new UserAlreadyExists(UserAlreadyExistsMessage)
-      err.error()
-      return
-    };  
+      const err = new UserAlreadyExists(UserAlreadyExistsMessage);
+      err.error();
+      return;
+    }
 
     const user = makeUserFactory({
       ...request,
-      password: await hashPassword(request.password)
+      password: await hashPassword(request.password),
     });
 
     PrismaUserMapper.toPrisma(user);

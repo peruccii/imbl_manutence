@@ -1,8 +1,8 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class FileUploadService {
-    handleFileUpload(data: object) {
-    
-    }
+  handleFileUpload(data: { photos: File[]; video: File }) {
+    return data;
+  }
 }

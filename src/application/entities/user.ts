@@ -1,75 +1,74 @@
-import { randomUUID } from "crypto"
-import { Replace } from "../helpers/replace"
-import { Email } from "../fieldsValidations/email"
-import { Name } from "../fieldsValidations/name"
-import { Telefone } from "../fieldsValidations/telefone"
-import { Manutence } from "./manutence"
-import { Role } from "../enums/role.enum"
+import { randomUUID } from 'crypto';
+import { Replace } from '../helpers/replace';
+import { Email } from '../fieldsValidations/email';
+import { Name } from '../fieldsValidations/name';
+import { Telefone } from '../fieldsValidations/telefone';
+import { Manutence } from './manutence';
+import { Role } from '../enums/role.enum';
 
 export interface UserProps {
-    name: Name
-    telefone: Telefone | null
-    email: Email
-    createdAt: Date
-    userType: Role
-    password: string
-    manutence: Manutence[]
+  name: Name;
+  telefone: Telefone | null;
+  email: Email;
+  createdAt: Date;
+  userType: Role;
+  password: string;
+  manutence: Manutence[];
 }
 
 export class User {
-    private props: UserProps
-    private _id: string
+  private props: UserProps;
+  private _id: string;
 
-    constructor(props: Replace<UserProps, { createdAt?: Date }>, id?: string) {
-        this._id = id ?? randomUUID();
-        this.props = {
-          ...props,
-          createdAt: props.createdAt ?? new Date(),
-        };
-    }
+  constructor(props: Replace<UserProps, { createdAt?: Date }>, id?: string) {
+    this._id = id ?? randomUUID();
+    this.props = {
+      ...props,
+      createdAt: props.createdAt ?? new Date(),
+    };
+  }
 
-    public get id(): string {
-        return this._id
-    }
+  public get id(): string {
+    return this._id;
+  }
 
-    public get name(): Name {
-        return this.name
-    }
+  public get name(): Name {
+    return this.name;
+  }
 
-    public set name(name: Name) {
-        this.props.name = name
-    }
+  public set name(name: Name) {
+    this.props.name = name;
+  }
 
-    
-    public get password(): string {
-        return this.password
-    }
+  public get password(): string {
+    return this.password;
+  }
 
-    public set password(password: string) {
-        this.props.password = password
-    }
+  public set password(password: string) {
+    this.props.password = password;
+  }
 
-    public get email(): Email {
-        return this.email
-    }
+  public get email(): Email {
+    return this.email;
+  }
 
-    public set email(email: Email) {
-        this.props.email = email
-    }
+  public set email(email: Email) {
+    this.props.email = email;
+  }
 
-    public get telefone(): Telefone | null {
-        return this.telefone
-    }
+  public get telefone(): Telefone | null {
+    return this.telefone;
+  }
 
-    public set telefone(telefone: Telefone | null)  {
-        this.props.telefone = telefone
-    }
+  public set telefone(telefone: Telefone | null) {
+    this.props.telefone = telefone;
+  }
 
-    public get userType(): Role {
-        return this.userType
-    }
+  public get userType(): Role {
+    return this.userType;
+  }
 
-    public set userType(userType: Role) {
-        this.props.userType = userType
-    }
+  public set userType(userType: Role) {
+    this.props.userType = userType;
+  }
 }
