@@ -19,17 +19,20 @@ import { ManutenceCreateDto } from '../dto/create-manutence-dto';
 import multerConfig from 'src/application/config/multer-config';
 import { MulterFileS3, MulterFilesS3 } from '../MulterType/s3multer-type';
 import { FindOneParams } from '../dto/find-one-manutence-dto';
+import { FindOneManutenceService } from 'src/application/usecases/find-one-manutence-service';
+import { ManutenceViewModel } from '../view-models/manutence-view-model';
 
 @Controller('manutence')
 export class ManutenceController {
   constructor(
-    private readonly manutence_service: ManutenceCreateService,
+    private readonly manutenceCreate_service: ManutenceCreateService,
     private readonly fileUploadService: FileUploadService,
+    private readonly manutenceGetOne_service: FindOneManutenceService
   ) {}
 
   @UseGuards(AuthGuard)
   @Post('create')
-  @Roles(Role.USER)
+  @Roles(Role.USER, Role.ADMIN)
   @UseInterceptors(FileInterceptor('photos', multerConfig))
   @UseInterceptors(FileInterceptor('video', multerConfig))
   async createManutence(
@@ -48,11 +51,19 @@ export class ManutenceController {
 
     const obj = { photos, video };
     this.fileUploadService.handleFileUpload(obj);
-    return await this.manutence_service.execute(request);
+    return await this.manutenceCreate_service.execute(request);
   }
 
   @Get(':id')
-  async getManutence(@Param() param: FindOneParams) {
+  async getManutence(@Param('id') param: FindOneParams) {
+    const { manutence } = await this.manutenceGetOne_service.execute(param)
+
+    return ManutenceViewModel.toGetFormatHttp(manutence)
+  }
+
+  @Get()
+  @UseGuards(AuthGuard)
+  async getAllManutences() {
 
   }
 }
