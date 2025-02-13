@@ -8,13 +8,13 @@ datasource db {
 }
 
 model User {
-  id        String      @id @unique
-  name      String
-  telephone String?
-  email     String      @unique
-  typeUser  Role
-  manutences Manutence[]
-  chats     Chat[]
+  id          String      @id @unique
+  name        String
+  telephone   String?
+  email       String      @unique
+  typeUser    Role
+  manutences  Manutence[]
+  messages    Chat[]
 }
 
 enum Role {
@@ -23,14 +23,14 @@ enum Role {
 }
 
 model Manutence {
-  id         String          @id @unique
-  photos     Json
-  video      String
-  message    String          
+  id                   String          @id @unique
+  photos               Json
+  video                String
+  message              String          
   status_manutence     StatusManutence
-  createdAt  DateTime
-  userId     String
-  user       User            @relation(fields: [userId], references: [id])
+  createdAt            DateTime
+  userId               String
+  user                 User            @relation(fields: [userId], references: [id])
 }
 
 enum StatusManutence {
@@ -41,16 +41,17 @@ enum StatusManutence {
 }
 
 model Chat {
-  id         String   @id @unique
-  message    String   
-  createdAt  DateTime
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  id              String   @id @unique
+  message         String   
+  sendAt          DateTime
+  count_messages  Int
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
 }
 
 model NotificationsManutence {
-  id                  String    @id @unique
-  count_notifications Int
-  readAt             DateTime
-  createdAt          DateTime
+  id                    String    @id @unique
+  count_notifications   Int
+  readAt                DateTime
+  createdAt             DateTime
 }

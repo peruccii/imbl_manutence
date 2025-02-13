@@ -4,6 +4,8 @@ import { ManutenceController } from "./controllers/manutence.controller";
 import { UserController } from "./controllers/user.controller";
 import { UserCreateService } from "src/application/usecases/user-create-service";
 import { ManutenceCreateService } from "src/application/usecases/manutence-create-service";
+import { RolesGuard } from "src/application/guards/role.guards";
+import { APP_GUARD } from "@nestjs/core";
 
 @Module({
     imports: [
@@ -16,7 +18,11 @@ import { ManutenceCreateService } from "src/application/usecases/manutence-creat
     controllers: [ManutenceController, UserController],
     providers: [
      UserCreateService,
-     ManutenceCreateService
+     ManutenceCreateService,
+     {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
     ],
   })
   export class HttpModule {}

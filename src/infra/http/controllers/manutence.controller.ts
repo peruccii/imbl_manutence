@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -21,13 +22,18 @@ import { MulterFileS3, MulterFilesS3 } from '../MulterType/s3multer-type';
 import { FindOneParams } from '../dto/find-one-manutence-dto';
 import { FindOneManutenceService } from 'src/application/usecases/find-one-manutence-service';
 import { ManutenceViewModel } from '../view-models/manutence-view-model';
+import { FindAllManutences } from 'src/application/usecases/find-all-manutences-service';
+import { Manutence } from 'src/application/entities/manutence';
+import { DeleteManutenceService } from 'src/application/usecases/delete-manutence-service';
 
 @Controller('manutence')
 export class ManutenceController {
   constructor(
     private readonly manutenceCreate_service: ManutenceCreateService,
     private readonly fileUploadService: FileUploadService,
-    private readonly manutenceGetOne_service: FindOneManutenceService
+    private readonly manutenceGetOne_service: FindOneManutenceService,
+    private readonly manutencesGetAll_service: FindAllManutences,
+    private readonly manutenceDelete_service: DeleteManutenceService
   ) {}
 
   @UseGuards(AuthGuard)
@@ -55,15 +61,28 @@ export class ManutenceController {
   }
 
   @Get(':id')
+  @Roles(Role.USER, Role.ADMIN)
   async getManutence(@Param('id') param: FindOneParams) {
     const { manutence } = await this.manutenceGetOne_service.execute(param)
 
     return ManutenceViewModel.toGetFormatHttp(manutence)
   }
 
-  @Get()
+  @Get('all')
   @UseGuards(AuthGuard)
+  @Roles(Role.USER, Role.ADMIN)
   async getAllManutences() {
+    const { manutences } = await this.manutencesGetAll_service.execute()
 
+    return manutences.map((manutence: Manutence) => {
+      return ManutenceViewModel.toGetFormatHttp(manutence)
+    })
+  }
+
+  @Delete('delete/:id')
+  @UseGuards(AuthGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  async deleteManutence(@Param('id') param: string) {
+    return await this.manutenceDelete_service.execute(param)
   }
 }

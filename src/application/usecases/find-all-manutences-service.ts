@@ -1,0 +1,11 @@
+import { ManutenceRepository } from "../repositories/manutence-repository";
+
+export class FindAllManutences {
+    constructor(private readonly manutenceRepository: ManutenceRepository){}
+
+    async execute() {
+        const manutences = await this.manutenceRepository.findMany()
+
+        return { manutences }
+    }
+}
