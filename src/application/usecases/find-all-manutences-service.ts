@@ -1,5 +1,7 @@
+import { Injectable } from "@nestjs/common";
 import { ManutenceRepository } from "../repositories/manutence-repository";
 
+@Injectable()
 export class FindAllManutences {
     constructor(private readonly manutenceRepository: ManutenceRepository){}
 

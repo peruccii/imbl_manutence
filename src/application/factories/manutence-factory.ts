@@ -11,6 +11,6 @@ export function makeManutenceFactory(override: Override) {
     photos: override.photos,
     video: override.video,
     status_manutence: StatusManutence.CREATED,
-    client: override.client,
+    user: override.client,
   });
 }

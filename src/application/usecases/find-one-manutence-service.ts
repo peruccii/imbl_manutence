@@ -1,3 +1,4 @@
+import { Injectable } from "@nestjs/common";
 import { ManutenceNotFoundError } from "../errors/manutence-not-found.error";
 import { ManutenceNotFoundMessage } from "../messages/manutence-not-found";
 import { ManutenceRepository } from "../repositories/manutence-repository";
@@ -6,6 +7,7 @@ export interface FindOneManutenceRequest {
     id: string
 }
 
+@Injectable()
 export class FindOneManutenceService {
     constructor(private readonly manutenceRepository: ManutenceRepository) {}
 
