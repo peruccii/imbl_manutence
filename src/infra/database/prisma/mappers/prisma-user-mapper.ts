@@ -1,5 +1,4 @@
 import { User } from "src/application/entities/user";
-import { Role } from "src/application/enums/role.enum";
 
 export class PrismaUserMapper {
     static toPrisma(user: User) {

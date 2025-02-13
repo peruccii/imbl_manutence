@@ -10,7 +10,7 @@ export interface ManutenceProps {
   video: string;
   status_manutence: StatusManutence;
   createdAt: Date;
-  client: User;
+  user?: User;
 }
 
 export class Manutence {
@@ -18,7 +18,7 @@ export class Manutence {
   private _id: string;
 
   constructor(
-    props: Replace<ManutenceProps, { createdAt?: Date }>,
+    props: Replace<ManutenceProps, { createdAt?: Date; user?: User }>, 
     id?: string,
   ) {
     this._id = id ?? randomUUID();
@@ -27,6 +27,7 @@ export class Manutence {
       createdAt: props.createdAt ?? new Date(),
     };
   }
+
 
   public get id(): string {
     return this._id;
@@ -68,11 +69,11 @@ export class Manutence {
     return this.createdAt;
   }
 
-  public get client(): User {
-    return this.client;
+  public get user(): User {
+    return this.user;
   }
 
-  public set client(client: User) {
-    this.props.client = client;
+  public set user(user: User) {
+    this.props.user = user;
   }
 }

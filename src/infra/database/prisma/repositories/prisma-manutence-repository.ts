@@ -28,7 +28,11 @@ export class PrismaManutenceRepository implements ManutenceRepository {
   }
 
   async findMany(): Promise<Manutence[] | []> {
-    const manutences = await this.prisma.manutence.findMany();
+    const manutences = await this.prisma.manutence.findMany({
+      include: {
+        user: true
+      }
+    });
 
     return manutences.map((manutence) => {
       return PrismaManutenceMapper.toDomain(manutence);
