@@ -8,7 +8,7 @@ import { UserNotFoundError } from 'src/application/errors/user-not-found.errors'
 import { UserNotFoundMessage } from 'src/application/messages/user-not-found';
 import { Pagination } from '@application/interfaces/pagination';
 import { FiltersManutence } from '@application/interfaces/filters-manutence';
-import { PrismaHistoryManutenceMapper } from '../mappers/prisma-history-manutence-mapper';
+import { PrismaHistoryManutenceMapper, IHistoryInterface } from '../mappers/prisma-history-manutence-mapper';
 import { MANUTENCE_CREATED } from '@application/utils/constants';
 import { randomUUID } from 'crypto';
 import { HistoryManutence } from '@application/entities/history_manutence';
@@ -56,7 +56,20 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         data: raw,
       });
     
-      const rawManutence = PrismaHistoryManutenceMapper.toPrisma(manutence, createdManutence.id)
+      //todo: factory here
+      // const rs = makeCreatedManutenceHistory(manutence, raw)
+        
+      const obj: IHistoryInterface = {
+        action: MANUTENCE_CREATED,
+        data: raw.createdAt,
+        manutencao: manutence,
+        usuario: manutence.user,
+        occurredAt: raw.createdAt,
+        typeUser: manutence.user.typeUser,
+        id: randomUUID()
+      }
+
+      const rawManutence = PrismaHistoryManutenceMapper.toPrisma(obj, createdManutence.id)
       await prisma.historicoManutencao.create({
         data: rawManutence,
       });
@@ -64,7 +77,15 @@ export class PrismaManutenceRepository implements ManutenceRepository {
   }
 
   async delete(id: string) {
-    await this.prisma.manutence.delete({ where: { id: id } });
+    await this.prisma.$transaction(async (prisma) => {
+      await prisma.manutence.delete({ where: { id: id } })
+      await prisma.historicoManutencao.update({
+        where: {id: id},
+        data: {
+          action: 'DELETE MANUTENCE'
+        }
+      })
+    })
   }
 
   async findMany(pagination: Pagination): Promise<Manutence[] | []> {

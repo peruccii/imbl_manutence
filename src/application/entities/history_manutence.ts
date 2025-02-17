@@ -72,4 +72,12 @@ export class HistoryManutence {
       public set typeUser(typeUser: Role) {
          this.props.typeUser = typeUser;
       }
+
+      public get occuredAt(): Date {
+        return this.occuredAt;
+      }
+
+      public set occuredAt(occuredAt: Date) {
+         this.props.occuredAt = occuredAt;
+      }
 }
