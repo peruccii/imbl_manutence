@@ -4,10 +4,14 @@ import { makeManutenceFactory } from '../factories/manutence-factory';
 import { UserNotFoundMessage } from '../messages/user-not-found';
 import { UserRepository } from '../repositories/user-repository';
 import { CreateManutenceRequest } from '../interfaces/manutence-create-request';
+import { ManutenceRepository } from '@application/repositories/manutence-repository';
 
 @Injectable()
 export class ManutenceCreateService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository, 
+    private readonly manutenceRepository: ManutenceRepository
+  ) {}
 
   async execute(request_manutence: CreateManutenceRequest) {
     const client = await this.userRepository.findOne(
@@ -20,6 +24,7 @@ export class ManutenceCreateService {
       return;
     }
 
-    makeManutenceFactory({ ...request_manutence, client: client });
+    const manutence = makeManutenceFactory({ ...request_manutence, client: client });
+    this.manutenceRepository.create(manutence)
   }
 }

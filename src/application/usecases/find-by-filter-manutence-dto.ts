@@ -1,11 +1,11 @@
 import { FiltersManutence } from '@application/interfaces/filters-manutence';
+import { Pagination } from '@application/interfaces/pagination';
 import { ManutenceRepository } from '@application/repositories/manutence-repository';
-import { ManutenceFiltersDto } from '@infra/http/dto/find-by-filter-manutence-dto';
 
 export class FindManutenceByFilters {
   constructor(private readonly manutenceRepository: ManutenceRepository) {}
 
-  async execute(filters: FiltersManutence) {
-    return await this.manutenceRepository.findByFilters(filters);
+  async execute(filters: FiltersManutence, pagination: Pagination) {
+    return await this.manutenceRepository.findByFilters(filters, pagination);
   }
 }

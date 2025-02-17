@@ -7,5 +7,5 @@ export class ManutenceFiltersDto {
     message:
       'status_manutence deve ser PENDING, IN_PROGRESS, COMPLETED ou CANCELED',
   })
-  status_manutence?: StatusManutence;
+  status_manutence?: StatusManutence[];
 }

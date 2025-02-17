@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { ManutenceRepository } from 'src/application/repositories/manutence-repository';
+import { 
+   ManutenceRepository } from 'src/application/repositories/manutence-repository';
 import { Manutence } from 'src/application/entities/manutence';
 import { PrismaManutenceMapper } from '../mappers/prisma-manutence-mapper';
 import { UserNotFoundError } from 'src/application/errors/user-not-found.errors';
 import { UserNotFoundMessage } from 'src/application/messages/user-not-found';
-import { FiltersManutence } from '@application/interfaces/filters-manutence';
 import { Pagination } from '@application/interfaces/pagination';
+import { FiltersManutence } from '@application/interfaces/filters-manutence';
+import { PrismaHistoryManutenceMapper } from '../mappers/prisma-history-manutence-mapper';
+import { MANUTENCE_CREATED } from '@application/utils/constants';
+import { randomUUID } from 'crypto';
+import { HistoryManutence } from '@application/entities/history_manutence';
 
 @Injectable()
 export class PrismaManutenceRepository implements ManutenceRepository {
@@ -46,10 +51,15 @@ export class PrismaManutenceRepository implements ManutenceRepository {
 
   async create(manutence: Manutence): Promise<void> {
     const raw = PrismaManutenceMapper.toPrisma(manutence);
-    await this.prisma.manutence.create({
-      data: {
-        ...raw,
-      },
+    await this.prisma.$transaction(async (prisma) => {
+      const createdManutence = await prisma.manutence.create({
+        data: raw,
+      });
+    
+      const rawManutence = PrismaHistoryManutenceMapper.toPrisma(manutence, createdManutence.id)
+      await prisma.historicoManutencao.create({
+        data: rawManutence,
+      });
     });
   }
 
@@ -57,8 +67,10 @@ export class PrismaManutenceRepository implements ManutenceRepository {
     await this.prisma.manutence.delete({ where: { id: id } });
   }
 
-  async findMany(): Promise<Manutence[] | []> {
+  async findMany(pagination: Pagination): Promise<Manutence[] | []> {
     const manutences = await this.prisma.manutence.findMany({
+      skip: pagination.skip,
+      take: pagination.limit,
       include: {
         user: true,
       },

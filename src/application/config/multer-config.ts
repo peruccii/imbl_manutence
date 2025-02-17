@@ -22,7 +22,6 @@ const multerConfig = {
         path.parse(file.originalname).name.replace(/\s/g, '') +
         '-' +
         randomUUID(); // change to v4 uuid
-      const filePath = ``;
       const extension = path.parse(file.originalname).ext;
       cb(null, `${fileName}${extension}`);
     },

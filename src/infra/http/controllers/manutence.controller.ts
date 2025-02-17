@@ -75,8 +75,8 @@ export class ManutenceController {
   @Get('all')
   @UseGuards(AuthGuard)
   @Roles(Role.USER, Role.ADMIN)
-  async getAllManutences() {
-    const { manutences } = await this.manutencesGetAll_service.execute();
+  async getAllManutences(@Query() pagination: PaginationDto,) {
+    const { manutences } = await this.manutencesGetAll_service.execute(pagination);
 
     return manutences.map((manutence: Manutence) => {
       return ManutenceViewModel.toGetFormatHttp(manutence);
@@ -89,7 +89,7 @@ export class ManutenceController {
     @Query() filters: ManutenceFiltersDto,
     @Query() pagination: PaginationDto,
   ) {
-    return this.manutenceGetByFilters_service.execute(filters);
+    return this.manutenceGetByFilters_service.execute(filters, pagination);
   }
 
   @Delete('delete/:id')
