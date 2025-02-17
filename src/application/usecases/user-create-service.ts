@@ -25,6 +25,6 @@ export class UserCreateService {
       password: await hashPassword(request.password),
     });
 
-    PrismaUserMapper.toPrisma(user);
+    await this.userRepository.create(user);
   }
 }

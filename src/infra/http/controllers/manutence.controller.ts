@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UploadedFile,
   UploadedFiles,
   UseGuards,
@@ -25,6 +26,9 @@ import { ManutenceViewModel } from '../view-models/manutence-view-model';
 import { FindAllManutences } from 'src/application/usecases/find-all-manutences-service';
 import { Manutence } from 'src/application/entities/manutence';
 import { DeleteManutenceService } from 'src/application/usecases/delete-manutence-service';
+import { ManutenceFiltersDto } from '../dto/find-by-filter-manutence-dto';
+import { FindManutenceByFilters } from '@application/usecases/find-by-filter-manutence-dto';
+import { PaginationDto } from '../dto/pagination-dto';
 
 @Controller('manutence')
 export class ManutenceController {
@@ -33,7 +37,8 @@ export class ManutenceController {
     private readonly fileUploadService: FileUploadService,
     private readonly manutenceGetOne_service: FindOneManutenceService,
     private readonly manutencesGetAll_service: FindAllManutences,
-    private readonly manutenceDelete_service: DeleteManutenceService
+    private readonly manutenceDelete_service: DeleteManutenceService,
+    private readonly manutenceGetByFilters_service: FindManutenceByFilters,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -46,10 +51,9 @@ export class ManutenceController {
     @UploadedFiles() photos: MulterFilesS3,
     @UploadedFile() video: MulterFileS3,
   ) {
-
     const uploadedFiles = {
       photos: photos.map((file) => file.location),
-      video: video.location,  
+      video: video.location,
     };
 
     request.photos = uploadedFiles.photos;
@@ -63,26 +67,35 @@ export class ManutenceController {
   @Get(':id')
   @Roles(Role.USER, Role.ADMIN)
   async getManutence(@Param('id') param: FindOneParams) {
-    const { manutence } = await this.manutenceGetOne_service.execute(param)
+    const { manutence } = await this.manutenceGetOne_service.execute(param);
 
-    return ManutenceViewModel.toGetFormatHttp(manutence)
+    return ManutenceViewModel.toGetFormatHttp(manutence);
   }
 
   @Get('all')
   @UseGuards(AuthGuard)
   @Roles(Role.USER, Role.ADMIN)
   async getAllManutences() {
-    const { manutences } = await this.manutencesGetAll_service.execute()
+    const { manutences } = await this.manutencesGetAll_service.execute();
 
     return manutences.map((manutence: Manutence) => {
-      return ManutenceViewModel.toGetFormatHttp(manutence)
-    })
+      return ManutenceViewModel.toGetFormatHttp(manutence);
+    });
+  }
+
+  @Get('filters')
+  @Roles(Role.USER, Role.ADMIN)
+  async getManutencesByFilters(
+    @Query() filters: ManutenceFiltersDto,
+    @Query() pagination: PaginationDto,
+  ) {
+    return this.manutenceGetByFilters_service.execute(filters);
   }
 
   @Delete('delete/:id')
   @UseGuards(AuthGuard)
   @Roles(Role.USER, Role.ADMIN)
   async deleteManutence(@Param('id') param: string) {
-    return await this.manutenceDelete_service.execute(param)
+    return await this.manutenceDelete_service.execute(param);
   }
 }

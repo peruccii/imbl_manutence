@@ -1,4 +1,4 @@
 export class AuthResponseDto {
-    access_token: string
-    expiresIn: number
+  access_token: string;
+  expiresIn: number;
 }

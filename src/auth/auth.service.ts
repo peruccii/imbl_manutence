@@ -16,25 +16,27 @@ export class AuthService {
   constructor(
     private readonly usersService: UserRepository,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {
     this.jwtService = jwtService;
-    this.jwtExpirationTimeInSeconds = +this.configService.get<number>('JWT_EXPIRATION_TIME')!;
+    this.jwtExpirationTimeInSeconds = +this.configService.get<number>(
+      'JWT_EXPIRATION_TIME',
+    )!;
   }
 
-  async signIn(
-    username: string,
-    pass: string,
-  ): Promise<AuthResponseDto> {
+  async signIn(username: string, pass: string): Promise<AuthResponseDto> {
     const user = await this.usersService.findOne(username);
-    
-    if (!user || !compare(pass, user?.password)) {
+
+    if (!user || !(await compare(pass, user?.password))) {
       throw new UnauthorizedException();
     }
 
     const payload = { username: user.name, sub: user.id, role: user.typeUser };
     const accessToken: string = await this.jwtService.signAsync(payload);
 
-    return { access_token: accessToken, expiresIn: this.jwtExpirationTimeInSeconds };
+    return {
+      access_token: accessToken,
+      expiresIn: this.jwtExpirationTimeInSeconds,
+    };
   }
 }

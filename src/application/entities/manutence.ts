@@ -18,7 +18,7 @@ export class Manutence {
   private _id: string;
 
   constructor(
-    props: Replace<ManutenceProps, { createdAt?: Date; user?: User }>, 
+    props: Replace<ManutenceProps, { createdAt?: Date; user?: User }>,
     id?: string,
   ) {
     this._id = id ?? randomUUID();
@@ -27,7 +27,6 @@ export class Manutence {
       createdAt: props.createdAt ?? new Date(),
     };
   }
-
 
   public get id(): string {
     return this._id;

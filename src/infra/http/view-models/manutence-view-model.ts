@@ -1,4 +1,4 @@
-import { Manutence } from "src/application/entities/manutence";
+import { Manutence } from 'src/application/entities/manutence';
 
 export class ManutenceViewModel {
   static toGetFormatHttp(manutence: Manutence) {
