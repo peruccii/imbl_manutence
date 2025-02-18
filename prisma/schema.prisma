@@ -12,6 +12,7 @@ model User {
   name        String
   telephone   String?
   email       String      @unique
+  createdAt DateTime
   typeUser    Role
   manutences  Manutence[]
   messages    Chat[]
@@ -53,18 +54,10 @@ model Chat {
   user            User     @relation(fields: [userId], references: [id])
 }
 
-model NotificationsManutence {
-  id                    String    @id @unique
-  count_notifications   Int
-  readAt                DateTime
-  createdAt             DateTime
-}
-
 model HistoricoManutencao {
   id            String      @id @unique
   data          DateTime    @default(now())
   usuarioId     String
-  typeUser      Role
   action        String
   manutenceId   String
   manutencao    Manutence  @relation(fields: [manutenceId], references: [id])

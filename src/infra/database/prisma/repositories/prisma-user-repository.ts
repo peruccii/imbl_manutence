@@ -7,15 +7,23 @@ import { User } from 'src/application/entities/user';
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
   constructor(private prisma: PrismaService) {}
-  findOne(id: string): Promise<User | null> {
-    throw new Error('Method not implemented.');
-  }
 
   async create(user: User): Promise<void> {
     const raw = PrismaUserMapper.toPrisma(user);
     await this.prisma.user.create({
       data: raw,
     });
+  }
+
+  async findOne(id: string): Promise<User | null> {
+     const user = await this.prisma.user.findUnique({
+         where: { id: id },
+         include: {
+           manutences: true,
+         },
+       });
+       user.
+       return PrismaUserMapper.toDomain(user);
   }
 
   async delete(id: string) {

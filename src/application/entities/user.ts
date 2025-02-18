@@ -13,14 +13,14 @@ export interface UserProps {
   createdAt: Date;
   typeUser: Role;
   password: string;
-  manutence: Manutence[];
+  manutences: Manutence[];
 }
 
 export class User {
   private props: UserProps;
   private _id: string;
 
-  constructor(props: Replace<UserProps, { createdAt?: Date }>, id?: string) {
+  constructor(props: Replace<UserProps, { createdAt?: Date, password: string }>, id?: string) {
     this._id = id ?? randomUUID();
     this.props = {
       ...props,
@@ -70,5 +70,21 @@ export class User {
 
   public set typeUser(typeUser: Role) {
     this.props.typeUser = typeUser;
+  }
+
+  public get createdAt(): Date {
+    return this.createdAt;
+  }
+
+  public set createdAt(createdAt: Date) {
+    this.props.createdAt = createdAt;
+  }
+
+  public get manutences(): Manutence[] {
+    return this.manutences;
+  }
+
+  public set manutences(manutences: Manutence[]) {
+    this.props.manutences = manutences;
   }
 }

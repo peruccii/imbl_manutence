@@ -4,10 +4,12 @@ import { UserRepository } from 'src/application/repositories/user-repository';
 import { PrismaService } from './prisma.service';
 import { PrismaUserRepository } from './repositories/prisma-user-repository';
 import { PrismaManutenceRepository } from './repositories/prisma-manutence-repository';
+import { RequestContext } from '@application/utils/request-context';
 
 @Module({
   providers: [
     PrismaService,
+    RequestContext,
     {
       provide: UserRepository,
       useClass: PrismaUserRepository,
@@ -17,6 +19,6 @@ import { PrismaManutenceRepository } from './repositories/prisma-manutence-repos
       useClass: PrismaManutenceRepository,
     },
   ],
-  exports: [UserRepository, ManutenceRepository],
+  exports: [UserRepository, ManutenceRepository, PrismaService],
 })
 export class PrismaModule {}

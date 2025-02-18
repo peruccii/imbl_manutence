@@ -3,6 +3,7 @@ import { StatusManutence } from '../enums/StatusManutence';
 import { Message } from '../fieldsValidations/message';
 import { Replace } from '../helpers/replace';
 import { User } from './user';
+import { HistoricoManutencao } from '@prisma/client';
 
 export interface ManutenceProps {
   message: Message;
@@ -11,6 +12,7 @@ export interface ManutenceProps {
   status_manutence: StatusManutence;
   createdAt: Date;
   user?: User;
+  historico?: HistoricoManutencao
 }
 
 export class Manutence {
@@ -74,5 +76,13 @@ export class Manutence {
 
   public set user(user: User) {
     this.props.user = user;
+  }
+
+  public get historico(): HistoricoManutencao {
+    return this.historico;
+  }
+
+  public set historico(historico: HistoricoManutencao) {
+    this.props.historico = historico;
   }
 }

@@ -7,10 +7,10 @@ import { Role } from "@application/enums/role.enum";
 export interface HistoryManutenceProps {
     data: Date
     action: string
-    user?: User
-    manutence: Manutence
+    usuario: User
+    manutencao: Manutence
     typeUser: Role
-    occuredAt: Date
+    occurredAt: Date
 }
 
 
@@ -19,13 +19,13 @@ export class HistoryManutence {
      private _id: string;
    
      constructor(
-       props: Replace<HistoryManutenceProps, { occuredAt?: Date; user?: User }>,
+       props: Replace<HistoryManutenceProps, { occuredAt?: Date }>,
        id?: string,
      ) {
        this._id = id ?? randomUUID();
        this.props = {
          ...props,
-         occuredAt: props.occuredAt ?? new Date(),
+         occurredAt: props.occuredAt ?? new Date(),
        };
      }
    
@@ -49,20 +49,20 @@ export class HistoryManutence {
          this.props.action = action;
       }
 
-      public get user(): User {
-        return this.user;
+      public get usuario(): User {
+        return this.usuario;
       }
 
-      public set user(user: User) {
-         this.props.user = user;
+      public set usuario(usuario: User) {
+         this.props.usuario = usuario;
       }
 
-      public get manutence(): Manutence {
-        return this.manutence;
+      public get manutencao(): Manutence {
+        return this.manutencao;
       }
 
-      public set manutence(manutence: Manutence) {
-         this.props.manutence = manutence;
+      public set manutencao(manutencao: Manutence) {
+         this.props.manutencao = manutencao;
       }
 
       public get typeUser(): Role {
@@ -77,7 +77,7 @@ export class HistoryManutence {
         return this.occuredAt;
       }
 
-      public set occuredAt(occuredAt: Date) {
-         this.props.occuredAt = occuredAt;
+      public set occurredAt(occurredAt: Date) {
+         this.props.occurredAt = occurredAt;
       }
 }

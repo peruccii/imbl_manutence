@@ -9,7 +9,6 @@ import { AuthResponseDto } from './auth-response.dto';
 import { compare } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 
-@Dependencies(JwtService)
 @Injectable()
 export class AuthService {
   private jwtExpirationTimeInSeconds: number;

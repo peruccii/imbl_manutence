@@ -8,14 +8,17 @@ import { UserNotFoundError } from 'src/application/errors/user-not-found.errors'
 import { UserNotFoundMessage } from 'src/application/messages/user-not-found';
 import { Pagination } from '@application/interfaces/pagination';
 import { FiltersManutence } from '@application/interfaces/filters-manutence';
-import { PrismaHistoryManutenceMapper, IHistoryInterface } from '../mappers/prisma-history-manutence-mapper';
-import { MANUTENCE_CREATED } from '@application/utils/constants';
-import { randomUUID } from 'crypto';
-import { HistoryManutence } from '@application/entities/history_manutence';
+import { PrismaHistoryManutenceMapper } from '../mappers/prisma-history-manutence-mapper';
+import { ActionHistory } from '@application/enums/action.enum';
+import { RequestContext } from '@application/utils/request-context';
+import { StatusManutence } from '@application/enums/StatusManutence';
 
 @Injectable()
 export class PrismaManutenceRepository implements ManutenceRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private requestContext: RequestContext,
+    private prisma: PrismaService
+  ) {}
 
   async findByFilters(
     filters: FiltersManutence,
@@ -55,21 +58,12 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       const createdManutence = await prisma.manutence.create({
         data: raw,
       });
-    
-      //todo: factory here
-      // const rs = makeCreatedManutenceHistory(manutence, raw)
-        
-      const obj: IHistoryInterface = {
-        action: MANUTENCE_CREATED,
-        data: raw.createdAt,
-        manutencao: manutence,
-        usuario: manutence.user,
-        occurredAt: raw.createdAt,
-        typeUser: manutence.user.typeUser,
-        id: randomUUID()
-      }
 
-      const rawManutence = PrismaHistoryManutenceMapper.toPrisma(obj, createdManutence.id)
+      const rawManutence = PrismaHistoryManutenceMapper.toPrisma(
+        ActionHistory.MANUTENCE_CREATED,
+        manutence, 
+        createdManutence.id
+      )
       await prisma.historicoManutencao.create({
         data: rawManutence,
       });
@@ -79,12 +73,28 @@ export class PrismaManutenceRepository implements ManutenceRepository {
   async delete(id: string) {
     await this.prisma.$transaction(async (prisma) => {
       await prisma.manutence.delete({ where: { id: id } })
-      await prisma.historicoManutencao.update({
-        where: {id: id},
-        data: {
-          action: 'DELETE MANUTENCE'
-        }
-      })
+      const rs = await prisma.historicoManutencao.findFirst({
+        where: { id: id },
+        include: { manutencao: true, usuario: true }
+      });
+      if (rs) {
+        const userId = this.requestContext.get('userId');
+        await prisma.historicoManutencao.create({
+          data: {
+            id: rs.id,
+            action: ActionHistory.MANUTENCE_DELETED, 
+            data: rs.data,
+            manutencao: {
+              connect: { id: rs.manutencao.id }
+            },
+            usuario: {
+              connect: { id: userId }
+            },
+          },
+        });
+      } else {
+        return
+      }
     })
   }
 
@@ -100,5 +110,12 @@ export class PrismaManutenceRepository implements ManutenceRepository {
     return manutences.map((manutence) => {
       return PrismaManutenceMapper.toDomain(manutence);
     });
+  }
+
+  async countNewManutences(status_manutence: StatusManutence): Promise<number> {
+    const count = await this.prisma.manutence.count({
+      where: { status_manutence: status_manutence }
+    })
+    return count
   }
 }

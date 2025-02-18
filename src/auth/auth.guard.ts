@@ -1,3 +1,4 @@
+import { RequestContext } from '@application/utils/request-context';
 import {
   CanActivate,
   ExecutionContext,
@@ -14,6 +15,7 @@ export class AuthGuard implements CanActivate {
   private jwtSecret: string
   constructor
   (
+    private readonly requestContext: RequestContext,
     private jwtService: JwtService,
     private readonly configService: ConfigService
   ) {
@@ -30,6 +32,9 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.jwtSecret,
       });
+
+      this.requestContext.set('userId', payload.sub);
+
       request['user'] = payload;
     } catch {
       throw new UnauthorizedException();

@@ -29,6 +29,8 @@ import { DeleteManutenceService } from 'src/application/usecases/delete-manutenc
 import { ManutenceFiltersDto } from '../dto/find-by-filter-manutence-dto';
 import { FindManutenceByFilters } from '@application/usecases/find-by-filter-manutence-dto';
 import { PaginationDto } from '../dto/pagination-dto';
+import { GetCountNewManutences } from '@application/usecases/count-new-manutences-service';
+import { StatusManutence } from '@application/enums/StatusManutence';
 
 @Controller('manutence')
 export class ManutenceController {
@@ -38,6 +40,7 @@ export class ManutenceController {
     private readonly manutenceGetOne_service: FindOneManutenceService,
     private readonly manutencesGetAll_service: FindAllManutences,
     private readonly manutenceDelete_service: DeleteManutenceService,
+    private readonly manutenceGetAllNewCount_service: GetCountNewManutences,
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
   ) {}
 
@@ -75,7 +78,7 @@ export class ManutenceController {
   @Get('all')
   @UseGuards(AuthGuard)
   @Roles(Role.USER, Role.ADMIN)
-  async getAllManutences(@Query() pagination: PaginationDto,) {
+  async getAllManutences(@Query() pagination: PaginationDto) {
     const { manutences } = await this.manutencesGetAll_service.execute(pagination);
 
     return manutences.map((manutence: Manutence) => {
@@ -97,5 +100,11 @@ export class ManutenceController {
   @Roles(Role.USER, Role.ADMIN)
   async deleteManutence(@Param('id') param: string) {
     return await this.manutenceDelete_service.execute(param);
+  }
+
+  @Get('manutences_notifications')
+  @Roles(Role.USER, Role.ADMIN)
+  async getCountNewManutences() {
+    return await this.manutenceGetAllNewCount_service.execute(StatusManutence.CREATED)
   }
 }

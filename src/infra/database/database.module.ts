@@ -1,6 +1,4 @@
 import { Module } from "@nestjs/common";
-import { UserModule } from "./user/user.module";
-import { ManutenceModule } from "./manutence/manutence.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { ConfigModule } from "@nestjs/config";
 
@@ -11,13 +9,10 @@ import { ConfigModule } from "@nestjs/config";
             envFilePath: '.env',
 }),
         PrismaModule,
-        UserModule,
-        ManutenceModule
+        
     ],
     exports: [
         PrismaModule,
-        UserModule,
-        ManutenceModule
     ],
 })
 

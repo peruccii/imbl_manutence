@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { makeUserFactory } from '../factories/user-factory';
 import { CreateUserRequest } from '../interfaces/user-create-request';
-import { PrismaUserMapper } from 'src/infra/database/prisma/mappers/prisma-user-mapper';
 import { hashPassword } from '../hash/hash_password';
 import { UserAlreadyExists } from '../errors/user-already-exists';
 import { UserAlreadyExistsMessage } from '../messages/user-already-exsits';
@@ -25,6 +24,6 @@ export class UserCreateService {
       password: await hashPassword(request.password),
     });
 
-    await this.userRepository.create(user);
+    return await this.userRepository.create(user);
   }
 }
