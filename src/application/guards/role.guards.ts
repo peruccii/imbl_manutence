@@ -18,10 +18,10 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    interface IUser { user: User }
+    interface IUser { body: User }
 
-    const { user } = (context.switchToHttp().getRequest() as IUser);
-
-    return requiredRoles.some((role) => user.typeUser.includes(role));
+    const { body } = (context.switchToHttp().getRequest() as IUser);
+    console.log(body)
+    return requiredRoles.some((role) => body.typeUser.includes(role));
   }
 }
