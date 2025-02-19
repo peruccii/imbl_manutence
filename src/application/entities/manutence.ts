@@ -3,7 +3,7 @@ import { StatusManutence } from '../enums/StatusManutence';
 import { Message } from '../fieldsValidations/message';
 import { Replace } from '../helpers/replace';
 import { User } from './user';
-import { HistoricoManutencao } from '@prisma/client';
+import { HistoryManutence } from './history_manutence';
 
 export interface ManutenceProps {
   message: Message;
@@ -11,8 +11,9 @@ export interface ManutenceProps {
   video: string;
   status_manutence: StatusManutence;
   createdAt: Date;
+  userId: string;
   user?: User;
-  historico?: HistoricoManutencao
+  historico?: HistoryManutence
 }
 
 export class Manutence {
@@ -35,15 +36,23 @@ export class Manutence {
   }
 
   public get message(): Message {
-    return this.message;
+    return this.props.message;
   }
 
   public set message(message: Message) {
     this.props.message = message;
   }
 
+  public get userId(): string {
+    return this.props.userId;
+  }
+
+  public set userId(userId: string) {
+    this.props.userId = userId;
+  }
+
   public get video(): string {
-    return this.video;
+    return this.props.video;
   }
 
   public set video(video: string) {
@@ -51,7 +60,7 @@ export class Manutence {
   }
 
   public get photos(): string[] {
-    return this.photos;
+    return this.props.photos;
   }
 
   public set photos(photos: string[]) {
@@ -59,7 +68,7 @@ export class Manutence {
   }
 
   public get status_manutence(): StatusManutence {
-    return this.status_manutence;
+    return this.props.status_manutence;
   }
 
   public set status_manutence(status_manutence: StatusManutence) {
@@ -67,22 +76,22 @@ export class Manutence {
   }
 
   public get createdAt(): Date {
-    return this.createdAt;
+    return this.props.createdAt;
   }
 
-  public get user(): User {
-    return this.user;
+  public get user(): User | undefined {
+    return this.props.user;
   }
 
   public set user(user: User) {
     this.props.user = user;
   }
 
-  public get historico(): HistoricoManutencao {
-    return this.historico;
+  public get historico(): HistoryManutence | undefined {
+    return this.props.historico;
   }
 
-  public set historico(historico: HistoricoManutencao) {
+  public set historico(historico: HistoryManutence) {
     this.props.historico = historico;
   }
 }
