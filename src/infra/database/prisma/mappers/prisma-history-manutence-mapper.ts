@@ -12,7 +12,7 @@ export class PrismaHistoryManutenceMapper {
                 connect: { id: id }
             },
             usuario: {
-                connect: { id: manutence.user.id }
+                connect: { id: manutence.userId }
             }
         }
     }

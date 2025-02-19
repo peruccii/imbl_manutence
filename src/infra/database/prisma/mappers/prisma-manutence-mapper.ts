@@ -22,7 +22,7 @@ export class PrismaManutenceMapper {
       status_manutence: manutence.status_manutence,
       createdAt: manutence.createdAt,
       user: {
-        connect: { id: manutence.user.id },
+        connect: { id: manutence.userId },
       },
     };
   }
@@ -33,6 +33,7 @@ export class PrismaManutenceMapper {
         photos: convertJsonValueToStringArray(rawManutence.photos),
         status_manutence: rawManutence.status_manutence as StatusManutence,
         video: rawManutence.video,
+        userId: rawManutence.userId,
         createdAt: rawManutence.createdAt,
       },
       rawManutence.id,
