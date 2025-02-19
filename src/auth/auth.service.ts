@@ -13,7 +13,7 @@ import { ConfigService } from '@nestjs/config';
 export class AuthService {
   private jwtExpirationTimeInSeconds: number;
   constructor(
-    private readonly usersService: UserRepository,
+    private readonly usersRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
@@ -23,8 +23,8 @@ export class AuthService {
     )!;
   }
 
-  async signIn(username: string, pass: string): Promise<AuthResponseDto> {
-    const user = await this.usersService.findOne(username);
+  async signIn(email: string, pass: string): Promise<AuthResponseDto> {
+    const user = await this.usersRepository.findByEmail(email);
 
     if (!user || !(await compare(pass, user?.password))) {
       throw new UnauthorizedException();
