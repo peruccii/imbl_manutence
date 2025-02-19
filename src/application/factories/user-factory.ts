@@ -10,9 +10,9 @@ export function makeUserFactory(override: Override) {
   return new User({
     name: new Name(override.name),
     email: new Email(override.email),
-    telefone: override.telefone ? new Telefone(override.telefone) : null,
+    telephone: override.telephone ? new Telefone(override.telephone) : null,
     typeUser: override.typeUser,
     password: override.password,
-    manutence: [],
+    manutences: [],
   });
 }

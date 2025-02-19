@@ -1,8 +1,8 @@
 export class Telefone {
-  private readonly telefone: string;
+  private readonly telephone: string;
 
   public get value(): string {
-    return this.telefone;
+    return this.telephone;
   }
 
   private validateTelefoneRegex(telefone: string): boolean {
@@ -10,11 +10,11 @@ export class Telefone {
     return telefoneRegex.test(telefone);
   }
 
-  constructor(telefone: string) {
-    const isTelefoneRegexValid = this.validateTelefoneRegex(telefone);
+  constructor(telephone: string) {
+    const isTelefoneRegexValid = this.validateTelefoneRegex(telephone);
 
     if (!isTelefoneRegexValid) throw new Error('TELEFONE INVALID');
 
-    this.telefone = telefone;
+    this.telephone = telephone;
   }
 }

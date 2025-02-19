@@ -3,6 +3,7 @@ import { UserRepository } from 'src/application/repositories/user-repository';
 import { PrismaService } from '../prisma.service';
 import { PrismaUserMapper } from '../mappers/prisma-user-mapper';
 import { User } from 'src/application/entities/user';
+import { Manutence } from '@application/entities/manutence';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -22,8 +23,13 @@ export class PrismaUserRepository implements UserRepository {
            manutences: true,
          },
        });
-       user.
-       return PrismaUserMapper.toDomain(user);
+
+      if (user) {
+        const manutences = user.manutences
+        return PrismaUserMapper.toDomain(user, manutences as unknown as Manutence[]);
+      }
+
+      return null
   }
 
   async delete(id: string) {
