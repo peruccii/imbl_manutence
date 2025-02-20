@@ -25,6 +25,6 @@ export class ManutenceCreateService {
     }
 
     const manutence = makeManutenceFactory({ ...request_manutence, client: client });
-    this.manutenceRepository.create(manutence)
+    return this.manutenceRepository.create(manutence)
   }
 }

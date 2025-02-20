@@ -23,10 +23,20 @@ export class AuthService {
     )!;
   }
 
+  async validateToken(token: string) {
+    try {
+        const payload = this.jwtService.verify(token);
+        const user = await this.usersRepository.findOne(payload.userId);
+        return user;
+    } catch (err) {
+        return null;  
+    }
+  }
+ 
   async signIn(email: string, pass: string): Promise<AuthResponseDto> {
     const user = await this.usersRepository.findByEmail(email);
 
-    if (!user || !(await compare(pass, user?.password))) {
+    if (!user || !(await compare(pass, user?.password.value))) {
       throw new UnauthorizedException();
     }
 
