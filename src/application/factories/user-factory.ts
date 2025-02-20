@@ -1,3 +1,4 @@
+import { Password } from '@application/fieldsValidations/password';
 import { User } from '../entities/user';
 import { Email } from '../fieldsValidations/email';
 import { Name } from '../fieldsValidations/name';
@@ -12,7 +13,7 @@ export function makeUserFactory(override: Override) {
     email: new Email(override.email),
     telephone: override.telephone ? new Telefone(override.telephone) : null,
     typeUser: override.typeUser,
-    password: override.password,
+    password: new Password(override.password),
     manutences: [],
   });
 }

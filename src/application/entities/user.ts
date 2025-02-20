@@ -5,6 +5,7 @@ import { Name } from '../fieldsValidations/name';
 import { Telefone } from '../fieldsValidations/telefone';
 import { Manutence } from './manutence';
 import { Role } from '../enums/role.enum';
+import { Password } from '@application/fieldsValidations/password';
 
 export interface UserProps {
   name: Name;
@@ -12,7 +13,7 @@ export interface UserProps {
   email: Email;
   createdAt: Date;
   typeUser: Role;
-  password: string;
+  password: Password;
   manutences: Manutence[] | [];
 }
 
@@ -40,11 +41,11 @@ export class User {
     this.props.name = name;
   }
 
-  public get password(): string {
+  public get password(): Password {
     return this.props.password;
   }
 
-  public set password(password: string) {
+  public set password(password: Password) {
     this.props.password = password;
   }
 

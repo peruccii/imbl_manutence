@@ -5,6 +5,7 @@ import { Telefone } from '@application/fieldsValidations/telefone';
 import { Name } from '@application/fieldsValidations/name';
 import { Role } from '@application/enums/role.enum';
 import { Manutence } from '@application/entities/manutence';
+import { Password } from '@application/fieldsValidations/password';
 
 export class PrismaUserMapper {
   static toPrisma(user: User) {
@@ -13,7 +14,7 @@ export class PrismaUserMapper {
       name: user.name.value,
       email: user.email.value,
       telephone: user.telephone ? user.telephone.value : null,
-      password: user.password,
+      password: user.password.value,
       createdAt: user.createdAt,
       typeUser: user.typeUser,
     };
@@ -28,7 +29,7 @@ export class PrismaUserMapper {
         createdAt: rawUser.createdAt,
         typeUser: rawUser.typeUser as Role,
         manutences: manutences,
-        password: rawUser.password
+        password: new Password(rawUser.password)
       },
       rawUser.id
     )
