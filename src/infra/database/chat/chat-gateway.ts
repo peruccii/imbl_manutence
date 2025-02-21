@@ -14,7 +14,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() server: Server
 
     private async authenticateClient(client: Socket) {
-        const token = client.handshake.headers.authorization?.split(' ')[1];  // O token é geralmente enviado no header Authorization
+        const token = client.handshake.headers.authorization?.split(' ')[1];  
         if (!token) {
             throw new WsException('Token JWT não fornecido');
         }

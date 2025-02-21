@@ -1,11 +1,13 @@
 import { Replace } from "@application/helpers/replace";
 import { randomUUID } from "crypto";
+import { User } from "./user";
+import { Message } from "./message";
 
 export interface ChatRoomProps {
-    content: string 
+    name: string 
     createdAt: Date
-    senderId: string
-    chatRoomId: string
+    users: User[]
+    messages: Message[]
 }
 
 export class ChatRoom {
@@ -27,29 +29,29 @@ export class ChatRoom {
            return this._id;
          }
        
-         public get content(): string {
-            return this.content;
+         public get name(): string {
+            return this.name;
           }
     
-          public set content(content: string) {
-             this.props.content = content;
+          public set name(name: string) {
+            this.props.name = name;
+         }
+
+          public set messages(messages: Message[]) {
+             this.props.messages = messages;
           }
     
-          public get senderId(): string {
-            return this.senderId;
+          public get messages(): Message[] {
+            return this.messages;
           }
-    
-          public set senderId(senderId: string) {
-             this.props.senderId = senderId;
-          }
-    
-          public get chatRoomId(): string {
-            return this.chatRoomId;
-          }
-    
-          public set chatRoomId(chatRoomId: string) {
-             this.props.chatRoomId = chatRoomId;
-          }
+
+          public set users(users: User[]) {
+            this.props.users = users;
+         }
+   
+         public get users(): User[] {
+           return this.users;
+         }
     
           public get createdAt(): Date {
             return this.createdAt;
