@@ -1,49 +1,62 @@
-import { ChatRoom } from "@application/entities/chat_room";
-import { ChatRepository } from "@application/repositories/chat-repository";
-import { PrismaService } from "../prisma.service";
-import { PrismaChatRoomMapper } from "../mappers/prisma-chat-mapper";
+import { ChatRoom } from '@application/entities/chat_room';
+import { ChatRepository } from '@application/repositories/chat-repository';
+import { PrismaService } from '../prisma.service';
+import { RoomNotFoundError } from '@application/errors/room-not-found.error';
+import { RoomNotFoundMessage } from '@application/messages/room-not-found';
+import { Pagination } from '@application/interfaces/pagination';
+import { PrismaChatRoomMapper } from '../mappers/prisma-chat-mapper';
+import { SendMessageInterface } from '@application/interfaces/send-message';
+import { CreateChatRoomRequest } from '@application/interfaces/create-room';
+import { PrismaCreateRoomMapper } from '../mappers/prisma-create-room-mapper';
 
 export class PrismaChatRepository implements ChatRepository {
-    constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
+  async findAll(pagination: Pagination): Promise<ChatRoom[] | []> {
+    throw new Error('Method not implemented.');
+  }
+  async findAllWithMessages(pagination: Pagination): Promise<ChatRoom[] | []> {
+    throw new Error('Method not implemented.');
+  }
 
-    async sendMessage(msg: string, roomName: string, id: string): Promise<void> {
-        
-        // 1 - find room
-        const room = await this.findRoom(roomName)
+  async sendMessage(send_request: SendMessageInterface): Promise<void> {
+    const { senderId, roomName, msg } = send_request;
 
-        if (!room) {
-            throw new Error('')
-        }
+    const room = await this.findRoom(roomName);
 
-        const chatRoom = PrismaChatRoomMapper.toDomain(room)
-
-        // 2 - create messages on room finded
-        const sendMsg = await this.prismaService.message.create({
-            data: {
-                content: msg,
-                chatRoom: chatRoom,
-                senderId: id,
-            }
-        })
-        // 3 -
-        
-        throw new Error("Method not implemented.");
+    if (!room) {
+      throw new RoomNotFoundError(RoomNotFoundMessage);
     }
 
-    async findRoom(roomName: string): Promise<ChatRoom | null> {
-        //const room = await this.prismaService.chatRoom.findFirst({
-           // where: { name: roomName }
-       // })
+    const roomId = room.id;
 
-        //if (room) {
-         //   return PrismaChatRoomMapper.toDomain(room)
-       // }
+    const raw = PrismaChatRoomMapper.toPrisma(msg, senderId, roomId);
 
-        return null
+    await this.prismaService.message.create({
+      data: raw,
+    });
+  }
+
+  async findRoom(roomName: string): Promise<ChatRoom | null> {
+    const room = await this.prismaService.chatRoom.findFirst({
+      where: { name: roomName },
+      include: {
+        users: true,
+        messages: true,
+      },
+    });
+
+    if (!room) {
+      return null;
     }
 
-    createRoom(roomName: string): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
+    return PrismaChatRoomMapper.toDomain(room);
+  }
+
+  async createRoom(createRoomRequest: CreateChatRoomRequest): Promise<void> {
+    const raw = PrismaCreateRoomMapper.toPrisma(createRoomRequest);
+    await this.prismaService.chatRoom.create({
+      data: raw,
+    });
+  }
 }
