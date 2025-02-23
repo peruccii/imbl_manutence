@@ -1,5 +1,5 @@
 import { User } from 'src/application/entities/user';
-import { User as RawUser } from '@prisma/client'
+import { User as RawUser } from '@prisma/client';
 import { Email } from '@application/fieldsValidations/email';
 import { Telefone } from '@application/fieldsValidations/telefone';
 import { Name } from '@application/fieldsValidations/name';
@@ -29,9 +29,9 @@ export class PrismaUserMapper {
         createdAt: rawUser.createdAt,
         typeUser: rawUser.typeUser as Role,
         manutences: manutences,
-        password: new Password(rawUser.password)
+        password: new Password(rawUser.password),
       },
-      rawUser.id
-    )
+      rawUser.id,
+    );
   }
 }
