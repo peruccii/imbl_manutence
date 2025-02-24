@@ -1,83 +1,82 @@
-import { Replace } from "@application/helpers/replace";
-import { randomUUID } from "crypto";
-import { User } from "./user";
-import { Manutence } from "./manutence";
-import { Role } from "@application/enums/role.enum";
+import { Replace } from '@application/helpers/replace';
+import { randomUUID } from 'crypto';
+import { User } from './user';
+import { Manutence } from './manutence';
+import { Role } from '@application/enums/role.enum';
 
 export interface HistoryManutenceProps {
-    data: Date
-    action: string
-    usuario: User
-    manutencao: Manutence
-    typeUser: Role
-    occurredAt: Date
+  data: Date;
+  action: string;
+  usuario: User;
+  manutencao: Manutence;
+  typeUser: Role;
+  occurredAt: Date;
 }
 
-
 export class HistoryManutence {
-     private props: HistoryManutenceProps;
-     private _id: string;
-   
-     constructor(
-       props: Replace<HistoryManutenceProps, { occuredAt?: Date }>,
-       id?: string,
-     ) {
-       this._id = id ?? randomUUID();
-       this.props = {
-         ...props,
-         occurredAt: props.occuredAt ?? new Date(),
-       };
-     }
-   
-     public get id(): string {
-       return this._id;
-     }
-   
-     public get data(): Date {
-        return this.data;
-      }
+  private props: HistoryManutenceProps;
+  private _id: string;
 
-      public set data(data: Date) {
-         this.props.data = data;
-      }
+  constructor(
+    props: Replace<HistoryManutenceProps, { occuredAt?: Date }>,
+    id?: string,
+  ) {
+    this._id = id ?? randomUUID();
+    this.props = {
+      ...props,
+      occurredAt: props.occuredAt ?? new Date(),
+    };
+  }
 
-      public get action(): string {
-        return this.action;
-      }
+  public get id(): string {
+    return this._id;
+  }
 
-      public set action(action: string) {
-         this.props.action = action;
-      }
+  public get data(): Date {
+    return this.data;
+  }
 
-      public get usuario(): User {
-        return this.usuario;
-      }
+  public set data(data: Date) {
+    this.props.data = data;
+  }
 
-      public set usuario(usuario: User) {
-         this.props.usuario = usuario;
-      }
+  public get action(): string {
+    return this.action;
+  }
 
-      public get manutencao(): Manutence {
-        return this.manutencao;
-      }
+  public set action(action: string) {
+    this.props.action = action;
+  }
 
-      public set manutencao(manutencao: Manutence) {
-         this.props.manutencao = manutencao;
-      }
+  public get usuario(): User {
+    return this.usuario;
+  }
 
-      public get typeUser(): Role {
-        return this.typeUser;
-      }
+  public set usuario(usuario: User) {
+    this.props.usuario = usuario;
+  }
 
-      public set typeUser(typeUser: Role) {
-         this.props.typeUser = typeUser;
-      }
+  public get manutencao(): Manutence {
+    return this.manutencao;
+  }
 
-      public get occuredAt(): Date {
-        return this.occuredAt;
-      }
+  public set manutencao(manutencao: Manutence) {
+    this.props.manutencao = manutencao;
+  }
 
-      public set occurredAt(occurredAt: Date) {
-         this.props.occurredAt = occurredAt;
-      }
+  public get typeUser(): Role {
+    return this.typeUser;
+  }
+
+  public set typeUser(typeUser: Role) {
+    this.props.typeUser = typeUser;
+  }
+
+  public get occuredAt(): Date {
+    return this.occuredAt;
+  }
+
+  public set occurredAt(occurredAt: Date) {
+    this.props.occurredAt = occurredAt;
+  }
 }

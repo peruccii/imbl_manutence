@@ -32,7 +32,7 @@ export class ChatRoom {
   }
 
   public get name(): string {
-    return this.name;
+    return this.props.name;
   }
 
   public set name(name: string) {
@@ -44,7 +44,7 @@ export class ChatRoom {
   }
 
   public get messages(): Message[] {
-    return this.messages;
+    return this.props.messages;
   }
 
   public set users(users: User[]) {
@@ -52,14 +52,14 @@ export class ChatRoom {
   }
 
   public get users(): User[] {
-    return this.users;
+    return this.props.users;
   }
 
   public get createdAt(): Date {
-    return this.createdAt;
+    return this.props.createdAt;
   }
 
   public get updatedAt(): Date {
-    return this.updatedAt;
+    return this.props.updatedAt;
   }
 }
