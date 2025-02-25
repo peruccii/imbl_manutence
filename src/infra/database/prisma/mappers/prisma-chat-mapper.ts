@@ -13,7 +13,7 @@ export class PrismaChatRoomMapper {
         createdAt: rawChatRoom.createdAt,
         updatedAt: rawChatRoom.updatedAt,
         users: rawChatRoom.users.map(
-          (user: any) =>
+          (user: User) =>
             new User({
               manutences: [],
               name: user.name,
@@ -25,7 +25,7 @@ export class PrismaChatRoomMapper {
             }),
         ),
         messages: rawChatRoom.messages.map(
-          (msg: any) =>
+          (msg: Message) =>
             new Message({
               content: msg.content,
               senderId: msg.senderId,
