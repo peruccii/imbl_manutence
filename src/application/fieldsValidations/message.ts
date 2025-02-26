@@ -1,3 +1,6 @@
+import { InternalServerErrorHandler } from "@application/errors/internal-server-error.error";
+import { MESSAGE_LENGTH_ERROR } from "@application/utils/constants";
+
 export class Message {
   private readonly message: string;
 
@@ -12,7 +15,7 @@ export class Message {
   constructor(message: string) {
     const isMessageLenghtValid = this.validMessageLenght(message);
 
-    if (!isMessageLenghtValid) throw new Error('MESSAGE LENGT INVALID'); // todo: custom error
+    if (!isMessageLenghtValid) throw new InternalServerErrorHandler(MESSAGE_LENGTH_ERROR); 
 
     this.message = message;
   }

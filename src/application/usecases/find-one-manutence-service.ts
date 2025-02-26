@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { ManutenceNotFoundError } from "../errors/manutence-not-found.error";
 import { ManutenceNotFoundMessage } from "../messages/manutence-not-found";
 import { ManutenceRepository } from "../repositories/manutence-repository";
+import { NotFoundErrorHandler } from "@application/errors/not-found-error.error";
 
 export interface FindOneManutenceRequest {
     id: string
@@ -16,7 +16,7 @@ export class FindOneManutenceService {
         const manutence = await this.manutenceRepository.find(id)
 
         if (!manutence) {
-            throw new ManutenceNotFoundError(ManutenceNotFoundMessage);
+            throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
         }
 
         return { manutence }

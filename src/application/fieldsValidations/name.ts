@@ -1,3 +1,5 @@
+import { InternalServerErrorHandler } from '@application/errors/internal-server-error.error';
+import { NAME_LENGTH_ERROR } from '@application/utils/constants';
 import { HttpStatus, InternalServerErrorException } from '@nestjs/common';
 
 export class Name {
@@ -15,12 +17,7 @@ export class Name {
     const isNameLengthValid = this.validateNameLength(name);
 
     if (!isNameLengthValid)
-      throw new InternalServerErrorException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'NAME LENGTH MUST BE AT LEAST 5 CHARACTERES',
-      });
-    ('NAME LENGTH INVALID');
+      throw new InternalServerErrorHandler(NAME_LENGTH_ERROR);
 
     this.name = name;
   }

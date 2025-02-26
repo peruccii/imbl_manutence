@@ -1,3 +1,6 @@
+import { InternalServerErrorHandler } from "@application/errors/internal-server-error.error";
+import { PASSWORD_LENGTH_ERROR } from "@application/utils/constants";
+
 export class Password {
     private readonly password: string;
   
@@ -12,7 +15,7 @@ export class Password {
     constructor(password: string) {
       const isPasswordLengthValid = this.validatePasswordLength(password);
   
-      if (!isPasswordLengthValid) throw new Error('PASSWORD LENGTH INVALID');
+      if (!isPasswordLengthValid) throw new InternalServerErrorHandler(PASSWORD_LENGTH_ERROR);
   
       this.password = password;
     }

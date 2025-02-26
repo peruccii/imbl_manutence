@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { UserNotFoundError } from '../errors/user-not-found.errors';
 import { UserNotFoundMessage } from '../messages/user-not-found';
 import { UserRepository } from '../repositories/user-repository';
+import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
 
 @Injectable()
 export class DeleteUserService {
@@ -11,7 +11,7 @@ export class DeleteUserService {
     const userExists = await this.userRepository.findOne(id);
 
     if (!userExists) {
-      const err = new UserNotFoundError(UserNotFoundMessage);
+      const err = new NotFoundErrorHandler(UserNotFoundMessage);
       err.error();
       return;
     }

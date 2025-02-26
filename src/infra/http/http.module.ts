@@ -18,11 +18,17 @@ import { FindAllManutences } from '@application/usecases/find-all-manutences-ser
 import { DeleteManutenceService } from '@application/usecases/delete-manutence-service';
 import { GetCountNewManutences } from '@application/usecases/count-new-manutences-service';
 import { FindManutenceByFilters } from '@application/usecases/find-by-filter-manutence-dto';
+import { ChatModule } from '@infra/database/chat/chat.module';
+import { ChatGateway } from '@infra/database/chat/chat-gateway';
+import { ChatController } from './controllers/chat.controller';
+import { GetAllChatsRoomService } from '@application/usecases/get-all-chats-room-service';
+import { GetAllChatsRoomWithMessageService } from '@application/usecases/get-chats-with-messages-service';
 
 @Module({
   imports: [
     AuthModule,
     DatabaseModule,
+    ChatModule,
     UserModule,
     PrismaModule,
     ConfigModule.forRoot({
@@ -30,15 +36,18 @@ import { FindManutenceByFilters } from '@application/usecases/find-by-filter-man
       envFilePath: 'env',
     }),
   ],
-  controllers: [ManutenceController, UserController],
+  controllers: [ManutenceController, UserController, ChatController],
   providers: [
     UserCreateService,
     DeleteUserService,
     FileUploadService,
     FindOneManutenceService,
     FindAllManutences,
+    ChatGateway,
+    GetAllChatsRoomService,
     RequestContext,
     DeleteManutenceService,
+    GetAllChatsRoomWithMessageService,
     GetCountNewManutences,
     ManutenceCreateService,
     FindManutenceByFilters,

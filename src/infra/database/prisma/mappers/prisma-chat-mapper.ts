@@ -1,6 +1,5 @@
 import {
   ChatRoom,
-  ChatRoom as RawChatRoom,
 } from '@application/entities/chat_room';
 import { Message } from '@application/entities/message';
 import { User } from '@application/entities/user';

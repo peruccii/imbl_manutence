@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { UserNotFoundError } from '../errors/user-not-found.errors';
 import { makeManutenceFactory } from '../factories/manutence-factory';
 import { UserNotFoundMessage } from '../messages/user-not-found';
 import { UserRepository } from '../repositories/user-repository';
 import { CreateManutenceRequest } from '../interfaces/manutence-create-request';
 import { ManutenceRepository } from '@application/repositories/manutence-repository';
+import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
 
 @Injectable()
 export class ManutenceCreateService {
@@ -17,9 +17,9 @@ export class ManutenceCreateService {
     const client = await this.userRepository.findOne(
       request_manutence.client?.id,
     );
-    // TODO: Move this logic below to display this message on prisma find one logic
+    
     if (!client) {
-      const err = new UserNotFoundError(UserNotFoundMessage);
+      const err = new NotFoundErrorHandler(UserNotFoundMessage);
       err.error();
       return;
     }

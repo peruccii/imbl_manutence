@@ -4,7 +4,6 @@ import {
    ManutenceRepository } from 'src/application/repositories/manutence-repository';
 import { Manutence } from 'src/application/entities/manutence';
 import { PrismaManutenceMapper } from '../mappers/prisma-manutence-mapper';
-import { UserNotFoundError } from 'src/application/errors/user-not-found.errors';
 import { UserNotFoundMessage } from 'src/application/messages/user-not-found';
 import { Pagination } from '@application/interfaces/pagination';
 import { FiltersManutence } from '@application/interfaces/filters-manutence';
@@ -12,6 +11,7 @@ import { PrismaHistoryManutenceMapper } from '../mappers/prisma-history-manutenc
 import { ActionHistory } from '@application/enums/action.enum';
 import { RequestContext } from '@application/utils/request-context';
 import { StatusManutence } from '@application/enums/StatusManutence';
+import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
 
 @Injectable()
 export class PrismaManutenceRepository implements ManutenceRepository {
@@ -47,7 +47,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       },
     });
 
-    if (!manutence) throw new UserNotFoundError(UserNotFoundMessage);
+    if (!manutence) throw new NotFoundErrorHandler(UserNotFoundMessage);
 
     return PrismaManutenceMapper.toDomain(manutence);
   }

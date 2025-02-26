@@ -9,10 +9,13 @@ import { Manutence } from '@application/entities/manutence';
 export class PrismaUserRepository implements UserRepository {
   constructor(private prisma: PrismaService) {}
 
-  async create(user: User): Promise<void> {
+  async create(user: User, pass: string): Promise<void> {
     const raw = PrismaUserMapper.toPrisma(user);
     await this.prisma.user.create({
-      data: raw,
+      data: {
+        ...raw,
+        password: pass
+      },
     });
   }
 

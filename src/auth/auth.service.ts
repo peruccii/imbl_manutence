@@ -1,5 +1,4 @@
 import {
-  Dependencies,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';

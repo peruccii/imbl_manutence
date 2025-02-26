@@ -1,13 +1,13 @@
 import { ChatRoom } from '@application/entities/chat_room';
 import { ChatRepository } from '@application/repositories/chat-repository';
 import { PrismaService } from '../prisma.service';
-import { RoomNotFoundError } from '@application/errors/room-not-found.error';
 import { RoomNotFoundMessage } from '@application/messages/room-not-found';
 import { Pagination } from '@application/interfaces/pagination';
 import { PrismaChatRoomMapper } from '../mappers/prisma-chat-mapper';
 import { SendMessageInterface } from '@application/interfaces/send-message';
 import { CreateChatRoomRequest } from '@application/interfaces/create-room';
 import { PrismaCreateRoomMapper } from '../mappers/prisma-create-room-mapper';
+import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
 
 export class PrismaChatRepository implements ChatRepository {
   constructor(private readonly prismaService: PrismaService) {}
@@ -25,7 +25,7 @@ export class PrismaChatRepository implements ChatRepository {
     const room = await this.findRoom(roomName);
 
     if (!room) {
-      throw new RoomNotFoundError(RoomNotFoundMessage);
+      throw new NotFoundErrorHandler(RoomNotFoundMessage);
     }
 
     const roomId = room.id;

@@ -1,3 +1,6 @@
+import { InternalServerErrorHandler } from "@application/errors/internal-server-error.error";
+import { EMAIL_FORMAT_INVALID, EMAIL_LENGTH_ERROR } from "@application/utils/constants";
+
 export class Email {
   private readonly email: string;
 
@@ -18,8 +21,8 @@ export class Email {
     const isEmailLengthValid = this.validateEmailLength(email);
     const isEmailValid = this.validateEmailIsValid(email);
 
-    if (!isEmailLengthValid) throw new Error('EMAIL LENGTH INVALID'); // todo: custom error
-    if (!isEmailValid) throw new Error('EMAIL FORMAT INVALID'); // todo: custom error
+    if (!isEmailLengthValid) throw new InternalServerErrorHandler(EMAIL_LENGTH_ERROR); 
+    if (!isEmailValid) throw new InternalServerErrorHandler(EMAIL_FORMAT_INVALID);
 
     this.email = email;
   }

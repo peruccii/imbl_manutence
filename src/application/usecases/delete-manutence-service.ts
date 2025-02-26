@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ManutenceRepository } from '../repositories/manutence-repository';
-import { ManutenceNotFoundError } from '../errors/manutence-not-found.error';
 import { ManutenceNotFoundMessage } from '../messages/manutence-not-found';
+import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
 
 @Injectable()
 export class DeleteManutenceService {
@@ -11,7 +11,7 @@ export class DeleteManutenceService {
     const manutenceExists = await this.manutenceRepository.find(id);
 
     if (!manutenceExists) {
-      const err = new ManutenceNotFoundError(ManutenceNotFoundMessage);
+      const err = new NotFoundErrorHandler(ManutenceNotFoundMessage);
       err.error();
       return;
     }
