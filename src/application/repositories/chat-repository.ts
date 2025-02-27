@@ -8,6 +8,7 @@ export abstract class ChatRepository {
   abstract findRoom(roomName: string): Promise<ChatRoom | null>;
   abstract createRoom(createRoomRequest: CreateChatRoomRequest): Promise<void>;
   abstract findAll(pagination: Pagination): Promise<ChatRoom[] | []>;
+  abstract getUsersInRoom(roomName: string): Promise<ChatRoom>
   abstract findAllWithMessages(
     pagination: Pagination,
   ): Promise<ChatRoom[] | []>;

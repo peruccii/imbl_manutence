@@ -12,6 +12,8 @@ import { ActionHistory } from '@application/enums/action.enum';
 import { RequestContext } from '@application/utils/request-context';
 import { StatusManutence } from '@application/enums/StatusManutence';
 import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
+import { PrismaCreateRoomMapper } from '../mappers/prisma-create-room-mapper';
+import type { CreateChatRoomRequest } from '@application/interfaces/create-room';
 
 @Injectable()
 export class PrismaManutenceRepository implements ManutenceRepository {
@@ -58,6 +60,18 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       const createdManutence = await prisma.manutence.create({
         data: raw,
       });
+
+      const createRoomRequest: CreateChatRoomRequest = {
+        name: manutence.user ? manutence.user.name.value : createdManutence.id,
+        users: [manutence.user!],
+        messages: [],
+      };
+
+      const msg = PrismaCreateRoomMapper.toPrisma(createRoomRequest)
+
+      await prisma.chatRoom.create({
+        data: msg // error in prismacreateroommaper sender must be null
+      })
 
       const rawManutence = PrismaHistoryManutenceMapper.toPrisma(
         ActionHistory.MANUTENCE_CREATED,

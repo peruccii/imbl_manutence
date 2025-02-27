@@ -1,7 +1,7 @@
-import { Catch, ExceptionFilter, HttpException, ArgumentsHost, HttpStatus } from '@nestjs/common';
-import { InternalServerErrorHandler } from '@application/errors/internal-server-error.error';  // Seu erro personalizado
+import { Catch, ExceptionFilter, ArgumentsHost, HttpStatus } from '@nestjs/common';
+import { InternalServerErrorHandler } from '@application/errors/internal-server-error.error';  
 
-@Catch(InternalServerErrorHandler)  // Especifique sua exceção personalizada
+@Catch(InternalServerErrorHandler)  
 export class InternalServerErrorHandlerFilter implements ExceptionFilter {
   catch(exception: InternalServerErrorHandler, host: ArgumentsHost) {
     const response = host.switchToHttp().getResponse();
@@ -9,7 +9,7 @@ export class InternalServerErrorHandlerFilter implements ExceptionFilter {
     
     response.status(status).json({
       statusCode: status,
-      code: exception['code'] || 'INTERNAL_SERVER_ERROR',  // Personalize a estrutura conforme necessário
+      code: exception['code'] || 'INTERNAL_SERVER_ERROR',  
       message: exception.message,
     });
   }

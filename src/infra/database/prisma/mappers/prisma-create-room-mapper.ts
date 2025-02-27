@@ -10,10 +10,14 @@ export class PrismaCreateRoomMapper {
       },
       messages: {
         create: messages.map((msg) => ({
-          content: msg.content,
-          sender: { connect: { id: msg.senderId } },
+          content: msg.content ?? null,
+          sender: null, // must be null
         })),
       },
     };
   }
 }
+
+// Messages de inicio tem que ser vazio
+// todos os admins user tem acesso a todos os mesmos chats ?
+// o chat ja comeca com algum tipo de texto tipi descricao da manutencao ?

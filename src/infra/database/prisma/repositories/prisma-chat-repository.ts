@@ -59,4 +59,17 @@ export class PrismaChatRepository implements ChatRepository {
       data: raw,
     });
   }
+
+  async getUsersInRoom(roomName: string): Promise<ChatRoom> {
+    const room = await this.prismaService.chatRoom.findFirst({
+      where: { name: roomName },
+      include: { users: true }, 
+    });
+  
+    if (!room) {
+      return [];
+    }
+  
+    return room.users.map(user => user); 
+  }
 }

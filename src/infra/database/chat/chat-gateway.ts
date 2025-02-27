@@ -79,20 +79,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // should not be able to open in chat if its already two users in there ??
 
-    if (roomExists) {
-      client.join(roomName);
-      client.emit('room-joined', {
-        message: `Você entrou na sala: ${roomName}`,
-      });
+    if (!roomExists) {
+      const createRoomRequest: CreateChatRoomRequest = {
+        name: roomName,
+        users: client.data.user,
+        messages: [],
+      };
+      await this.chatRepository.createRoom(createRoomRequest);
     }
 
-    const createRoomRequest: CreateChatRoomRequest = {
-      name: roomName,
-      users: client.data.user,
-      messages: [],
-    };
+    const currentUsersInRoom = await this.chatRepository.getUsersInRoom(roomName)
 
-    await this.chatRepository.createRoom(createRoomRequest);
 
     client.join(roomName);
     client.emit('room-joined', { message: `Você entrou na sala: ${roomName}` });
