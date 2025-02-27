@@ -11,7 +11,7 @@ export class PrismaCreateRoomMapper {
       messages: {
         create: messages.map((msg) => ({
           content: msg.content ?? null,
-          sender: null, // must be null
+          sender: undefined, // must be null or undefined
         })),
       },
     };

@@ -8,6 +8,9 @@ import { SendMessageInterface } from '@application/interfaces/send-message';
 import { CreateChatRoomRequest } from '@application/interfaces/create-room';
 import { PrismaCreateRoomMapper } from '../mappers/prisma-create-room-mapper';
 import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
+import type { UsersInRoom } from '@application/interfaces/users-in-room';
+
+
 
 export class PrismaChatRepository implements ChatRepository {
   constructor(private readonly prismaService: PrismaService) {}
@@ -60,7 +63,7 @@ export class PrismaChatRepository implements ChatRepository {
     });
   }
 
-  async getUsersInRoom(roomName: string): Promise<ChatRoom> {
+  async getUsersInRoom(roomName: string): Promise<UsersInRoom[]> {
     const room = await this.prismaService.chatRoom.findFirst({
       where: { name: roomName },
       include: { users: true }, 
@@ -70,6 +73,11 @@ export class PrismaChatRepository implements ChatRepository {
       return [];
     }
   
-    return room.users.map(user => user); 
+    const obj: UsersInRoom = {
+      id: room.users.map(item => item.id),
+      name: room.users.map(item => item.name)
+    }
+
+    return [obj]; 
   }
 }
