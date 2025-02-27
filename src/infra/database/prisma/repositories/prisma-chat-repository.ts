@@ -72,12 +72,14 @@ export class PrismaChatRepository implements ChatRepository {
     if (!room) {
       return [];
     }
-  
-    const obj: UsersInRoom = {
-      id: room.users.map(item => item.id),
-      name: room.users.map(item => item.name)
-    }
 
-    return [obj]; 
+    const rtrn = room.users.map(item => {
+      return {
+        id: item.id,
+        name: item.name
+      }
+    })
+
+    return rtrn; 
   }
 }
