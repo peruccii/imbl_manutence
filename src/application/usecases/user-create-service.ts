@@ -21,7 +21,7 @@ export class UserCreateService {
 
     const user = makeUserFactory(request);
 
-    const pass = await hashPassword(request.password)
+    const pass = await hashPassword(request.password);
 
     return await this.userRepository.create(user, pass);
   }

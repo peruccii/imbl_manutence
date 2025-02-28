@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { 
-   ManutenceRepository } from 'src/application/repositories/manutence-repository';
+import { ManutenceRepository } from 'src/application/repositories/manutence-repository';
 import { Manutence } from 'src/application/entities/manutence';
 import { PrismaManutenceMapper } from '../mappers/prisma-manutence-mapper';
 import { UserNotFoundMessage } from 'src/application/messages/user-not-found';
@@ -19,7 +18,7 @@ import type { CreateChatRoomRequest } from '@application/interfaces/create-room'
 export class PrismaManutenceRepository implements ManutenceRepository {
   constructor(
     private requestContext: RequestContext,
-    private prisma: PrismaService
+    private prisma: PrismaService,
   ) {}
 
   async findByFilters(
@@ -67,17 +66,23 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         messages: [],
       };
 
-      const msg = PrismaCreateRoomMapper.toPrisma(createRoomRequest)
+      const msg = PrismaCreateRoomMapper.toPrisma(createRoomRequest);
 
       await prisma.chatRoom.create({
-        data: msg // error in prismacreateroommaper sender must be null
-      })
+        data: msg,
+      });
 
+      const userId = this.requestContext.get('userId');
+
+      // todo: review this code below!
       const rawManutence = PrismaHistoryManutenceMapper.toPrisma(
         ActionHistory.MANUTENCE_CREATED,
-        manutence, 
-        createdManutence.id
-      )
+        manutence,
+        userId,
+        createdManutence.id,
+      );
+      //
+
       await prisma.historicoManutencao.create({
         data: rawManutence,
       });
@@ -86,30 +91,44 @@ export class PrismaManutenceRepository implements ManutenceRepository {
 
   async delete(id: string) {
     await this.prisma.$transaction(async (prisma) => {
-      await prisma.manutence.delete({ where: { id: id } })
+      await prisma.manutence.delete({ where: { id: id } });
       const rs = await prisma.historicoManutencao.findFirst({
         where: { id: id },
-        include: { manutencao: true, usuario: true }
+        include: { manutencao: true, usuario: true },
       });
       if (rs) {
         const userId = this.requestContext.get('userId');
+
+        // todo: review this code below!
+        const raw = PrismaHistoryManutenceMapper.toPrisma(
+          ActionHistory.MANUTENCE_DELETED,
+          rs.manutencao as unknown as Manutence,
+          userId,
+          rs.manutencao.id,
+        );
+        //
+
         await prisma.historicoManutencao.create({
-          data: {
-            id: rs.id,
-            action: ActionHistory.MANUTENCE_DELETED, 
-            data: rs.data,
-            manutencao: {
-              connect: { id: rs.manutencao.id }
-            },
-            usuario: {
-              connect: { id: userId }
-            },
-          },
+          data: raw,
         });
+
+        //await prisma.historicoManutencao.create({
+        //  data: {
+        //  id: rs.id,
+        //  action: ActionHistory.MANUTENCE_DELETED,
+        //  data: rs.data,
+        //  manutencao: {
+        //    connect: { id: rs.manutencao.id }
+        //   },
+        // usuario: {
+        //   connect: { id: userId }
+        // },
+        // },
+        // });
       } else {
-        return
+        return;
       }
-    })
+    });
   }
 
   async findMany(pagination: Pagination): Promise<Manutence[] | []> {
@@ -128,8 +147,8 @@ export class PrismaManutenceRepository implements ManutenceRepository {
 
   async countNewManutences(status_manutence: StatusManutence): Promise<number> {
     const count = await this.prisma.manutence.count({
-      where: { status_manutence: status_manutence }
-    })
-    return count
+      where: { status_manutence: status_manutence },
+    });
+    return count;
   }
 }

@@ -14,42 +14,48 @@ export class PrismaUserRepository implements UserRepository {
     await this.prisma.user.create({
       data: {
         ...raw,
-        password: pass
+        password: pass,
       },
     });
   }
 
   async findOne(id: string): Promise<User | null> {
-     const user = await this.prisma.user.findUnique({
-         where: { id: id },
-         include: {
-           manutences: true,
-         },
-       });
+    const user = await this.prisma.user.findUnique({
+      where: { id: id },
+      include: {
+        manutences: true,
+      },
+    });
 
-      if (user) {
-        const manutences = user.manutences
-        return PrismaUserMapper.toDomain(user, manutences as unknown as Manutence[]);
-      }
+    if (user) {
+      const manutences = user.manutences;
+      return PrismaUserMapper.toDomain(
+        user,
+        manutences as unknown as Manutence[],
+      );
+    }
 
-      return null
+    return null;
   }
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
-        where: { email: email },
-        include: {
-          manutences: true,
-        },
-      });
+      where: { email: email },
+      include: {
+        manutences: true,
+      },
+    });
 
-     if (user) {
-       const manutences = user.manutences
-       return PrismaUserMapper.toDomain(user, manutences as unknown as Manutence[]);
-     }
+    if (user) {
+      const manutences = user.manutences;
+      return PrismaUserMapper.toDomain(
+        user,
+        manutences as unknown as Manutence[],
+      );
+    }
 
-     return null
- }
+    return null;
+  }
 
   async delete(id: string) {
     await this.prisma.user.delete({ where: { id: id } });

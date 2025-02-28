@@ -79,7 +79,8 @@ export class ManutenceController {
   @UseGuards(AuthGuard)
   @Roles(Role.USER, Role.ADMIN)
   async getAllManutences(@Query() pagination: PaginationDto) {
-    const { manutences } = await this.manutencesGetAll_service.execute(pagination);
+    const { manutences } =
+      await this.manutencesGetAll_service.execute(pagination);
 
     return manutences.map((manutence: Manutence) => {
       return ManutenceViewModel.toGetFormatHttp(manutence);
@@ -105,6 +106,8 @@ export class ManutenceController {
   @Get('manutences_notifications')
   @Roles(Role.USER, Role.ADMIN)
   async getCountNewManutences() {
-    return await this.manutenceGetAllNewCount_service.execute(StatusManutence.CREATED)
+    return await this.manutenceGetAllNewCount_service.execute(
+      StatusManutence.CREATED,
+    );
   }
 }

@@ -10,8 +10,6 @@ import { PrismaCreateRoomMapper } from '../mappers/prisma-create-room-mapper';
 import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
 import type { UsersInRoom } from '@application/interfaces/users-in-room';
 
-
-
 export class PrismaChatRepository implements ChatRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
@@ -66,20 +64,20 @@ export class PrismaChatRepository implements ChatRepository {
   async getUsersInRoom(roomName: string): Promise<UsersInRoom[]> {
     const room = await this.prismaService.chatRoom.findFirst({
       where: { name: roomName },
-      include: { users: true }, 
+      include: { users: true },
     });
-  
+
     if (!room) {
       return [];
     }
 
-    const rtrn = room.users.map(item => {
+    const rtrn = room.users.map((item) => {
       return {
         id: item.id,
-        name: item.name
-      }
-    })
+        name: item.name,
+      };
+    });
 
-    return rtrn; 
+    return rtrn;
   }
 }

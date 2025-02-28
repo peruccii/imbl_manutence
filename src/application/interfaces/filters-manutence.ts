@@ -1,5 +1,5 @@
-import { StatusManutence } from "@application/enums/StatusManutence";
+import { StatusManutence } from '@application/enums/StatusManutence';
 
 export interface FiltersManutence {
-    status_manutence?: StatusManutence[]
+  status_manutence?: StatusManutence[];
 }
