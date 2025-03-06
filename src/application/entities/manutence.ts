@@ -4,10 +4,11 @@ import { Message } from '../fieldsValidations/message';
 import { Replace } from '../helpers/replace';
 import { User } from './user';
 import { HistoryManutence } from './history_manutence';
+import type { p } from '@application/interfaces/photos';
 
 export interface ManutenceProps {
   message: Message;
-  photos: string[];
+  photos: p[];
   video: string;
   status_manutence: StatusManutence;
   createdAt: Date;
@@ -59,11 +60,11 @@ export class Manutence {
     this.props.video = video;
   }
 
-  public get photos(): string[] {
+  public get photos(): p[] {
     return this.props.photos;
   }
 
-  public set photos(photos: string[]) {
+  public set photos(photos: p[]) {
     this.props.photos = photos;
   }
 

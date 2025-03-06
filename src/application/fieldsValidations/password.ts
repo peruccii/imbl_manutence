@@ -13,9 +13,14 @@ export class Password {
     }
   
     constructor(password: string) {
-      const isPasswordLengthValid = this.validatePasswordLength(password);
+      const isHashed = password.startsWith('$2b$') && password.length === 60;
   
-      if (!isPasswordLengthValid) throw new InternalServerErrorHandler(PASSWORD_LENGTH_ERROR);
+      if (!isHashed) {
+        const isPasswordLengthValid = this.validatePasswordLength(password);
+        if (!isPasswordLengthValid) {
+          throw new InternalServerErrorHandler(PASSWORD_LENGTH_ERROR);
+        }
+      }
   
       this.password = password;
     }

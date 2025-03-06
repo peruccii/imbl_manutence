@@ -39,6 +39,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
+    console.log(email)
     const user = await this.prisma.user.findUnique({
       where: { email: email },
       include: {
@@ -49,11 +50,11 @@ export class PrismaUserRepository implements UserRepository {
     if (user) {
       const manutences = user.manutences;
       return PrismaUserMapper.toDomain(
-        user,
-        manutences as unknown as Manutence[],
-      );
+          user,
+          manutences as unknown as Manutence[],
+        );
     }
-
+    
     return null;
   }
 

@@ -11,14 +11,13 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor, type MulterModuleOptions } from '@nestjs/platform-express';
 import { Role } from 'src/application/enums/role.enum';
 import { FileUploadService } from 'src/application/usecases/file-upload-service';
 import { ManutenceCreateService } from 'src/application/usecases/manutence-create-service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Roles } from 'src/roles/roles.decorator';
 import { ManutenceCreateDto } from '../dto/create-manutence-dto';
-import multerConfig from 'src/application/config/multer-config';
 import { MulterFileS3, MulterFilesS3 } from '../MulterType/s3multer-type';
 import { FindOneParams } from '../dto/find-one-manutence-dto';
 import { FindOneManutenceService } from 'src/application/usecases/find-one-manutence-service';
@@ -31,6 +30,8 @@ import { FindManutenceByFilters } from '@application/usecases/find-by-filter-man
 import { PaginationDto } from '../dto/pagination-dto';
 import { GetCountNewManutences } from '@application/usecases/count-new-manutences-service';
 import { StatusManutence } from '@application/enums/StatusManutence';
+import { RolesGuard } from '@application/guards/role.guards';
+// import type { S3ServiceUseCase } from '@application/usecases/s3-service';
 
 @Controller('manutence')
 export class ManutenceController {
@@ -42,23 +43,27 @@ export class ManutenceController {
     private readonly manutenceDelete_service: DeleteManutenceService,
     private readonly manutenceGetAllNewCount_service: GetCountNewManutences,
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
+    // private readonly s3Service: S3ServiceUseCase,
+
   ) {}
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Post('create')
   @Roles(Role.USER, Role.ADMIN)
-  @UseInterceptors(FileInterceptor('photos', multerConfig))
-  @UseInterceptors(FileInterceptor('video', multerConfig))
+  @UseInterceptors(
+  FilesInterceptor('photos', 10), 
+  FileInterceptor('video'))
   async createManutence(
     @Body() request: ManutenceCreateDto,
     @UploadedFiles() photos: MulterFilesS3,
     @UploadedFile() video: MulterFileS3,
   ) {
+    
     const uploadedFiles = {
-      photos: photos.map((file) => file.location),
-      video: video.location,
+      photos: photos?.map((file) => ({ key: file.key })) || [],
+      video: video.key,                              
     };
-
+    
     request.photos = uploadedFiles.photos;
     request.video = uploadedFiles.video;
 
@@ -71,6 +76,15 @@ export class ManutenceController {
   @Roles(Role.USER, Role.ADMIN)
   async getManutence(@Param('id') param: FindOneParams) {
     const { manutence } = await this.manutenceGetOne_service.execute(param);
+
+    // manutence.photos = await Promise.all( // ts code will let my request more longer ( time )
+    //   manutence.photos.map(async (foto) => ({
+    //     key: foto.key,
+    //     url: await this.s3Service.getSignedUrl(foto.key),
+    //   }))
+    // ); 
+    
+    // manutence.video = await this.s3Service.getSignedUrl(manutence.video) 
 
     return ManutenceViewModel.toGetFormatHttp(manutence);
   }

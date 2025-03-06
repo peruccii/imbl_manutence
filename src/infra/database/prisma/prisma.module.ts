@@ -19,6 +19,6 @@ import { RequestContext } from '@application/utils/request-context';
       useClass: PrismaManutenceRepository,
     },
   ],
-  exports: [UserRepository, ManutenceRepository, PrismaService],
+  exports: [UserRepository, ManutenceRepository, PrismaService, RequestContext],
 })
 export class PrismaModule {}

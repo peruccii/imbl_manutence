@@ -17,7 +17,7 @@ export class PrismaManutenceMapper {
     return {
       id: manutence.id,
       message: manutence.message.value,
-      photos: manutence.photos,
+      photos: JSON.stringify(manutence.photos),
       video: manutence.video,
       status_manutence: manutence.status_manutence,
       createdAt: manutence.createdAt,
@@ -30,7 +30,10 @@ export class PrismaManutenceMapper {
     return new Manutence(
       {
         message: new Message(rawManutence.message),
-        photos: convertJsonValueToStringArray(rawManutence.photos),
+        photos: convertJsonValueToStringArray(rawManutence.photos).map(photo => ({
+          key: photo,
+          url: photo
+        })),
         status_manutence: rawManutence.status_manutence as StatusManutence,
         video: rawManutence.video,
         userId: rawManutence.userId,
