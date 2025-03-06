@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma.service';
 import { PrismaUserMapper } from '../mappers/prisma-user-mapper';
 import { User } from 'src/application/entities/user';
 import { Manutence } from '@application/entities/manutence';
+import type { Pagination } from '@application/interfaces/pagination';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -38,8 +39,27 @@ export class PrismaUserRepository implements UserRepository {
     return null;
   }
 
+  async findMany(pagination: Pagination): Promise<User[] | []> {
+    const users = await this.prisma.user.findMany({
+      skip: pagination.skip,
+      take: pagination.limit,
+      include: {
+        manutences: true,
+      },
+    });
+
+    const manutences = users.map((user) => user.manutences);
+
+    return users.map((user) => {
+      return PrismaUserMapper.toDomain(
+        user,
+        manutences as unknown as Manutence[],
+      );
+    });
+  }
+
   async findByEmail(email: string): Promise<User | null> {
-    console.log(email)
+    console.log(email);
     const user = await this.prisma.user.findUnique({
       where: { email: email },
       include: {
@@ -50,11 +70,11 @@ export class PrismaUserRepository implements UserRepository {
     if (user) {
       const manutences = user.manutences;
       return PrismaUserMapper.toDomain(
-          user,
-          manutences as unknown as Manutence[],
-        );
+        user,
+        manutences as unknown as Manutence[],
+      );
     }
-    
+
     return null;
   }
 

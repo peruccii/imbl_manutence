@@ -11,7 +11,11 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor, type MulterModuleOptions } from '@nestjs/platform-express';
+import {
+  FileInterceptor,
+  FilesInterceptor,
+  type MulterModuleOptions,
+} from '@nestjs/platform-express';
 import { Role } from 'src/application/enums/role.enum';
 import { FileUploadService } from 'src/application/usecases/file-upload-service';
 import { ManutenceCreateService } from 'src/application/usecases/manutence-create-service';
@@ -44,26 +48,22 @@ export class ManutenceController {
     private readonly manutenceGetAllNewCount_service: GetCountNewManutences,
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
     // private readonly s3Service: S3ServiceUseCase,
-
   ) {}
 
   @UseGuards(AuthGuard, RolesGuard)
   @Post('create')
   @Roles(Role.USER, Role.ADMIN)
-  @UseInterceptors(
-  FilesInterceptor('photos', 10), 
-  FileInterceptor('video'))
+  @UseInterceptors(FilesInterceptor('photos', 10), FileInterceptor('video'))
   async createManutence(
     @Body() request: ManutenceCreateDto,
     @UploadedFiles() photos: MulterFilesS3,
     @UploadedFile() video: MulterFileS3,
   ) {
-    
     const uploadedFiles = {
       photos: photos?.map((file) => ({ key: file.key })) || [],
-      video: video.key,                              
+      video: video.key,
     };
-    
+
     request.photos = uploadedFiles.photos;
     request.video = uploadedFiles.video;
 
@@ -82,18 +82,19 @@ export class ManutenceController {
     //     key: foto.key,
     //     url: await this.s3Service.getSignedUrl(foto.key),
     //   }))
-    // ); 
-    
-    // manutence.video = await this.s3Service.getSignedUrl(manutence.video) 
+    // );
+
+    // manutence.video = await this.s3Service.getSignedUrl(manutence.video)
 
     return ManutenceViewModel.toGetFormatHttp(manutence);
   }
 
   @Get('all')
   @UseGuards(AuthGuard)
-  @Roles(Role.USER, Role.ADMIN)
+  @Roles(Role.ADMIN)
   async getAllManutences(@Query() pagination: PaginationDto) {
-    const { manutences } = await this.manutencesGetAll_service.execute(pagination);
+    const { manutences } =
+      await this.manutencesGetAll_service.execute(pagination);
 
     return manutences.map((manutence: Manutence) => {
       return ManutenceViewModel.toGetFormatHttp(manutence);
@@ -101,7 +102,7 @@ export class ManutenceController {
   }
 
   @Get('filters')
-  @Roles(Role.USER, Role.ADMIN)
+  @Roles(Role.ADMIN)
   async getManutencesByFilters(
     @Query() filters: ManutenceFiltersDto,
     @Query() pagination: PaginationDto,
@@ -119,6 +120,8 @@ export class ManutenceController {
   @Get('manutences_notifications')
   @Roles(Role.USER, Role.ADMIN)
   async getCountNewManutences() {
-    return await this.manutenceGetAllNewCount_service.execute(StatusManutence.CREATED)
+    return await this.manutenceGetAllNewCount_service.execute(
+      StatusManutence.CREATED,
+    );
   }
 }

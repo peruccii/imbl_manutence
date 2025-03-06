@@ -59,7 +59,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       const createdManutence = await prisma.manutence.create({
         data: raw,
       });
-      
+
       const createRoomRequest: CreateChatRoomRequest = {
         name: manutence.user ? manutence.user.name.value : createdManutence.id,
         users: [manutence.user!],
@@ -73,6 +73,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       });
 
       const userId = this.requestContext.get('userId');
+      console.log('ID DO USUARIO QUE CRIOU A MANUTENCE', userId);
 
       // todo: review this code below!
       const rawManutence = PrismaHistoryManutenceMapper.toPrisma(
@@ -139,6 +140,9 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         user: true,
       },
     });
+
+    const userId = this.requestContext.get('userId');
+    console.log('ID DO USUARIO QUE CRIOU A MANUTENCE', userId);
 
     return manutences.map((manutence) => {
       return PrismaManutenceMapper.toDomain(manutence);

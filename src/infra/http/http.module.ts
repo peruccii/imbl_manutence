@@ -28,6 +28,9 @@ import { MulterModule } from '@nestjs/platform-express';
 import { multerOptionsFactory } from '@application/config/multer-config';
 import { ManutenceModule } from '@infra/database/manutence/manutence.module';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { GetAllUsersService } from '@application/usecases/find-all-users-service';
+import { FindByIdUserService } from '@application/usecases/get-user-by-id-service';
+import { FindByEmailUserService } from '@application/usecases/get-user-by-email-service';
 
 @Module({
   imports: [

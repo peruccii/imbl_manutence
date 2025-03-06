@@ -5,6 +5,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { InternalServerErrorHandlerFilter } from '@application/utils/pipe-internal-server-error';
 import { NotFoundErrorErrorHandlerFilter } from '@application/utils/pipe-not-found-error';
 import { UnprocessableEntityErrorHandlerFilter } from '@application/utils/pipe-unprocessable-entity-error';
+import { ForbiddenErrorHandlerFilter } from '@application/utils/pipe-forbidden-error';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -12,9 +13,10 @@ async function bootstrap() {
     bodyParser: true,
   });
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new InternalServerErrorHandlerFilter())
-  app.useGlobalFilters(new NotFoundErrorErrorHandlerFilter())
-  app.useGlobalFilters(new UnprocessableEntityErrorHandlerFilter())
+  app.useGlobalFilters(new InternalServerErrorHandlerFilter());
+  app.useGlobalFilters(new NotFoundErrorErrorHandlerFilter());
+  app.useGlobalFilters(new UnprocessableEntityErrorHandlerFilter());
+  app.useGlobalFilters(new ForbiddenErrorHandlerFilter());
   app.enableCors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
