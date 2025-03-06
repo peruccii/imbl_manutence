@@ -6,11 +6,18 @@ import { Roles } from 'src/roles/roles.decorator';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly create_user: UserCreateService) {}
+  constructor(
+    private readonly create_user: UserCreateService,
+    // private readonly get_user_byemai:
+  ) {}
 
   @Post('create')
   @Roles(Role.ADMIN, Role.USER)
   async createUser(@Body() request: CreateUserRequest) {
     return await this.create_user.execute(request);
+  }
+
+  async getUserByEmail() {
+    
   }
 }

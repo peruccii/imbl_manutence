@@ -83,7 +83,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     const roomExists = await this.chatRepository.findRoom(roomName);
-
+    
     if (!roomExists) {
       const createRoomRequest: CreateChatRoomRequest = {
         name: roomName, // no front vai ser o nome do client

@@ -23,6 +23,11 @@ import { ChatGateway } from '@infra/database/chat/chat-gateway';
 import { ChatController } from './controllers/chat.controller';
 import { GetAllChatsRoomService } from '@application/usecases/get-all-chats-room-service';
 import { GetAllChatsRoomWithMessageService } from '@application/usecases/get-chats-with-messages-service';
+// import { S3Module } from '@infra/database/s3/s3.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { multerOptionsFactory } from '@application/config/multer-config';
+import { ManutenceModule } from '@infra/database/manutence/manutence.module';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Module({
   imports: [
@@ -30,31 +35,26 @@ import { GetAllChatsRoomWithMessageService } from '@application/usecases/get-cha
     DatabaseModule,
     ChatModule,
     UserModule,
+    ManutenceModule,
+    // S3Module,
     PrismaModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: 'env',
-    }),
+    MulterModule.registerAsync(multerOptionsFactory),
   ],
   controllers: [ManutenceController, UserController, ChatController],
   providers: [
-    UserCreateService,
     DeleteUserService,
     FileUploadService,
     FindOneManutenceService,
     FindAllManutences,
     ChatGateway,
+    AuthGuard,
+    RolesGuard,
     GetAllChatsRoomService,
     RequestContext,
     DeleteManutenceService,
     GetAllChatsRoomWithMessageService,
     GetCountNewManutences,
-    ManutenceCreateService,
     FindManutenceByFilters,
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
   ],
 })
 export class HttpModule {}

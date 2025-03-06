@@ -16,7 +16,7 @@ async function bootstrap() {
   app.useGlobalFilters(new NotFoundErrorErrorHandlerFilter())
   app.useGlobalFilters(new UnprocessableEntityErrorHandlerFilter())
   app.enableCors({
-    origin: 'https://www.cutecards.com.br',
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });

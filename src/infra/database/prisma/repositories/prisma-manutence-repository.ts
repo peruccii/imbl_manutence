@@ -59,7 +59,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       const createdManutence = await prisma.manutence.create({
         data: raw,
       });
-
+      
       const createRoomRequest: CreateChatRoomRequest = {
         name: manutence.user ? manutence.user.name.value : createdManutence.id,
         users: [manutence.user!],

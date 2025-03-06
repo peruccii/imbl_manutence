@@ -15,7 +15,7 @@ export class ManutenceCreateService {
 
   async execute(request_manutence: CreateManutenceRequest) {
     const client = await this.userRepository.findOne(
-      request_manutence.client?.id,
+      request_manutence.userId,
     );
 
     if (!client) {
@@ -24,10 +24,7 @@ export class ManutenceCreateService {
       return;
     }
 
-    const manutence = makeManutenceFactory({
-      ...request_manutence,
-      client: client,
-    });
+    const manutence = makeManutenceFactory(request_manutence);
     return this.manutenceRepository.create(manutence);
   }
 }

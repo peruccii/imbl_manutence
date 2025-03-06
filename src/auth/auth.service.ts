@@ -34,12 +34,12 @@ export class AuthService {
  
   async signIn(email: string, pass: string): Promise<AuthResponseDto> {
     const user = await this.usersRepository.findByEmail(email);
-
+    
     if (!user || !(await compare(pass, user?.password.value))) {
       throw new UnauthorizedException();
     }
 
-    const payload = { username: user.name, sub: user.id, role: user.typeUser };
+    const payload = { username: user.name, sub: user.id, typeUser: user.typeUser };
     const accessToken: string = await this.jwtService.signAsync(payload);
 
     return {

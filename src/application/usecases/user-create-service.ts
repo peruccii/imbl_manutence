@@ -11,18 +11,18 @@ export class UserCreateService {
   constructor(private readonly userRepository: UserRepository) {}
 
   async execute(request: CreateUserRequest) {
-    const userExists = await this.userRepository.findOne(request.email);
+    const userExists = await this.userRepository.findByEmail(request.email);
 
     if (userExists) {
-      const err = new UnprocessableEntityErrorHandler(UserAlreadyExistsMessage);
+      const err = new UnprocessableEntityErrorHandler(UserAlreadyExistsMessage); 
       err.error();
       return;
     }
 
     const user = makeUserFactory(request);
 
-    const pass = await hashPassword(request.password);
+    const pass = await hashPassword(request.password)
 
-    return await this.userRepository.create(user, pass);
+    return this.userRepository.create(user, pass);
   }
 }

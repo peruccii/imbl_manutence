@@ -1,9 +1,8 @@
-import { User } from "../entities/user";
+import type { p } from "./photos";
 
 export interface CreateManutenceRequest {
   message: string;
-  photos: string[];
+  photos: p[];
   video: string;
   userId: string;
-  client: User;
 }

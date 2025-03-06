@@ -8,10 +8,12 @@ type Override = CreateManutenceRequest;
 export function makeManutenceFactory(override: Override) {
   return new Manutence({
     message: new Message(override.message),
-    photos: override.photos,
+    photos: override.photos.map((photoKey) => ({
+      key: photoKey.key,
+      url: photoKey.url, 
+    })),
     video: override.video,
     userId: override.userId,
     status_manutence: StatusManutence.CREATED,
-    user: override.client,
   });
 }

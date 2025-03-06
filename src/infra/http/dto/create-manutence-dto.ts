@@ -1,9 +1,8 @@
-import { User } from 'src/application/entities/user';
+import type { p } from '@application/interfaces/photos';
 
 export class ManutenceCreateDto {
   message: string;
-  photos: string[];
+  photos: p[];
   video: string;
   userId: string;
-  client: User;
 }

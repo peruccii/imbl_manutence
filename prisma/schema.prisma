@@ -30,7 +30,7 @@ enum Role {
 model Manutence {
   id               String          @id @unique
   photos           Json
-  video            String
+  video            String 
   message          String
   status_manutence StatusManutence
   createdAt        DateTime

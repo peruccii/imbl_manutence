@@ -1,15 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ManutenceRepository } from 'src/application/repositories/manutence-repository';
 import { ManutenceCreateService } from 'src/application/usecases/manutence-create-service';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  providers: [
-    ManutenceCreateService,
-    {
-      provide: ManutenceRepository,
-      useClass: ManutenceCreateService,
-    },
-  ],
-  exports: [ManutenceRepository],
+  imports: [PrismaModule], 
+  providers: [ManutenceCreateService],
+  exports: [ManutenceCreateService],
 })
 export class ManutenceModule {}
