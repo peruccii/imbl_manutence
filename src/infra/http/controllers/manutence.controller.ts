@@ -11,14 +11,8 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import {
-  FileFieldsInterceptor,
-  FileInterceptor,
-  FilesInterceptor,
-  type MulterModuleOptions,
-} from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Role } from 'src/application/enums/role.enum';
-import { FileUploadService } from 'src/application/usecases/file-upload-service';
 import { ManutenceCreateService } from 'src/application/usecases/manutence-create-service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Roles } from 'src/roles/roles.decorator';
@@ -36,64 +30,66 @@ import { PaginationDto } from '../dto/pagination-dto';
 import { GetCountNewManutences } from '@application/usecases/count-new-manutences-service';
 import { StatusManutence } from '@application/enums/StatusManutence';
 import { RolesGuard } from '@application/guards/role.guards';
-// import type { S3ServiceUseCase } from '@application/usecases/s3-service';
+import { S3ServiceUseCase } from '@application/usecases/s3-service';
 
 @Controller('manutence')
 export class ManutenceController {
   constructor(
     private readonly manutenceCreate_service: ManutenceCreateService,
-    private readonly fileUploadService: FileUploadService,
     private readonly manutenceGetOne_service: FindOneManutenceService,
     private readonly manutencesGetAll_service: FindAllManutences,
     private readonly manutenceDelete_service: DeleteManutenceService,
     private readonly manutenceGetAllNewCount_service: GetCountNewManutences,
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
-    // private readonly s3Service: S3ServiceUseCase,
+    private readonly s3Service: S3ServiceUseCase,
   ) {}
 
   @UseGuards(AuthGuard, RolesGuard)
   @Post('create')
   @Roles(Role.USER, Role.ADMIN)
-  @UseInterceptors(FileFieldsInterceptor([
-    { name: 'photos', maxCount: 10 },
-    { name: 'video', maxCount: 1 }
-  ]))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'photos', maxCount: 10 },
+      { name: 'video', maxCount: 1 },
+    ]),
+  )
   async createManutence(
     @Body() request: ManutenceCreateDto,
     @UploadedFiles() photos: { photos: MulterFilesS3 },
     @UploadedFile() video: MulterFileS3,
   ) {
-    console.log(video)
+    console.log(request.message);
+    console.log(video); // undefined
     const uploadedFiles = {
-      photos: photos?.photos.map((file) => ({ key: file.key })) || [],
+      photos: photos.photos.map((file) => ({ key: file.key })) || [],
       video: video.key,
     };
 
     request.photos = uploadedFiles.photos;
     request.video = uploadedFiles.video;
 
-    const obj = { photos, video };
-    this.fileUploadService.handleFileUpload(obj);
     return await this.manutenceCreate_service.execute(request);
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
   async getManutence(@Param('id') param: FindOneParams) {
     const { manutence } = await this.manutenceGetOne_service.execute(param);
 
-    // manutence.photos = await Promise.all( // ts code will let my request more longer ( time )
-    //   manutence.photos.map(async (foto) => ({
-    //     key: foto.key,
-    //     url: await this.s3Service.getSignedUrl(foto.key),
-    //   }))
-    // );
+    manutence.photos = await Promise.all(
+      manutence.photos.map(async (foto) => ({
+        key: foto.key,
+        url: await this.s3Service.getSignedUrl(foto.key),
+      })),
+    );
 
-    // manutence.video = await this.s3Service.getSignedUrl(manutence.video)
+    manutence.video = await this.s3Service.getSignedUrl(manutence.video);
 
     return ManutenceViewModel.toGetFormatHttp(manutence);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
   @Get('all')
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN)
@@ -106,6 +102,7 @@ export class ManutenceController {
     });
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
   @Get('filters')
   @Roles(Role.ADMIN)
   async getManutencesByFilters(
@@ -115,6 +112,7 @@ export class ManutenceController {
     return this.manutenceGetByFilters_service.execute(filters, pagination);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
   @Delete('delete/:id')
   @UseGuards(AuthGuard)
   @Roles(Role.USER, Role.ADMIN)
@@ -122,6 +120,7 @@ export class ManutenceController {
     return await this.manutenceDelete_service.execute(param);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
   @Get('manutences_notifications')
   @Roles(Role.USER, Role.ADMIN)
   async getCountNewManutences() {
