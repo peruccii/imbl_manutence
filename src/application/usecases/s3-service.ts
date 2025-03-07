@@ -6,18 +6,20 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class S3ServiceUseCase {
   public s3Client: S3Client;
-  private bucketName = 'imbl-manutence-bucket';
+  private bucketName: string;
 
   constructor(private readonly configService: ConfigService) {
+    const region = this.configService.get<string>('AWS_REGION');
     const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
     const secretAccessKey = this.configService.get<string>(
       'AWS_SECRET_ACCESS_KEY',
     );
+    this.bucketName = this.configService.get<string>('AWS_BUCKET_NAME')!;
     if (!accessKeyId || !secretAccessKey) {
       throw new Error('AWS credentials are not configured in the environment.');
     }
     this.s3Client = new S3Client({
-      region: 'us-east-1',
+      region: region,
       credentials: {
         accessKeyId,
         secretAccessKey,
