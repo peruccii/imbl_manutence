@@ -23,7 +23,7 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
-  app.useBodyParser('json', { limit: '20mb' });
+  app.useBodyParser('json', { limit: '50mb' });
 
   await app.listen(process.env.PORT ?? 4000);
 }

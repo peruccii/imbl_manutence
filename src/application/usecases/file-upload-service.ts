@@ -9,7 +9,7 @@ import {
 } from 'src/infra/http/MulterType/s3multer-type';
 
 export interface FilesTypeInterface {
-  photos: MulterFilesS3 | MulterFiles;
+  photos: { photos: MulterFilesS3 | MulterFiles } ;
   video: MulterFileS3 | MulterFile;
 }
 

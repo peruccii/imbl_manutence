@@ -6,6 +6,7 @@ import { FindByEmailUserService } from '@application/usecases/get-user-by-email-
 import { GetAllUsersService } from '@application/usecases/find-all-users-service';
 import { PrismaUserRepository } from '../prisma/repositories/prisma-user-repository';
 import { UserRepository } from '@application/repositories/user-repository';
+import { DeleteUserService } from '@application/usecases/delete-user-service';
 
 @Module({
   imports: [PrismaModule],
@@ -14,6 +15,7 @@ import { UserRepository } from '@application/repositories/user-repository';
     FindByEmailUserService,
     FindByIdUserService,
     GetAllUsersService,
+    DeleteUserService, 
     {
       provide: UserRepository,
       useClass: PrismaUserRepository,
@@ -24,6 +26,7 @@ import { UserRepository } from '@application/repositories/user-repository';
     FindByEmailUserService,
     FindByIdUserService,
     GetAllUsersService,
+    DeleteUserService, 
     UserRepository,
   ],
 })

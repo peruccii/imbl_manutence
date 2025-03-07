@@ -15,13 +15,13 @@ import type {
   FindByEmailParams,
   FindOneParams,
 } from '../dto/find-one-manutence-dto';
-import type { FindByEmailUserService } from '@application/usecases/get-user-by-email-service';
+import  { FindByEmailUserService } from '@application/usecases/get-user-by-email-service';
 import { UserViewModel } from '../view-models/user-view-model';
-import type { FindByIdUserService } from '@application/usecases/get-user-by-id-service';
-import type { PaginationDto } from '../dto/pagination-dto';
-import type { User } from '@application/entities/user';
+import  { FindByIdUserService } from '@application/usecases/get-user-by-id-service';
+import  { PaginationDto } from '../dto/pagination-dto';
+import  { User } from '@application/entities/user';
 import { AuthGuard } from 'src/auth/auth.guard';
-import type { GetAllUsersService } from '@application/usecases/find-all-users-service';
+import  { GetAllUsersService } from '@application/usecases/find-all-users-service';
 
 @Controller('user')
 export class UserController {

@@ -36,28 +36,32 @@ import { FindByEmailUserService } from '@application/usecases/get-user-by-email-
   imports: [
     AuthModule,
     DatabaseModule,
-    ChatModule,
-    UserModule,
-    ManutenceModule,
-    // S3Module,
     PrismaModule,
+    UserModule, // Importa todos os serviços exportados do UserModule
+    ManutenceModule,
+    ChatModule,
     MulterModule.registerAsync(multerOptionsFactory),
   ],
-  controllers: [ManutenceController, UserController, ChatController],
+  controllers: [
+    ManutenceController,
+    UserController,
+    ChatController,
+  ],
   providers: [
     DeleteUserService,
     FileUploadService,
     FindOneManutenceService,
     FindAllManutences,
-    ChatGateway,
-    AuthGuard,
-    RolesGuard,
-    GetAllChatsRoomService,
-    RequestContext,
     DeleteManutenceService,
-    GetAllChatsRoomWithMessageService,
     GetCountNewManutences,
     FindManutenceByFilters,
+    GetAllChatsRoomService,
+    GetAllChatsRoomWithMessageService,
+    
+    AuthGuard,
+    RolesGuard,
+    ChatGateway,
+    RequestContext,
   ],
 })
 export class HttpModule {}

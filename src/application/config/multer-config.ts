@@ -13,7 +13,7 @@ export const multerOptionsFactory = {
         secretAccessKey: configService.get<string>('AWS_SECRET_ACCESS_KEY')!,
       },
     });
-
+    
     return {
       storage: multerS3({
         s3: s3Config,

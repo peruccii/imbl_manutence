@@ -12,6 +12,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
+  FileFieldsInterceptor,
   FileInterceptor,
   FilesInterceptor,
   type MulterModuleOptions,
@@ -53,14 +54,18 @@ export class ManutenceController {
   @UseGuards(AuthGuard, RolesGuard)
   @Post('create')
   @Roles(Role.USER, Role.ADMIN)
-  @UseInterceptors(FilesInterceptor('photos', 10), FileInterceptor('video'))
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'photos', maxCount: 10 },
+    { name: 'video', maxCount: 1 }
+  ]))
   async createManutence(
     @Body() request: ManutenceCreateDto,
-    @UploadedFiles() photos: MulterFilesS3,
+    @UploadedFiles() photos: { photos: MulterFilesS3 },
     @UploadedFile() video: MulterFileS3,
   ) {
+    console.log(video)
     const uploadedFiles = {
-      photos: photos?.map((file) => ({ key: file.key })) || [],
+      photos: photos?.photos.map((file) => ({ key: file.key })) || [],
       video: video.key,
     };
 
