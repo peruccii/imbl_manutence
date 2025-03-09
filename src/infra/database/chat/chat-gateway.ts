@@ -1,5 +1,6 @@
 import type { User } from '@application/entities/user';
 import { CreateChatRoomRequest } from '@application/interfaces/create-room';
+import type { RoomUser } from '@application/interfaces/room-users-interface';
 import { SendMessageInterface } from '@application/interfaces/send-message';
 import { ChatRepository } from '@application/repositories/chat-repository';
 import {
@@ -84,10 +85,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const roomExists = await this.chatRepository.findRoom(roomName);
     
+    const RoomUserObject: RoomUser = {
+      id: clientData?.user.id,
+      email: clientData?.user.email.value,
+      name: clientData?.user.name.value,
+    }
+
+
     if (!roomExists) {
       const createRoomRequest: CreateChatRoomRequest = {
         name: roomName, // no front vai ser o nome do client
-        users: [clientData.user],
+        users: [RoomUserObject],
         messages: [],
       };
       await this.chatRepository.createRoom(createRoomRequest);

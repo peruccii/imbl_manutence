@@ -17,7 +17,7 @@ import { ManutenceCreateService } from 'src/application/usecases/manutence-creat
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Roles } from 'src/roles/roles.decorator';
 import { ManutenceCreateDto } from '../dto/create-manutence-dto';
-import { MulterFileS3, MulterFilesS3 } from '../MulterType/s3multer-type';
+import { MulterFilesS3 } from '../MulterType/s3multer-type';
 import { FindOneParams } from '../dto/find-one-manutence-dto';
 import { FindOneManutenceService } from 'src/application/usecases/find-one-manutence-service';
 import { ManutenceViewModel } from '../view-models/manutence-view-model';
@@ -30,18 +30,19 @@ import { PaginationDto } from '../dto/pagination-dto';
 import { GetCountNewManutences } from '@application/usecases/count-new-manutences-service';
 import { StatusManutence } from '@application/enums/StatusManutence';
 import { RolesGuard } from '@application/guards/role.guards';
-import { S3ServiceUseCase } from '@application/usecases/s3-service';
+import { FilesTypeInterface } from '@application/interfaces/files-type-interface';
+import { UserId } from '@application/utils/extract-user-id';
 
 @Controller('manutence')
 export class ManutenceController {
   constructor(
+   
     private readonly manutenceCreate_service: ManutenceCreateService,
     private readonly manutenceGetOne_service: FindOneManutenceService,
     private readonly manutencesGetAll_service: FindAllManutences,
     private readonly manutenceDelete_service: DeleteManutenceService,
     private readonly manutenceGetAllNewCount_service: GetCountNewManutences,
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
-    private readonly s3Service: S3ServiceUseCase,
   ) {}
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -50,25 +51,23 @@ export class ManutenceController {
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'photos', maxCount: 10 },
-      { name: 'video', maxCount: 1 },
+      { name: 'video', maxCount: 1,  },
     ]),
   )
   async createManutence(
+    @UserId() userId: string,
     @Body() request: ManutenceCreateDto,
-    @UploadedFiles() photos: { photos: MulterFilesS3 },
-    @UploadedFile() video: MulterFileS3,
+    @UploadedFiles()  files: { photos?: Express.Multer.File[]; video: Express.Multer.File[] },
   ) {
-    console.log(request.message);
-    console.log(video); // undefined
-    const uploadedFiles = {
-      photos: photos.photos.map((file) => ({ key: file.key })) || [],
-      video: video.key,
+    
+    const fileData: FilesTypeInterface = {
+      photos: files.photos || [],
+      video: files.video[0],
     };
 
-    request.photos = uploadedFiles.photos;
-    request.video = uploadedFiles.video;
-
-    return await this.manutenceCreate_service.execute(request);
+    const r = { ...request, userId };
+    
+    return await this.manutenceCreate_service.execute(r, fileData);
   }
 
   @Get(':id')
@@ -77,14 +76,14 @@ export class ManutenceController {
   async getManutence(@Param('id') param: FindOneParams) {
     const { manutence } = await this.manutenceGetOne_service.execute(param);
 
-    manutence.photos = await Promise.all(
-      manutence.photos.map(async (foto) => ({
-        key: foto.key,
-        url: await this.s3Service.getSignedUrl(foto.key),
-      })),
-    );
+    // manutence.photos = await Promise.all(
+    //   manutence.photos.map(async (foto) => ({
+    //     key: foto.key,
+    //     url: await this.s3Service.getSignedUrl(foto.key),
+    //   })),
+    // );
 
-    manutence.video = await this.s3Service.getSignedUrl(manutence.video);
+    // manutence.video = await this.s3Service.getSignedUrl(manutence.video);
 
     return ManutenceViewModel.toGetFormatHttp(manutence);
   }

@@ -1,21 +1,74 @@
-import { Injectable } from '@nestjs/common';
-import {
-  MulterFile,
-  MulterFiles,
-} from 'src/infra/http/MulterType/multer-type-default';
-import {
-  MulterFileS3,
-  MulterFilesS3,
-} from 'src/infra/http/MulterType/s3multer-type';
+import { FilesTypeInterface } from '@application/interfaces/files-type-interface';
+import { UploadedFile } from '@application/interfaces/upload-file';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'crypto';
 
-export interface FilesTypeInterface {
-  photos: { photos: MulterFilesS3 | MulterFiles } ;
-  video: MulterFileS3 | MulterFile;
+interface UploadResponse {
+  photos: string[]; video: string
+}
+
+interface UploadedFilesObject {
+  photos: string[]; video: string
 }
 
 @Injectable()
 export class FileUploadService {
-  handleFileUpload(data: FilesTypeInterface) {
-    return data;
+  private readonly bucketName: string;
+  private readonly s3Client: S3Client;
+
+  constructor(private readonly configService: ConfigService) {
+    this.bucketName = this.configService.getOrThrow('AWS_BUCKET_NAME');
+    this.s3Client = new S3Client({
+      region: this.configService.getOrThrow('AWS_REGION'),
+      credentials: {
+        accessKeyId: this.configService.getOrThrow('AWS_ACCESS_KEY_ID'),
+        secretAccessKey: this.configService.getOrThrow('AWS_SECRET_ACCESS_KEY'),
+      },
+    });
+  }
+
+  async handleFileUpload(data: FilesTypeInterface): Promise<UploadResponse> {
+    const uploadedFiles: UploadedFilesObject = { photos: [], video: '' };
+
+    if (!data.photos || data.photos.length === 0) {
+      throw new BadRequestException('Pelo menos uma foto é obrigatória');
+    }
+
+    uploadedFiles.photos = await Promise.all(
+      data.photos.map(async (photo) => {
+        if (!photo.mimetype.startsWith('image/')) {
+          throw new BadRequestException('As fotos devem ser imagens');
+        }
+        return this.uploadToS3(photo, 'photos');
+      }),
+    );
+
+    if (data.video) {
+      if (!data.video.mimetype.startsWith('video/')) {
+        throw new BadRequestException('O vídeo deve ser um arquivo de vídeo');
+      }
+      uploadedFiles.video = await this.uploadToS3(data.video, 'videos');
+    }
+
+    return uploadedFiles;
+  }
+
+  private async uploadToS3(file: UploadedFile, folder: string): Promise<string> {
+    const fileName = `${folder}/${file.originalname.replace(/\s/g, '')}-${randomUUID()}`;
+    try {
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: fileName,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        }),
+      );
+      return `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${fileName}`;
+    } catch (error) {
+      throw new BadRequestException(`Erro ao fazer upload do arquivo: ${error}`);
+    }
   }
 }

@@ -8,10 +8,12 @@ import { GetCountNewManutences } from '@application/usecases/count-new-manutence
 import { FindManutenceByFilters } from '@application/usecases/find-by-filter-manutence-dto';
 import { PrismaManutenceRepository } from '../prisma/repositories/prisma-manutence-repository';
 import { ManutenceRepository } from '@application/repositories/manutence-repository';
+import { FileUploadService } from '@application/usecases/file-upload-service';
 
 @Module({
   imports: [PrismaModule],
   providers: [
+    FileUploadService,
     ManutenceCreateService,
     FindOneManutenceService,
     FindAllManutences,

@@ -13,6 +13,8 @@ import { StatusManutence } from '@application/enums/StatusManutence';
 import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
 import { PrismaCreateRoomMapper } from '../mappers/prisma-create-room-mapper';
 import type { CreateChatRoomRequest } from '@application/interfaces/create-room';
+import { ManutenceNotFoundMessage } from '@application/messages/manutence-not-found';
+import type { RoomUser } from '@application/interfaces/room-users-interface';
 
 @Injectable()
 export class PrismaManutenceRepository implements ManutenceRepository {
@@ -48,7 +50,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       },
     });
 
-    if (!manutence) throw new NotFoundErrorHandler(UserNotFoundMessage);
+    if (!manutence) throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
 
     return PrismaManutenceMapper.toDomain(manutence);
   }
@@ -60,9 +62,22 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         data: raw,
       });
 
+      const manutencee = await prisma.manutence.findUnique({
+        where: { id: createdManutence.id },
+        include: { user: true },
+      });
+
+      if (!manutencee) throw new Error()
+
+      const RoomUserObject: RoomUser = {
+        id: manutencee?.user.id,
+        email: manutencee?.user.email,
+        name: manutencee?.user.name,
+      }
+
       const createRoomRequest: CreateChatRoomRequest = {
         name: manutence.user ? manutence.user.name.value : createdManutence.id,
-        users: [manutence.user!],
+        users: [RoomUserObject],
         messages: [],
       };
 
@@ -72,14 +87,13 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         data: msg,
       });
 
-      const userId = this.requestContext.get('userId');
-      console.log('ID DO USUARIO QUE CRIOU A MANUTENCE', userId);
+      console.log('ID DO USUARIO QUE CRIOU A MANUTENCE', createdManutence.userId);
 
       // todo: review this code below!
       const rawManutence = PrismaHistoryManutenceMapper.toPrisma(
         ActionHistory.MANUTENCE_CREATED,
         manutence,
-        userId,
+        createdManutence.userId,
         createdManutence.id,
       );
       //

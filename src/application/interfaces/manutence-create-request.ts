@@ -1,8 +1,7 @@
-import type { p } from "./photos";
 
 export interface CreateManutenceRequest {
   message: string;
-  photos: p[];
+  photos: string[];
   video: string;
   userId: string;
 }

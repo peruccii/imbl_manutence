@@ -1,8 +1,8 @@
 import { Message } from '@application/entities/message';
-import { User } from '@application/entities/user';
+import type { RoomUser } from './room-users-interface';
 
 export interface CreateChatRoomRequest {
   name: string;
-  users: User[];
+  users: RoomUser[];
   messages: Message[];
 }

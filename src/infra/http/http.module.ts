@@ -24,11 +24,8 @@ import { ChatController } from './controllers/chat.controller';
 import { GetAllChatsRoomService } from '@application/usecases/get-all-chats-room-service';
 import { GetAllChatsRoomWithMessageService } from '@application/usecases/get-chats-with-messages-service';
 import { S3Module } from '@infra/database/s3/s3.module';
-import { MulterModule } from '@nestjs/platform-express';
-import { multerOptionsFactory } from '@application/config/multer-config';
 import { ManutenceModule } from '@infra/database/manutence/manutence.module';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { S3ServiceUseCase } from '@application/usecases/s3-service';
 
 @Module({
   imports: [
@@ -39,7 +36,6 @@ import { S3ServiceUseCase } from '@application/usecases/s3-service';
     ManutenceModule,
     S3Module,
     PrismaModule,
-    MulterModule.registerAsync(multerOptionsFactory),
   ],
   controllers: [ManutenceController, UserController, ChatController],
   providers: [
