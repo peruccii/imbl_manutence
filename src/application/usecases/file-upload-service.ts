@@ -1,16 +1,22 @@
 import { FilesTypeInterface } from '@application/interfaces/files-type-interface';
 import { UploadedFile } from '@application/interfaces/upload-file';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectsCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 
 interface UploadResponse {
-  photos: string[]; video: string
+  photos: string[];
+  video: string;
 }
 
 interface UploadedFilesObject {
-  photos: string[]; video: string
+  photos: string[];
+  video: string;
 }
 
 @Injectable()
@@ -55,7 +61,10 @@ export class FileUploadService {
     return uploadedFiles;
   }
 
-  private async uploadToS3(file: UploadedFile, folder: string): Promise<string> {
+  private async uploadToS3(
+    file: UploadedFile,
+    folder: string,
+  ): Promise<string> {
     const fileName = `${folder}/${file.originalname.replace(/\s/g, '')}-${randomUUID()}`;
     try {
       await this.s3Client.send(
@@ -68,7 +77,33 @@ export class FileUploadService {
       );
       return `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${fileName}`;
     } catch (error) {
-      throw new BadRequestException(`Erro ao fazer upload do arquivo: ${error}`);
+      throw new BadRequestException(
+        `Erro ao fazer upload do arquivo: ${error}`,
+      );
+    }
+  }
+
+  async deleteFilesFromS3(urls: (string | string[])[]): Promise<any> {
+    const urlsArray = Array.isArray(urls) ? urls : [urls];
+
+    const keys = urlsArray.flat().map((url) => {
+      const urlParts = new URL(url);
+      const key = urlParts.pathname.substring(1);
+      return key;
+    });
+
+    const deleteParams = {
+      Bucket: this.bucketName,
+      Delete: {
+        Objects: keys.map((key) => ({ Key: key })),
+      },
+    };
+    try {
+      const command = new DeleteObjectsCommand(deleteParams);
+      const response = await this.s3Client.send(command);
+      return response;
+    } catch (error) {
+      throw new Error('Erro ao deletar arquivos: ' + error);
     }
   }
 }

@@ -11,8 +11,7 @@ export interface FindByEmailUserRequest {
 export class FindByEmailUserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(request: FindByEmailUserRequest) {
-    const { email } = request;
+  async execute(email: string) {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {

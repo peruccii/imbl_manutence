@@ -4,7 +4,7 @@ export class ManutenceViewModel {
   static toGetFormatHttp(manutence: Manutence) {
     return {
       id: manutence.id,
-      message: manutence.message,
+      message: manutence.message.value,
       photos: manutence.photos,
       video: manutence.video,
       client: manutence.user,

@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { ManutenceRepository } from 'src/application/repositories/manutence-repository';
 import { Manutence } from 'src/application/entities/manutence';
 import { PrismaManutenceMapper } from '../mappers/prisma-manutence-mapper';
-import { UserNotFoundMessage } from 'src/application/messages/user-not-found';
+import {} from 'src/application/messages/user-not-found';
 import { Pagination } from '@application/interfaces/pagination';
 import { FiltersManutence } from '@application/interfaces/filters-manutence';
 import { PrismaHistoryManutenceMapper } from '../mappers/prisma-history-manutence-mapper';
@@ -12,9 +12,9 @@ import { RequestContext } from '@application/utils/request-context';
 import { StatusManutence } from '@application/enums/StatusManutence';
 import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
 import { PrismaCreateRoomMapper } from '../mappers/prisma-create-room-mapper';
-import type { CreateChatRoomRequest } from '@application/interfaces/create-room';
+import { CreateChatRoomRequest } from '@application/interfaces/create-room';
 import { ManutenceNotFoundMessage } from '@application/messages/manutence-not-found';
-import type { RoomUser } from '@application/interfaces/room-users-interface';
+import { RoomUser } from '@application/interfaces/room-users-interface';
 
 @Injectable()
 export class PrismaManutenceRepository implements ManutenceRepository {
@@ -67,14 +67,16 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         include: { user: true },
       });
 
-      if (!manutencee) throw new Error()
+      if (!manutencee) throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
 
+      // TODO make factory
       const RoomUserObject: RoomUser = {
-        id: manutencee?.user.id,
-        email: manutencee?.user.email,
-        name: manutencee?.user.name,
-      }
+        id: manutencee.user.id,
+        email: manutencee.user.email,
+        name: manutencee.user.name,
+      };
 
+      // TODO make factory
       const createRoomRequest: CreateChatRoomRequest = {
         name: manutence.user ? manutence.user.name.value : createdManutence.id,
         users: [RoomUserObject],
@@ -86,8 +88,6 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       await prisma.chatRoom.create({
         data: msg,
       });
-
-      console.log('ID DO USUARIO QUE CRIOU A MANUTENCE', createdManutence.userId);
 
       // todo: review this code below!
       const rawManutence = PrismaHistoryManutenceMapper.toPrisma(
@@ -154,9 +154,6 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         user: true,
       },
     });
-
-    const userId = this.requestContext.get('userId');
-    console.log('ID DO USUARIO QUE CRIOU A MANUTENCE', userId);
 
     return manutences.map((manutence) => {
       return PrismaManutenceMapper.toDomain(manutence);

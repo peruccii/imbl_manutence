@@ -6,10 +6,10 @@ import {
   Param,
   Post,
   Query,
-  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Role } from 'src/application/enums/role.enum';
@@ -17,7 +17,6 @@ import { ManutenceCreateService } from 'src/application/usecases/manutence-creat
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Roles } from 'src/roles/roles.decorator';
 import { ManutenceCreateDto } from '../dto/create-manutence-dto';
-import { MulterFilesS3 } from '../MulterType/s3multer-type';
 import { FindOneParams } from '../dto/find-one-manutence-dto';
 import { FindOneManutenceService } from 'src/application/usecases/find-one-manutence-service';
 import { ManutenceViewModel } from '../view-models/manutence-view-model';
@@ -36,7 +35,6 @@ import { UserId } from '@application/utils/extract-user-id';
 @Controller('manutence')
 export class ManutenceController {
   constructor(
-   
     private readonly manutenceCreate_service: ManutenceCreateService,
     private readonly manutenceGetOne_service: FindOneManutenceService,
     private readonly manutencesGetAll_service: FindAllManutences,
@@ -45,32 +43,32 @@ export class ManutenceController {
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
   ) {}
 
-  @UseGuards(AuthGuard, RolesGuard)
   @Post('create')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'photos', maxCount: 10 },
-      { name: 'video', maxCount: 1,  },
+      { name: 'video', maxCount: 1 },
     ]),
   )
   async createManutence(
     @UserId() userId: string,
     @Body() request: ManutenceCreateDto,
-    @UploadedFiles()  files: { photos?: Express.Multer.File[]; video: Express.Multer.File[] },
+    @UploadedFiles()
+    files: { photos?: Express.Multer.File[]; video: Express.Multer.File[] },
   ) {
-    
     const fileData: FilesTypeInterface = {
       photos: files.photos || [],
       video: files.video[0],
     };
 
     const r = { ...request, userId };
-    
+
     return await this.manutenceCreate_service.execute(r, fileData);
   }
 
-  @Get(':id')
+  @Get('get/:id')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
   async getManutence(@Param('id') param: FindOneParams) {
@@ -88,11 +86,17 @@ export class ManutenceController {
     return ManutenceViewModel.toGetFormatHttp(manutence);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
   @Get('all')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  async getAllManutences(@Query() pagination: PaginationDto) {
+  async getAllManutences(
+    @Query(
+      new ValidationPipe({
+        transform: true,
+      }),
+    )
+    pagination: PaginationDto,
+  ) {
     const { manutences } =
       await this.manutencesGetAll_service.execute(pagination);
 
@@ -101,8 +105,8 @@ export class ManutenceController {
     });
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
   @Get('filters')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   async getManutencesByFilters(
     @Query() filters: ManutenceFiltersDto,
@@ -111,16 +115,16 @@ export class ManutenceController {
     return this.manutenceGetByFilters_service.execute(filters, pagination);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
   @Delete('delete/:id')
+  @UseGuards(AuthGuard, RolesGuard)
   @UseGuards(AuthGuard)
   @Roles(Role.USER, Role.ADMIN)
   async deleteManutence(@Param('id') param: string) {
     return await this.manutenceDelete_service.execute(param);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
   @Get('manutences_notifications')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
   async getCountNewManutences() {
     return await this.manutenceGetAllNewCount_service.execute(
