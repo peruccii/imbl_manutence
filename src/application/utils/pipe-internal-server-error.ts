@@ -15,7 +15,7 @@ export class InternalServerErrorHandlerFilter implements ExceptionFilter {
     response.status(status).json({
       statusCode: status,
       code: exception['code'] || 'INTERNAL_SERVER_ERROR',
-      message: exception.message,
+      message: exception.getMessages(),
     });
   }
 }

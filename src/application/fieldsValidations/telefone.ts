@@ -1,5 +1,5 @@
-import { InternalServerErrorHandler } from "@application/errors/internal-server-error.error";
-import { TELEFONE_FORMAT_ERROR } from "@application/utils/constants";
+import { InternalServerErrorHandler } from '@application/errors/internal-server-error.error';
+import { TELEFONE_FORMAT_ERROR } from '@application/utils/constants';
 
 export class Telefone {
   private readonly telephone: string;
@@ -14,10 +14,14 @@ export class Telefone {
   }
 
   constructor(telephone: string) {
-    const isTelefoneRegexValid = this.validateTelefoneRegex(telephone);
-
-    if (!isTelefoneRegexValid) throw new InternalServerErrorHandler(TELEFONE_FORMAT_ERROR);
-
     this.telephone = telephone;
+  }
+
+  public validate(): string[] {
+    const isTelefoneRegexValid = this.validateTelefoneRegex(this.telephone);
+    const errors: string[] = [];
+    if (!isTelefoneRegexValid) errors.push(TELEFONE_FORMAT_ERROR);
+
+    return errors;
   }
 }

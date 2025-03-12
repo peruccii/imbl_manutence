@@ -1,6 +1,5 @@
 import { InternalServerErrorHandler } from '@application/errors/internal-server-error.error';
 import { NAME_LENGTH_ERROR } from '@application/utils/constants';
-import { HttpStatus, InternalServerErrorException } from '@nestjs/common';
 
 export class Name {
   private readonly name: string;
@@ -14,11 +13,15 @@ export class Name {
   }
 
   constructor(name: string) {
-    const isNameLengthValid = this.validateNameLength(name);
-
-    if (!isNameLengthValid)
-      throw new InternalServerErrorHandler(NAME_LENGTH_ERROR);
-
     this.name = name;
+  }
+
+  public validate(): string[] {
+    const isNameLengthValid = this.validateNameLength(this.name);
+    const errors: string[] = [];
+
+    if (!isNameLengthValid) errors.push(NAME_LENGTH_ERROR);
+
+    return errors;
   }
 }

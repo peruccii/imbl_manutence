@@ -9,7 +9,7 @@ import { Password } from '@application/fieldsValidations/password';
 
 export interface UserProps {
   name: Name;
-  telephone: Telefone | null;
+  telephone: Telefone;
   email: Email;
   createdAt: Date;
   typeUser: Role;
@@ -57,11 +57,11 @@ export class User {
     this.props.email = email;
   }
 
-  public get telephone(): Telefone | null {
+  public get telephone(): Telefone {
     return this.props.telephone;
   }
 
-  public set telephone(telephone: Telefone | null) {
+  public set telephone(telephone: Telefone) {
     this.props.telephone = telephone;
   }
 

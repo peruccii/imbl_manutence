@@ -1,5 +1,8 @@
-import { InternalServerErrorHandler } from "@application/errors/internal-server-error.error";
-import { EMAIL_FORMAT_INVALID, EMAIL_LENGTH_ERROR } from "@application/utils/constants";
+import { InternalServerErrorHandler } from '@application/errors/internal-server-error.error';
+import {
+  EMAIL_FORMAT_INVALID,
+  EMAIL_LENGTH_ERROR,
+} from '@application/utils/constants';
 
 export class Email {
   private readonly email: string;
@@ -18,12 +21,21 @@ export class Email {
   }
 
   constructor(email: string) {
-    const isEmailLengthValid = this.validateEmailLength(email);
-    const isEmailValid = this.validateEmailIsValid(email);
-
-    if (!isEmailLengthValid) throw new InternalServerErrorHandler(EMAIL_LENGTH_ERROR); 
-    if (!isEmailValid) throw new InternalServerErrorHandler(EMAIL_FORMAT_INVALID);
-
     this.email = email;
+  }
+
+  public validate(): string[] {
+    const errors: string[] = [];
+    const isEmailLengthValid = this.validateEmailLength(this.email);
+    const isEmailValid = this.validateEmailIsValid(this.email);
+
+    if (!isEmailLengthValid) {
+      errors.push(EMAIL_LENGTH_ERROR);
+    }
+    if (!isEmailValid) {
+      errors.push(EMAIL_FORMAT_INVALID);
+    }
+
+    return errors;
   }
 }

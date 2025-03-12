@@ -30,8 +30,6 @@ export class UserController {
   ) {}
 
   @Post('create')
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
   async createUser(@Body() request: CreateUserRequest) {
     return await this.create_user.execute(request);
   }

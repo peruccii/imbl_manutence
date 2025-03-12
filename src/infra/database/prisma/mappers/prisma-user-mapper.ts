@@ -13,7 +13,7 @@ export class PrismaUserMapper {
       id: user.id,
       name: user.name.value,
       email: user.email.value,
-      telephone: user.telephone ? user.telephone.value : null,
+      telephone: user.telephone.value,
       password: user.password.value,
       createdAt: user.createdAt,
       typeUser: user.typeUser,
@@ -25,7 +25,7 @@ export class PrismaUserMapper {
       {
         email: new Email(rawUser.email),
         name: new Name(rawUser.name),
-        telephone: rawUser.telephone ? new Telefone(rawUser.telephone) : null,
+        telephone: new Telefone(rawUser.telephone),
         createdAt: rawUser.createdAt,
         typeUser: rawUser.typeUser as Role,
         manutences: manutences,

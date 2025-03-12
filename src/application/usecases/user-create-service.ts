@@ -12,16 +12,21 @@ export class UserCreateService {
 
   async execute(request: CreateUserRequest) {
     const userExists = await this.userRepository.findByEmail(request.email);
-
+    console.log(request);
     if (userExists) {
-      const err = new UnprocessableEntityErrorHandler(UserAlreadyExistsMessage); 
+      const err = new UnprocessableEntityErrorHandler(UserAlreadyExistsMessage);
       err.error();
       return;
     }
 
     const user = makeUserFactory(request);
 
-    const pass = await hashPassword(request.password)
+    user.email.validate();
+    user.password.validate();
+    user.telephone.validate();
+    user.name.validate();
+
+    const pass = await hashPassword(request.password);
 
     return this.userRepository.create(user, pass);
   }
