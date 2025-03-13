@@ -15,7 +15,7 @@ export class ValidationErrorFilter implements ExceptionFilter {
     response.status(status).json({
       statusCode: status,
       code: 'VALIDATION_ERROR',
-      errors: exception.getErrors(), // Retorna o array de erros estruturado
+      errors: exception.getErrors(),
     });
   }
 }

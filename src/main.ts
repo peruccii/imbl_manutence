@@ -6,6 +6,7 @@ import { InternalServerErrorHandlerFilter } from '@application/utils/pipe-intern
 import { NotFoundErrorErrorHandlerFilter } from '@application/utils/pipe-not-found-error';
 import { UnprocessableEntityErrorHandlerFilter } from '@application/utils/pipe-unprocessable-entity-error';
 import { ForbiddenErrorHandlerFilter } from '@application/utils/pipe-forbidden-error';
+import { ValidationErrorFilter } from '@application/utils/pipe-validation-error';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -17,6 +18,7 @@ async function bootstrap() {
   app.useGlobalFilters(new NotFoundErrorErrorHandlerFilter());
   app.useGlobalFilters(new UnprocessableEntityErrorHandlerFilter());
   app.useGlobalFilters(new ForbiddenErrorHandlerFilter());
+  app.useGlobalFilters(new ValidationErrorFilter());
   app.enableCors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

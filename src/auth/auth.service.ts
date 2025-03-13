@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/application/repositories/user-repository';
 import { AuthResponseDto } from './auth-response.dto';
@@ -24,22 +21,26 @@ export class AuthService {
 
   async validateToken(token: string) {
     try {
-        const payload = this.jwtService.verify(token);
-        const user = await this.usersRepository.findOne(payload.userId);
-        return user;
+      const payload = this.jwtService.verify(token);
+      const user = await this.usersRepository.findOne(payload.userId);
+      return user;
     } catch (err) {
-        return null;  
+      return null;
     }
   }
- 
+
   async signIn(email: string, pass: string): Promise<AuthResponseDto> {
     const user = await this.usersRepository.findByEmail(email);
-    
+
     if (!user || !(await compare(pass, user?.password.value))) {
       throw new UnauthorizedException();
     }
 
-    const payload = { username: user.name, sub: user.id, typeUser: user.typeUser };
+    const payload = {
+      username: user.name,
+      sub: user.id,
+      typeUser: user.typeUser,
+    };
     const accessToken: string = await this.jwtService.signAsync(payload);
 
     return {
