@@ -5,6 +5,7 @@ import { hashPassword } from '../hash/hash_password';
 import { UserAlreadyExistsMessage } from '../messages/user-already-exsits';
 import { UserRepository } from '@application/repositories/user-repository';
 import { UnprocessableEntityErrorHandler } from '@application/errors/already-exists';
+import { ValidationError } from '@application/errors/validation-error';
 
 @Injectable()
 export class UserCreateService {
@@ -21,10 +22,19 @@ export class UserCreateService {
 
     const user = makeUserFactory(request);
 
-    user.email.validate();
-    user.password.validate();
-    user.telephone.validate();
-    user.name.validate();
+    const emailErrors = user.email.validate();
+    const passwordErrors = user.password.validate();
+    const telephoneErrors = user.telephone.validate();
+    const nameErrors =  user.name.validate();
+
+    const allErrors = [
+      ...emailErrors, 
+      ...passwordErrors, 
+      ...telephoneErrors, 
+      ...nameErrors
+    ];
+
+    if (allErrors.length > 0) throw new ValidationError(allErrors);
 
     const pass = await hashPassword(request.password);
 

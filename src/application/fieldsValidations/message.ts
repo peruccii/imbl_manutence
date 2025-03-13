@@ -1,4 +1,4 @@
-import { InternalServerErrorHandler } from '@application/errors/internal-server-error.error';
+import  { ValidationErrorDetail } from '@application/errors/validation-error';
 import { MESSAGE_LENGTH_ERROR } from '@application/utils/constants';
 
 export class Message {
@@ -13,21 +13,13 @@ export class Message {
   }
 
   constructor(message: string) {
-    const isMessageLenghtValid = this.validMessageLenght(message);
-    const errors: string[] = [];
-    if (!isMessageLenghtValid) errors.push(MESSAGE_LENGTH_ERROR);
-
-    if (errors.length > 0) {
-      throw new InternalServerErrorHandler(errors);
-    }
-
     this.message = message;
   }
 
-  public validate(): string[] {
+  public validate(): ValidationErrorDetail[] {
     const isMessageLenghtValid = this.validMessageLenght(this.message);
-    const errors: string[] = [];
-    if (!isMessageLenghtValid) errors.push(MESSAGE_LENGTH_ERROR);
+    const errors: ValidationErrorDetail[] = [];
+    if (!isMessageLenghtValid) errors.push({ field: 'message', message: MESSAGE_LENGTH_ERROR });
 
     return errors;
   }

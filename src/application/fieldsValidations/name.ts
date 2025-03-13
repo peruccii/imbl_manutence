@@ -1,4 +1,4 @@
-import { InternalServerErrorHandler } from '@application/errors/internal-server-error.error';
+import  { ValidationErrorDetail } from '@application/errors/validation-error';
 import { NAME_LENGTH_ERROR } from '@application/utils/constants';
 
 export class Name {
@@ -16,11 +16,11 @@ export class Name {
     this.name = name;
   }
 
-  public validate(): string[] {
+  public validate(): ValidationErrorDetail[] {
     const isNameLengthValid = this.validateNameLength(this.name);
-    const errors: string[] = [];
+    const errors: ValidationErrorDetail[] = [];
 
-    if (!isNameLengthValid) errors.push(NAME_LENGTH_ERROR);
+    if (!isNameLengthValid) errors.push({ field: 'name', message: NAME_LENGTH_ERROR });
 
     return errors;
   }

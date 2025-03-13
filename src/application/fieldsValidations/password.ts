@@ -1,4 +1,4 @@
-import { InternalServerErrorHandler } from '@application/errors/internal-server-error.error';
+import  { ValidationErrorDetail } from '@application/errors/validation-error';
 import { PASSWORD_LENGTH_ERROR } from '@application/utils/constants';
 
 export class Password {
@@ -16,14 +16,14 @@ export class Password {
     this.password = password;
   }
 
-  public validate(): string[] {
+  public validate(): ValidationErrorDetail[] {
     const isHashed =
       this.password.startsWith('$2b$') && this.password.length === 60;
-    const errors: string[] = [];
+    const errors: ValidationErrorDetail[] = [];
     if (!isHashed) {
       const isPasswordLengthValid = this.validatePasswordLength(this.password);
       if (!isPasswordLengthValid) {
-        errors.push(PASSWORD_LENGTH_ERROR);
+        errors.push({ field: 'password', message: PASSWORD_LENGTH_ERROR });
       }
     }
     return errors;

@@ -1,4 +1,4 @@
-import { InternalServerErrorHandler } from '@application/errors/internal-server-error.error';
+import  { ValidationErrorDetail } from '@application/errors/validation-error';
 import { TELEFONE_FORMAT_ERROR } from '@application/utils/constants';
 
 export class Telefone {
@@ -17,10 +17,10 @@ export class Telefone {
     this.telephone = telephone;
   }
 
-  public validate(): string[] {
+  public validate(): ValidationErrorDetail[] {
     const isTelefoneRegexValid = this.validateTelefoneRegex(this.telephone);
-    const errors: string[] = [];
-    if (!isTelefoneRegexValid) errors.push(TELEFONE_FORMAT_ERROR);
+    const errors: ValidationErrorDetail[] = [];
+    if (!isTelefoneRegexValid) errors.push({field: 'telephone', message: TELEFONE_FORMAT_ERROR});
 
     return errors;
   }
