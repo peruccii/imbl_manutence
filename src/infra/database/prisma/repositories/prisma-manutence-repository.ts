@@ -78,7 +78,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
 
       // TODO make factory
       const createRoomRequest: CreateChatRoomRequest = {
-        name: manutence.user ? manutence.user.name.value : createdManutence.id,
+        name: manutencee.user ? manutencee.user.name : createdManutence.id,
         users: [RoomUserObject],
         messages: [],
       };

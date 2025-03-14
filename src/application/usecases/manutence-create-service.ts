@@ -7,6 +7,7 @@ import { ManutenceRepository } from '@application/repositories/manutence-reposit
 import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
 import { FilesTypeInterface } from '@application/interfaces/files-type-interface';
 import { FileUploadService } from './file-upload-service';
+import { ValidationError } from '@application/errors/validation-error';
 
 @Injectable()
 export class ManutenceCreateService {
@@ -32,8 +33,12 @@ export class ManutenceCreateService {
     request_manutence.photos = uploadedFiles.photos;
     request_manutence.video = uploadedFiles.video;
 
-    
     const manutence = makeManutenceFactory(request_manutence);
+
+    const messageError = manutence.message.validate()
+
+    if (messageError.length > 0) throw new ValidationError(messageError);
+
     return this.manutenceRepository.create(manutence);
   }
 }
