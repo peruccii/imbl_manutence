@@ -3,7 +3,6 @@ import { PrismaService } from '../prisma.service';
 import { ManutenceRepository } from 'src/application/repositories/manutence-repository';
 import { Manutence } from 'src/application/entities/manutence';
 import { PrismaManutenceMapper } from '../mappers/prisma-manutence-mapper';
-import {} from 'src/application/messages/user-not-found';
 import { Pagination } from '@application/interfaces/pagination';
 import { FiltersManutence } from '@application/interfaces/filters-manutence';
 import { PrismaHistoryManutenceMapper } from '../mappers/prisma-history-manutence-mapper';
@@ -26,12 +25,17 @@ export class PrismaManutenceRepository implements ManutenceRepository {
   async findByFilters(
     filters: FiltersManutence,
     pagination: Pagination,
-  ): Promise<Manutence[] | null> {
+  ): Promise<Manutence[] | []> {
+    const statusFilter = filters?.status_manutence
+    ? Array.isArray(filters.status_manutence)
+      ? filters.status_manutence 
+      : [filters.status_manutence] 
+    : undefined;
     const manutences = await this.prisma.manutence.findMany({
       skip: pagination.skip,
       take: pagination.limit,
       where: {
-        status_manutence: { in: filters.status_manutence },
+        status_manutence: statusFilter ? { in: statusFilter } : undefined,
       },
     });
 
@@ -56,6 +60,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
   }
 
   async create(manutence: Manutence): Promise<void> {
+    console.log(manutence)
     const raw = PrismaManutenceMapper.toPrisma(manutence);
     await this.prisma.$transaction(async (prisma) => {
       const createdManutence = await prisma.manutence.create({
@@ -154,7 +159,6 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         user: true,
       },
     });
-
     return manutences.map((manutence) => {
       return PrismaManutenceMapper.toDomain(manutence);
     });

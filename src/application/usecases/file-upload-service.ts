@@ -2,12 +2,14 @@ import { FilesTypeInterface } from '@application/interfaces/files-type-interface
 import { UploadedFile } from '@application/interfaces/upload-file';
 import {
   DeleteObjectsCommand,
+  GetObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 interface UploadResponse {
   photos: string[];
@@ -75,12 +77,33 @@ export class FileUploadService {
           ContentType: file.mimetype,
         }),
       );
-      return `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${fileName}`;
+      return await this.getSignedUrl(fileName);
     } catch (error) {
       throw new BadRequestException(
         `Erro ao fazer upload do arquivo: ${error}`,
       );
     }
+  }
+
+  private async getSignedUrl(key: string): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    });
+    
+    return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+  }
+
+  async generateSignedUrls(urls: string | string[]): Promise<string[]> {
+    const urlsArray = Array.isArray(urls) ? urls : [urls];
+    
+    return Promise.all(
+      urlsArray.map(async (url) => {
+        const urlParts = new URL(url);
+        const key = urlParts.pathname.substring(1);
+        return await this.getSignedUrl(key);
+      }),
+    );
   }
 
   async deleteFilesFromS3(urls: (string | string[])[]): Promise<any> {

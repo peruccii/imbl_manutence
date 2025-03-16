@@ -10,7 +10,8 @@ export function makeManutenceFactory(override: Override) {
     message: new Message(override.message),
     photos: override.photos,
     video: override.video,
+    title: override.title.toUpperCase(),
     userId: override.userId,
-    status_manutence: StatusManutence.CREATED,
+    status_manutence: StatusManutence.NOVO,
   });
 }

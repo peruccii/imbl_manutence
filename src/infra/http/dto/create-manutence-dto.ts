@@ -11,4 +11,8 @@ export class ManutenceCreateDto {
   @IsNotEmpty({ message: 'userId is required' })
   @IsString()
   userId: string;
+  @IsString()
+  @MinLength(5)
+  @MaxLength(40)
+  title: string
 }

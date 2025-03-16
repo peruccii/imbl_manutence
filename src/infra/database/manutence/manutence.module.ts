@@ -29,6 +29,7 @@ import { FileUploadService } from '@application/usecases/file-upload-service';
     ManutenceCreateService,
     FindOneManutenceService,
     FindAllManutences,
+    FileUploadService,
     DeleteManutenceService,
     GetCountNewManutences,
     FindManutenceByFilters,

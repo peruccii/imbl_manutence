@@ -45,7 +45,7 @@ export class UserController {
 
   @Get('get/id/:id')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.USER)
   async getUserById(@Param('id') id: string) {
     const { user } = await this.get_user_byid.execute(id);
 

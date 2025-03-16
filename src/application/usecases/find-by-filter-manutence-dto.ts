@@ -8,6 +8,7 @@ export class FindManutenceByFilters {
   constructor(private readonly manutenceRepository: ManutenceRepository) {}
 
   async execute(filters: FiltersManutence, pagination: Pagination) {
-    return await this.manutenceRepository.findByFilters(filters, pagination);
+    const manutences = await this.manutenceRepository.findByFilters(filters, pagination);
+    return { manutences }
   }
 }

@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -30,9 +30,10 @@ enum Role {
 model Manutence {
   id               String          @id @unique
   photos           Json
-  video            String 
+  video            String           @db.Text 
+  title            String
   message          String
-  status_manutence StatusManutence
+  status_manutence StatusManutence @default(NOVO)
   createdAt        DateTime
   userId           String
   user             User            @relation(fields: [userId], references: [id])
@@ -41,10 +42,10 @@ model Manutence {
 }
 
 enum StatusManutence {
-  FINALIZED
-  IN_PROGRESS
-  CANCELLED
-  CREATED
+  FINALIZADO
+  ANDAMENTO
+  CANCELADO
+  NOVO
 }
 
 model ChatRoom {

@@ -17,8 +17,9 @@ export class PrismaManutenceMapper {
     return {
       id: manutence.id,
       message: manutence.message.value,
-      photos: JSON.stringify(manutence.photos),
+      photos: manutence.photos.length ? manutence.photos : [],
       video: manutence.video,
+      title: manutence.title,
       status_manutence: manutence.status_manutence,
       createdAt: manutence.createdAt,
       user: {
@@ -30,9 +31,12 @@ export class PrismaManutenceMapper {
     return new Manutence(
       {
         message: new Message(rawManutence.message),
-        photos: convertJsonValueToStringArray(rawManutence.photos),
+        photos: Array.isArray(rawManutence.photos) && rawManutence.photos.every(item => typeof item === 'string')
+        ? rawManutence.photos
+        : [],
         status_manutence: rawManutence.status_manutence as StatusManutence,
         video: rawManutence.video,
+        title: rawManutence.title,
         userId: rawManutence.userId,
         createdAt: rawManutence.createdAt,
       },

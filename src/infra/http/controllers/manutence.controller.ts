@@ -31,6 +31,7 @@ import { StatusManutence } from '@application/enums/StatusManutence';
 import { RolesGuard } from '@application/guards/role.guards';
 import { FilesTypeInterface } from '@application/interfaces/files-type-interface';
 import { UserId } from '@application/utils/extract-user-id';
+import { FileUploadService } from '@application/usecases/file-upload-service';
 
 @Controller('manutence')
 export class ManutenceController {
@@ -41,6 +42,7 @@ export class ManutenceController {
     private readonly manutenceDelete_service: DeleteManutenceService,
     private readonly manutenceGetAllNewCount_service: GetCountNewManutences,
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
+    private readonly fileUploadService: FileUploadService
   ) {}
 
   @Post('create')
@@ -68,25 +70,16 @@ export class ManutenceController {
     return await this.manutenceCreate_service.execute(r, fileData);
   }
 
-  @Get('get/:id')
+  @Get('get/id/:id')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
   async getManutence(@Param('id') param: FindOneParams) {
     const { manutence } = await this.manutenceGetOne_service.execute(param);
 
-    // manutence.photos = await Promise.all(
-    //   manutence.photos.map(async (foto) => ({
-    //     key: foto.key,
-    //     url: await this.s3Service.getSignedUrl(foto.key),
-    //   })),
-    // );
-
-    // manutence.video = await this.s3Service.getSignedUrl(manutence.video);
-
     return ManutenceViewModel.toGetFormatHttp(manutence);
   }
 
-  @Get('all')
+  @Get('get/all')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   async getAllManutences(
@@ -97,22 +90,46 @@ export class ManutenceController {
     )
     pagination: PaginationDto,
   ) {
-    const { manutences } =
-      await this.manutencesGetAll_service.execute(pagination);
-
-    return manutences.map((manutence: Manutence) => {
-      return ManutenceViewModel.toGetFormatHttp(manutence);
-    });
+    const { manutences } = await this.manutencesGetAll_service.execute(pagination);
+  
+    return Promise.all(
+      manutences.map(async (manutence: Manutence) => {
+        const formatted = ManutenceViewModel.toGetFormatHttp(manutence);
+        
+        if (formatted.photos?.length) {
+          formatted.photos = await this.fileUploadService.generateSignedUrls(formatted.photos);
+        }
+        if (formatted.video) {
+          formatted.video = (await this.fileUploadService.generateSignedUrls([formatted.video]))[0];
+        }
+        
+        return formatted;
+      }),
+    );
   }
-
-  @Get('filters')
+  @Get('get/filters')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   async getManutencesByFilters(
-    @Query() filters: ManutenceFiltersDto,
-    @Query() pagination: PaginationDto,
+  @Query(new ValidationPipe({ transform: true })) filters: ManutenceFiltersDto,
+  @Query(new ValidationPipe({ transform: true })) pagination: PaginationDto,
   ) {
-    return this.manutenceGetByFilters_service.execute(filters, pagination);
+    const { manutences } = await this.manutenceGetByFilters_service.execute(filters, pagination);
+
+      return Promise.all(
+      manutences.map(async (manutence: Manutence) => {
+        const formatted = ManutenceViewModel.toGetFormatHttp(manutence);
+        
+        if (formatted.photos?.length) {
+          formatted.photos = await this.fileUploadService.generateSignedUrls(formatted.photos);
+        }
+        if (formatted.video) {
+          formatted.video = (await this.fileUploadService.generateSignedUrls([formatted.video]))[0];
+        }
+        
+        return formatted;
+      }),
+    );
   }
 
   @Delete('delete/:id')
@@ -123,12 +140,19 @@ export class ManutenceController {
     return await this.manutenceDelete_service.execute(param);
   }
 
-  @Get('manutences_notifications')
+  @Get('get/manutences_notifications')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
   async getCountNewManutences() {
     return await this.manutenceGetAllNewCount_service.execute(
-      StatusManutence.CREATED,
+      StatusManutence.NOVO,
     );
+  }
+
+  @Get('take/manutence/:id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async takeManutence(@Param('id') param: FindOneParams) {
+    // update status_manutence to ANDAMENTO
   }
 }

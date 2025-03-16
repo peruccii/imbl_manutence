@@ -29,11 +29,16 @@ export class S3ServiceUseCase {
 
   async getSignedUrl(fileKey: string): Promise<string> {
     if (!fileKey) throw new Error('File key is required');
+
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       Key: fileKey,
     });
 
-    return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+    try {
+      return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 }); 
+    } catch (error) {
+      throw new Error(`Failed to generate signed URL: ${error}`);
+    }
   }
 }

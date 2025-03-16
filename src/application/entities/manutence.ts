@@ -7,6 +7,7 @@ import { HistoryManutence } from './history_manutence';
 
 export interface ManutenceProps {
   message: Message;
+  title: string;
   photos: string[];
   video: string;
   status_manutence: StatusManutence;
@@ -41,6 +42,14 @@ export class Manutence {
 
   public set message(message: Message) {
     this.props.message = message;
+  }
+
+  public get title(): string {
+    return this.props.title;
+  }
+
+  public set title(title: string) {
+    this.props.title = title;
   }
 
   public get userId(): string {

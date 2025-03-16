@@ -15,5 +15,5 @@ export abstract class ManutenceRepository {
   abstract findByFilters(
     filters: FiltersManutence,
     pagination?: Pagination,
-  ): Promise<Manutence[] | null>;
+  ): Promise<Manutence[] | []>;
 }

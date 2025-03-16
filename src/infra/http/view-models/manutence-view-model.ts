@@ -8,6 +8,7 @@ export class ManutenceViewModel {
       photos: manutence.photos,
       video: manutence.video,
       client: manutence.user,
+      title: manutence.title,
       status_manutence: manutence.status_manutence,
       createdAt: manutence.createdAt,
     };
