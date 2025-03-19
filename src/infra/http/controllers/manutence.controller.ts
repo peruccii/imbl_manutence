@@ -42,7 +42,7 @@ export class ManutenceController {
     private readonly manutenceDelete_service: DeleteManutenceService,
     private readonly manutenceGetAllNewCount_service: GetCountNewManutences,
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
-    private readonly fileUploadService: FileUploadService
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   @Post('create')
@@ -57,17 +57,39 @@ export class ManutenceController {
   async createManutence(
     @UserId() userId: string,
     @Body() request: ManutenceCreateDto,
+    //@UploadedFiles()
+    //files: { photos?: Express.Multer.File[]; video: Express.Multer.File[] },
+  ) {
+    //const fileData: FilesTypeInterface = {
+    //   photos: files.photos || [],
+    //    video: files.video[0],
+    //   };
+
+    const r = { ...request, userId };
+
+    return await this.manutenceCreate_service.execute(r /*fileData*/);
+  }
+
+  @Post('get/presigned-url')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'photos', maxCount: 10 },
+      { name: 'video', maxCount: 1 },
+    ]),
+  )
+  async getPreSignedUrl(
     @UploadedFiles()
-    files: { photos?: Express.Multer.File[]; video: Express.Multer.File[] },
+    files: {
+      photos?: Express.Multer.File[];
+      video: Express.Multer.File[];
+    },
   ) {
     const fileData: FilesTypeInterface = {
       photos: files.photos || [],
       video: files.video[0],
     };
 
-    const r = { ...request, userId };
-
-    return await this.manutenceCreate_service.execute(r, fileData);
+    return await this.fileUploadService.handleFileUpload(fileData);
   }
 
   @Get('get/id/:id')
@@ -90,19 +112,26 @@ export class ManutenceController {
     )
     pagination: PaginationDto,
   ) {
-    const { manutences } = await this.manutencesGetAll_service.execute(pagination);
-  
+    const { manutences } =
+      await this.manutencesGetAll_service.execute(pagination);
+
     return Promise.all(
       manutences.map(async (manutence: Manutence) => {
         const formatted = ManutenceViewModel.toGetFormatHttp(manutence);
-        
+
         if (formatted.photos?.length) {
-          formatted.photos = await this.fileUploadService.generateSignedUrls(formatted.photos);
+          formatted.photos = await this.fileUploadService.getGenerateSignedUrls(
+            formatted.photos,
+          );
         }
         if (formatted.video) {
-          formatted.video = (await this.fileUploadService.generateSignedUrls([formatted.video]))[0];
+          formatted.video = (
+            await this.fileUploadService.getGenerateSignedUrls([
+              formatted.video,
+            ])
+          )[0];
         }
-        
+
         return formatted;
       }),
     );
@@ -111,22 +140,32 @@ export class ManutenceController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   async getManutencesByFilters(
-  @Query(new ValidationPipe({ transform: true })) filters: ManutenceFiltersDto,
-  @Query(new ValidationPipe({ transform: true })) pagination: PaginationDto,
+    @Query(new ValidationPipe({ transform: true }))
+    filters: ManutenceFiltersDto,
+    @Query(new ValidationPipe({ transform: true })) pagination: PaginationDto,
   ) {
-    const { manutences } = await this.manutenceGetByFilters_service.execute(filters, pagination);
+    const { manutences } = await this.manutenceGetByFilters_service.execute(
+      filters,
+      pagination,
+    );
 
-      return Promise.all(
+    return Promise.all(
       manutences.map(async (manutence: Manutence) => {
         const formatted = ManutenceViewModel.toGetFormatHttp(manutence);
-        
+
         if (formatted.photos?.length) {
-          formatted.photos = await this.fileUploadService.generateSignedUrls(formatted.photos);
+          formatted.photos = await this.fileUploadService.getGenerateSignedUrls(
+            formatted.photos,
+          );
         }
         if (formatted.video) {
-          formatted.video = (await this.fileUploadService.generateSignedUrls([formatted.video]))[0];
+          formatted.video = (
+            await this.fileUploadService.getGenerateSignedUrls([
+              formatted.video,
+            ])
+          )[0];
         }
-        
+
         return formatted;
       }),
     );

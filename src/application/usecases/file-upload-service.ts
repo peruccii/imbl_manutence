@@ -11,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-interface UploadResponse {
+export interface UploadResponse {
   photos: string[];
   video: string;
 }
@@ -90,13 +90,13 @@ export class FileUploadService {
       Bucket: this.bucketName,
       Key: key,
     });
-    
+
     return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
   }
 
-  async generateSignedUrls(urls: string | string[]): Promise<string[]> {
+  async getGenerateSignedUrls(urls: string | string[]): Promise<string[]> {
     const urlsArray = Array.isArray(urls) ? urls : [urls];
-    
+
     return Promise.all(
       urlsArray.map(async (url) => {
         const urlParts = new URL(url);
@@ -104,6 +104,49 @@ export class FileUploadService {
         return await this.getSignedUrl(key);
       }),
     );
+  }
+
+  async generateSignedUrls(files: {
+    photos?: Express.Multer.File[];
+    video?: Express.Multer.File[];
+  }): Promise<{
+    photos: { fileName: string; signedUrl: string }[];
+    video: { fileName: string; signedUrl: string }[];
+  }> {
+    const photoUrls: { fileName: string; signedUrl: string }[] = [];
+    const videoUrls: { fileName: string; signedUrl: string }[] = [];
+
+    if (files.photos && files.photos.length > 0) {
+      for (const photo of files.photos) {
+        const key = `photos/${Date.now()}-${photo.originalname}`;
+        const command = new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+          ContentType: photo.mimetype,
+        });
+        const signedUrl = await getSignedUrl(this.s3Client, command, {
+          expiresIn: 300,
+        });
+        photoUrls.push({ fileName: key, signedUrl });
+      }
+    }
+
+    if (files.video && files.video.length > 0) {
+      for (const video of files.video) {
+        const key = `videos/${Date.now()}-${video.originalname}`;
+        const command = new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+          ContentType: video.mimetype,
+        });
+        const signedUrl = await getSignedUrl(this.s3Client, command, {
+          expiresIn: 300,
+        });
+        videoUrls.push({ fileName: key, signedUrl });
+      }
+    }
+
+    return { photos: photoUrls, video: videoUrls };
   }
 
   async deleteFilesFromS3(urls: (string | string[])[]): Promise<any> {
