@@ -29,9 +29,10 @@ import { PaginationDto } from '../dto/pagination-dto';
 import { GetCountNewManutences } from '@application/usecases/count-new-manutences-service';
 import { StatusManutence } from '@application/enums/StatusManutence';
 import { RolesGuard } from '@application/guards/role.guards';
-import { FilesTypeInterface } from '@application/interfaces/files-type-interface';
 import { UserId } from '@application/utils/extract-user-id';
 import { FileUploadService } from '@application/usecases/file-upload-service';
+import { FilesTypeInterface } from '@application/interfaces/files-type-interface';
+import { GetPreSignedUrlService } from '@application/usecases/get-presigned-url-service';
 
 @Controller('manutence')
 export class ManutenceController {
@@ -43,6 +44,7 @@ export class ManutenceController {
     private readonly manutenceGetAllNewCount_service: GetCountNewManutences,
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
     private readonly fileUploadService: FileUploadService,
+    private readonly getPresignedUrlService: GetPreSignedUrlService,
   ) {}
 
   @Post('create')
@@ -57,17 +59,17 @@ export class ManutenceController {
   async createManutence(
     @UserId() userId: string,
     @Body() request: ManutenceCreateDto,
-    //@UploadedFiles()
-    //files: { photos?: Express.Multer.File[]; video: Express.Multer.File[] },
+    @UploadedFiles()
+    files: { photos?: Express.Multer.File[]; video: Express.Multer.File[] },
   ) {
-    //const fileData: FilesTypeInterface = {
-    //   photos: files.photos || [],
-    //    video: files.video[0],
-    //   };
+    const fileData: FilesTypeInterface = {
+      photos: files.photos || [],
+      video: files.video[0],
+    };
 
     const r = { ...request, userId };
-
-    return await this.manutenceCreate_service.execute(r /*fileData*/);
+    console.log(request);
+    return await this.manutenceCreate_service.execute(r, fileData);
   }
 
   @Post('get/presigned-url')
@@ -88,8 +90,7 @@ export class ManutenceController {
       photos: files.photos || [],
       video: files.video[0],
     };
-
-    return await this.fileUploadService.handleFileUpload(fileData);
+    return await this.getPresignedUrlService.execute(fileData);
   }
 
   @Get('get/id/:id')

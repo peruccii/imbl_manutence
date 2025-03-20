@@ -26,6 +26,7 @@ import { GetAllChatsRoomWithMessageService } from '@application/usecases/get-cha
 import { S3Module } from '@infra/database/s3/s3.module';
 import { ManutenceModule } from '@infra/database/manutence/manutence.module';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { GetPreSignedUrlService } from '@application/usecases/get-presigned-url-service';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
     FileUploadService,
     FindOneManutenceService,
     FindAllManutences,
+    GetPreSignedUrlService,
     ChatGateway,
     AuthGuard,
     RolesGuard,

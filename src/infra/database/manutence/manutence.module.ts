@@ -9,6 +9,7 @@ import { FindManutenceByFilters } from '@application/usecases/find-by-filter-man
 import { PrismaManutenceRepository } from '../prisma/repositories/prisma-manutence-repository';
 import { ManutenceRepository } from '@application/repositories/manutence-repository';
 import { FileUploadService } from '@application/usecases/file-upload-service';
+import { GetPreSignedUrlService } from '@application/usecases/get-presigned-url-service';
 
 @Module({
   imports: [PrismaModule],
@@ -18,6 +19,7 @@ import { FileUploadService } from '@application/usecases/file-upload-service';
     FindOneManutenceService,
     FindAllManutences,
     DeleteManutenceService,
+    GetPreSignedUrlService,
     GetCountNewManutences,
     FindManutenceByFilters,
     {
@@ -33,6 +35,7 @@ import { FileUploadService } from '@application/usecases/file-upload-service';
     DeleteManutenceService,
     GetCountNewManutences,
     FindManutenceByFilters,
+    GetPreSignedUrlService,
     ManutenceRepository,
   ],
 })

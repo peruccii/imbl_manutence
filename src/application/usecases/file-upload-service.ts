@@ -11,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-export interface UploadResponse {
+interface UploadResponse {
   photos: string[];
   video: string;
 }
@@ -37,20 +37,50 @@ export class FileUploadService {
     });
   }
 
-  async handleFileUpload(data: FilesTypeInterface): Promise<UploadResponse> {
+  LIMIT_CONCURRENCY = 5;
+
+  limitConcurrency = async <T>(
+    items: T[],
+    fn: (item: T) => Promise<any>,
+    limit: number = this.LIMIT_CONCURRENCY,
+  ) => {
+    const results: any[] = [];
+    const queue: Promise<any>[] = [];
+
+    for (const item of items) {
+      const promise = fn(item).then((result) => results.push(result));
+      queue.push(promise);
+
+      if (queue.length >= limit) {
+        await Promise.race(queue);
+        queue.splice(
+          queue.findIndex((p) => p === promise),
+          1,
+        );
+      }
+    }
+
+    await Promise.all(queue);
+    return results;
+  };
+
+  public async handleFileUpload(
+    data: FilesTypeInterface,
+  ): Promise<UploadResponse> {
     const uploadedFiles: UploadedFilesObject = { photos: [], video: '' };
 
     if (!data.photos || data.photos.length === 0) {
       throw new BadRequestException('Pelo menos uma foto é obrigatória');
     }
 
-    uploadedFiles.photos = await Promise.all(
-      data.photos.map(async (photo) => {
+    uploadedFiles.photos = await this.limitConcurrency(
+      data.photos,
+      async (photo) => {
         if (!photo.mimetype.startsWith('image/')) {
           throw new BadRequestException('As fotos devem ser imagens');
         }
         return this.uploadToS3(photo, 'photos');
-      }),
+      },
     );
 
     if (data.video) {
@@ -68,6 +98,7 @@ export class FileUploadService {
     folder: string,
   ): Promise<string> {
     const fileName = `${folder}/${file.originalname.replace(/\s/g, '')}-${randomUUID()}`;
+
     try {
       await this.s3Client.send(
         new PutObjectCommand({
@@ -77,14 +108,15 @@ export class FileUploadService {
           ContentType: file.mimetype,
         }),
       );
-      return await this.getSignedUrl(fileName);
+
+      const url = await this.getSignedUrl(fileName);
+      return url;
     } catch (error) {
       throw new BadRequestException(
         `Erro ao fazer upload do arquivo: ${error}`,
       );
     }
   }
-
   private async getSignedUrl(key: string): Promise<string> {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,

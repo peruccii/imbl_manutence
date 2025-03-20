@@ -18,7 +18,8 @@ export class ManutenceCreateService {
   ) {}
 
   async execute(
-    request_manutence: CreateManutenceRequest /*fileObject: FilesTypeInterface*/,
+    request_manutence: CreateManutenceRequest,
+    fileObject: FilesTypeInterface,
   ) {
     const client = await this.userRepository.findOne(request_manutence.userId);
 
@@ -28,10 +29,11 @@ export class ManutenceCreateService {
       return;
     }
 
-    //const uploadedFiles = await this.fileUploadService.handleFileUpload(fileObject);
+    const uploadedFiles =
+      await this.fileUploadService.handleFileUpload(fileObject);
 
-    //request_manutence.photos = uploadedFiles.photos;
-    //request_manutence.video = uploadedFiles.video;
+    request_manutence.photos = uploadedFiles.photos;
+    request_manutence.video = uploadedFiles.video;
 
     const manutence = makeManutenceFactory(request_manutence);
 
