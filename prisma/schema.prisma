@@ -32,6 +32,7 @@ model Manutence {
   photos           Json
   video            String           @db.Text 
   title            String
+  address          String
   message          String
   status_manutence StatusManutence @default(NOVO)
   createdAt        DateTime

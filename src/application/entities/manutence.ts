@@ -10,11 +10,12 @@ export interface ManutenceProps {
   title: string;
   photos: string[];
   video: string;
+  address: string;
   status_manutence: StatusManutence;
   createdAt: Date;
   userId: string;
   user?: User;
-  historico?: HistoryManutence
+  historico?: HistoryManutence;
 }
 
 export class Manutence {
@@ -50,6 +51,14 @@ export class Manutence {
 
   public set title(title: string) {
     this.props.title = title;
+  }
+
+  public get address(): string {
+    return this.props.address;
+  }
+
+  public set address(address: string) {
+    this.props.address = address;
   }
 
   public get userId(): string {

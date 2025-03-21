@@ -21,6 +21,11 @@ interface UploadedFilesObject {
   video: string;
 }
 
+export interface PresignedUrlResponse {
+  photos: { fileName: string; signedUrl: string }[];
+  video: { fileName: string; signedUrl: string } | null;
+}
+
 @Injectable()
 export class FileUploadService {
   private readonly bucketName: string;
@@ -64,81 +69,7 @@ export class FileUploadService {
     return results;
   };
 
-  public async handleFileUpload(
-    data: FilesTypeInterface,
-  ): Promise<UploadResponse> {
-    const uploadedFiles: UploadedFilesObject = { photos: [], video: '' };
-
-    if (!data.photos || data.photos.length === 0) {
-      throw new BadRequestException('Pelo menos uma foto é obrigatória');
-    }
-
-    uploadedFiles.photos = await this.limitConcurrency(
-      data.photos,
-      async (photo) => {
-        if (!photo.mimetype.startsWith('image/')) {
-          throw new BadRequestException('As fotos devem ser imagens');
-        }
-        return this.uploadToS3(photo, 'photos');
-      },
-    );
-
-    if (data.video) {
-      if (!data.video.mimetype.startsWith('video/')) {
-        throw new BadRequestException('O vídeo deve ser um arquivo de vídeo');
-      }
-      uploadedFiles.video = await this.uploadToS3(data.video, 'videos');
-    }
-
-    return uploadedFiles;
-  }
-
-  private async uploadToS3(
-    file: UploadedFile,
-    folder: string,
-  ): Promise<string> {
-    const fileName = `${folder}/${file.originalname.replace(/\s/g, '')}-${randomUUID()}`;
-
-    try {
-      await this.s3Client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: fileName,
-          Body: file.buffer,
-          ContentType: file.mimetype,
-        }),
-      );
-
-      const url = await this.getSignedUrl(fileName);
-      return url;
-    } catch (error) {
-      throw new BadRequestException(
-        `Erro ao fazer upload do arquivo: ${error}`,
-      );
-    }
-  }
-  private async getSignedUrl(key: string): Promise<string> {
-    const command = new GetObjectCommand({
-      Bucket: this.bucketName,
-      Key: key,
-    });
-
-    return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
-  }
-
-  async getGenerateSignedUrls(urls: string | string[]): Promise<string[]> {
-    const urlsArray = Array.isArray(urls) ? urls : [urls];
-
-    return Promise.all(
-      urlsArray.map(async (url) => {
-        const urlParts = new URL(url);
-        const key = urlParts.pathname.substring(1);
-        return await this.getSignedUrl(key);
-      }),
-    );
-  }
-
-  async generateSignedUrls(files: {
+  async generatePutSignedUrls(files: {
     photos?: Express.Multer.File[];
     video?: Express.Multer.File[];
   }): Promise<{
@@ -179,6 +110,91 @@ export class FileUploadService {
     }
 
     return { photos: photoUrls, video: videoUrls };
+  }
+
+  public async handleFileUpload(
+    data: FilesTypeInterface,
+  ): Promise<UploadResponse> {
+    const uploadedFiles: UploadedFilesObject = { photos: [], video: '' };
+
+    if (!data.photos || data.photos.length === 0) {
+      throw new BadRequestException('Pelo menos uma foto é obrigatória');
+    }
+
+    uploadedFiles.photos = await this.limitConcurrency(
+      data.photos,
+      async (photo) => {
+        if (!photo.mimetype.startsWith('image/')) {
+          throw new BadRequestException('As fotos devem ser imagens');
+        }
+        return this.uploadToS3(photo, 'photos');
+      },
+    );
+
+    if (data.video) {
+      if (!data.video.mimetype.startsWith('video/')) {
+        throw new BadRequestException('O vídeo deve ser um arquivo de vídeo');
+      }
+      uploadedFiles.video = await this.uploadToS3(data.video, 'videos');
+    }
+
+    return uploadedFiles;
+  }
+
+  private async uploadToS3(
+    file: UploadedFile,
+    folder: string,
+  ): Promise<string> {
+    const fileName = `${folder}/${file.originalname.replace(/\s/g, '')}-${randomUUID()}`;
+
+    try {
+      const url = await this.putSignedUrl(fileName);
+      return url;
+    } catch (error) {
+      throw new BadRequestException(
+        `Erro ao fazer upload do arquivo: ${error}`,
+      );
+    }
+  }
+  private async putSignedUrl(key: string): Promise<string> {
+    const command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    });
+
+    return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+  }
+
+  async getGenerateSignedUrls(urls: string | string[]): Promise<string[]> {
+    const urlsArray = Array.isArray(urls) ? urls : [urls];
+
+    return Promise.all(
+      urlsArray.map(async (url) => {
+        const urlParts = new URL(url);
+        const key = urlParts.pathname.substring(1);
+        return await this.putSignedUrl(key);
+      }),
+    );
+  }
+
+  async generateGetSignedUrls(
+    fileNames: string[],
+  ): Promise<{ fileName: string; signedUrl: string }[]> {
+    const getUrls = await Promise.all(
+      fileNames.map(async (fileName) => {
+        const command = new GetObjectCommand({
+          Bucket: this.bucketName,
+          Key: fileName,
+        });
+
+        const signedUrl = await getSignedUrl(this.s3Client, command, {
+          expiresIn: 3600,
+        });
+        return { fileName, signedUrl };
+      }),
+    );
+
+    return getUrls;
   }
 
   async deleteFilesFromS3(urls: (string | string[])[]): Promise<any> {

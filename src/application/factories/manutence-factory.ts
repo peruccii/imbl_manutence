@@ -10,6 +10,7 @@ export function makeManutenceFactory(override: Override) {
     message: new Message(override.message),
     photos: override.photos,
     video: override.video,
+    address: override.address,
     title: override.title.toUpperCase(),
     userId: override.userId,
     status_manutence: StatusManutence.NOVO,

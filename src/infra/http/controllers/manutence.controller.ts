@@ -4,11 +4,13 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
+  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -31,8 +33,6 @@ import { StatusManutence } from '@application/enums/StatusManutence';
 import { RolesGuard } from '@application/guards/role.guards';
 import { UserId } from '@application/utils/extract-user-id';
 import { FileUploadService } from '@application/usecases/file-upload-service';
-import { FilesTypeInterface } from '@application/interfaces/files-type-interface';
-import { GetPreSignedUrlService } from '@application/usecases/get-presigned-url-service';
 
 @Controller('manutence')
 export class ManutenceController {
@@ -44,32 +44,18 @@ export class ManutenceController {
     private readonly manutenceGetAllNewCount_service: GetCountNewManutences,
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
     private readonly fileUploadService: FileUploadService,
-    private readonly getPresignedUrlService: GetPreSignedUrlService,
   ) {}
 
   @Post('create')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
-  @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'photos', maxCount: 10 },
-      { name: 'video', maxCount: 1 },
-    ]),
-  )
   async createManutence(
     @UserId() userId: string,
     @Body() request: ManutenceCreateDto,
-    @UploadedFiles()
-    files: { photos?: Express.Multer.File[]; video: Express.Multer.File[] },
   ) {
-    const fileData: FilesTypeInterface = {
-      photos: files.photos || [],
-      video: files.video[0],
-    };
-
     const r = { ...request, userId };
     console.log(request);
-    return await this.manutenceCreate_service.execute(r, fileData);
+    return await this.manutenceCreate_service.execute(r);
   }
 
   @Post('get/presigned-url')
@@ -83,20 +69,25 @@ export class ManutenceController {
     @UploadedFiles()
     files: {
       photos?: Express.Multer.File[];
-      video: Express.Multer.File[];
+      video?: Express.Multer.File[];
     },
   ) {
-    const fileData: FilesTypeInterface = {
-      photos: files.photos || [],
-      video: files.video[0],
-    };
-    return await this.getPresignedUrlService.execute(fileData);
+    return await this.fileUploadService.generatePutSignedUrls(files);
+  }
+
+  @Post('get-presigned-urls')
+  async getPresignedUrls(@Body() body: { fileNames: string[] }) {
+    const { fileNames } = body;
+    const signedUrls =
+      await this.fileUploadService.generateGetSignedUrls(fileNames);
+    return signedUrls;
   }
 
   @Get('get/id/:id')
+  @UsePipes(new ValidationPipe({ transform: true }))
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
-  async getManutence(@Param('id') param: FindOneParams) {
+  async getManutence(@Param() param: FindOneParams) {
     const { manutence } = await this.manutenceGetOne_service.execute(param);
 
     return ManutenceViewModel.toGetFormatHttp(manutence);

@@ -14,5 +14,7 @@ export class ManutenceCreateDto {
   @IsString()
   @MinLength(5)
   @MaxLength(40)
-  title: string
+  title: string;
+  @IsString()
+  address: string;
 }

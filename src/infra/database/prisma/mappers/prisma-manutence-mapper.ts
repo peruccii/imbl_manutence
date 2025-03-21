@@ -1,16 +1,7 @@
 import { Manutence as RawManutence } from '@prisma/client';
 import { Manutence } from 'src/application/entities/manutence';
 import { Message } from 'src/application/fieldsValidations/message';
-import { JsonValue } from '@prisma/client/runtime/library';
 import { StatusManutence } from 'src/application/enums/StatusManutence';
-
-function convertJsonValueToStringArray(value: JsonValue): string[] {
-  if (Array.isArray(value) && value.every((item) => typeof item === 'string')) {
-    return value as string[];
-  }
-
-  return [];
-}
 
 export class PrismaManutenceMapper {
   static toPrisma(manutence: Manutence) {
@@ -19,6 +10,7 @@ export class PrismaManutenceMapper {
       message: manutence.message.value,
       photos: manutence.photos.length ? manutence.photos : [],
       video: manutence.video,
+      address: manutence.address,
       title: manutence.title,
       status_manutence: manutence.status_manutence,
       createdAt: manutence.createdAt,
@@ -31,12 +23,15 @@ export class PrismaManutenceMapper {
     return new Manutence(
       {
         message: new Message(rawManutence.message),
-        photos: Array.isArray(rawManutence.photos) && rawManutence.photos.every(item => typeof item === 'string')
-        ? rawManutence.photos
-        : [],
+        photos:
+          Array.isArray(rawManutence.photos) &&
+          rawManutence.photos.every((item) => typeof item === 'string')
+            ? rawManutence.photos
+            : [],
         status_manutence: rawManutence.status_manutence as StatusManutence,
         video: rawManutence.video,
         title: rawManutence.title,
+        address: rawManutence.address,
         userId: rawManutence.userId,
         createdAt: rawManutence.createdAt,
       },

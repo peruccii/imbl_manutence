@@ -9,6 +9,7 @@ export class ManutenceViewModel {
       video: manutence.video,
       client: manutence.user,
       title: manutence.title,
+      address: manutence.address,
       status_manutence: manutence.status_manutence,
       createdAt: manutence.createdAt,
     };

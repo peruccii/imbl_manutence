@@ -5,22 +5,16 @@ import { UserRepository } from '../repositories/user-repository';
 import { CreateManutenceRequest } from '../interfaces/manutence-create-request';
 import { ManutenceRepository } from '@application/repositories/manutence-repository';
 import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
-import { FilesTypeInterface } from '@application/interfaces/files-type-interface';
-import { FileUploadService } from './file-upload-service';
 import { ValidationError } from '@application/errors/validation-error';
 
 @Injectable()
 export class ManutenceCreateService {
   constructor(
-    private readonly fileUploadService: FileUploadService,
     private readonly userRepository: UserRepository,
     private readonly manutenceRepository: ManutenceRepository,
   ) {}
 
-  async execute(
-    request_manutence: CreateManutenceRequest,
-    fileObject: FilesTypeInterface,
-  ) {
+  async execute(request_manutence: CreateManutenceRequest) {
     const client = await this.userRepository.findOne(request_manutence.userId);
 
     if (!client) {
@@ -28,12 +22,6 @@ export class ManutenceCreateService {
       err.error();
       return;
     }
-
-    const uploadedFiles =
-      await this.fileUploadService.handleFileUpload(fileObject);
-
-    request_manutence.photos = uploadedFiles.photos;
-    request_manutence.video = uploadedFiles.video;
 
     const manutence = makeManutenceFactory(request_manutence);
 

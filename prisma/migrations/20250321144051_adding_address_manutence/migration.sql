@@ -19,6 +19,7 @@ CREATE TABLE `Manutence` (
     `photos` JSON NOT NULL,
     `video` TEXT NOT NULL,
     `title` VARCHAR(191) NOT NULL,
+    `address` VARCHAR(191) NOT NULL,
     `message` VARCHAR(191) NOT NULL,
     `status_manutence` ENUM('FINALIZADO', 'ANDAMENTO', 'CANCELADO', 'NOVO') NOT NULL DEFAULT 'NOVO',
     `createdAt` DATETIME(3) NOT NULL,
