@@ -8,7 +8,10 @@ import { HistoryManutence } from './history_manutence';
 export interface ManutenceProps {
   message: Message;
   title: string;
-  photos: string[];
+  photos: {
+    fileName: string;
+    signedUrl: string;
+  }[];
   video: string;
   address: string;
   status_manutence: StatusManutence;
@@ -77,11 +80,11 @@ export class Manutence {
     this.props.video = video;
   }
 
-  public get photos(): string[] {
+  public get photos(): { fileName: string; signedUrl: string }[] {
     return this.props.photos;
   }
 
-  public set photos(photos: string[]) {
+  public set photos(photos: { fileName: string; signedUrl: string }[]) {
     this.props.photos = photos;
   }
 

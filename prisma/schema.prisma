@@ -30,7 +30,7 @@ enum Role {
 model Manutence {
   id               String          @id @unique
   photos           Json
-  video            String           @db.Text 
+  video            String           
   title            String
   address          String
   message          String
@@ -61,6 +61,8 @@ model ChatRoom {
 model Message {
   id         String   @id @default(uuid())
   content    String
+  unread      Int
+  lastMessage String
   createdAt  DateTime @default(now())
   senderId   String
   chatRoomId String?

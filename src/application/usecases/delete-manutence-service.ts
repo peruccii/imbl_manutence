@@ -25,7 +25,7 @@ export class DeleteManutenceService {
 
     const arrayFiles = [photos, video];
 
-    await this.s3Client.deleteFilesFromS3(arrayFiles);
+    // await this.s3Client.deleteFilesFromS3(arrayFiles);
 
     return this.manutenceRepository.delete(id);
   }

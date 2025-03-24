@@ -8,7 +8,12 @@ export class PrismaManutenceMapper {
     return {
       id: manutence.id,
       message: manutence.message.value,
-      photos: manutence.photos.length ? manutence.photos : [],
+      photos: manutence.photos.length
+        ? manutence.photos.map((photo) => ({
+            fileName: photo.fileName,
+            signedUrl: photo.signedUrl,
+          }))
+        : [],
       video: manutence.video,
       address: manutence.address,
       title: manutence.title,
@@ -24,9 +29,24 @@ export class PrismaManutenceMapper {
       {
         message: new Message(rawManutence.message),
         photos:
-          Array.isArray(rawManutence.photos) &&
-          rawManutence.photos.every((item) => typeof item === 'string')
-            ? rawManutence.photos
+          Array.isArray(rawManutence.photos) && rawManutence.photos.length
+            ? rawManutence.photos.map((photo) => {
+                const fileName =
+                  photo &&
+                  typeof photo === 'object' &&
+                  'fileName' in photo &&
+                  typeof photo.fileName === 'string'
+                    ? photo.fileName
+                    : '';
+                const signedUrl =
+                  photo &&
+                  typeof photo === 'object' &&
+                  'signedUrl' in photo &&
+                  typeof photo.signedUrl === 'string'
+                    ? photo.signedUrl
+                    : '';
+                return { fileName, signedUrl };
+              })
             : [],
         status_manutence: rawManutence.status_manutence as StatusManutence,
         video: rawManutence.video,

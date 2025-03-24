@@ -6,7 +6,10 @@ export class ManutenceCreateDto {
   @MinLength(5)
   @MaxLength(455)
   message: string;
-  photos: string[];
+  photos: {
+    fileName: string;
+    signedUrl: string;
+  }[];
   video: string;
   @IsNotEmpty({ message: 'userId is required' })
   @IsString()

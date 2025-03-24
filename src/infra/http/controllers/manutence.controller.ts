@@ -90,7 +90,26 @@ export class ManutenceController {
   async getManutence(@Param() param: FindOneParams) {
     const { manutence } = await this.manutenceGetOne_service.execute(param);
 
-    return ManutenceViewModel.toGetFormatHttp(manutence);
+    const formatted = ManutenceViewModel.toGetFormatHttp(manutence);
+    if (formatted.photos.length) {
+      const fileNames = formatted.photos.map((photo) => photo.fileName);
+
+      const signedUrls =
+        await this.fileUploadService.generateGetSignedUrls(fileNames);
+
+      formatted.photos = signedUrls.map((url, index) => ({
+        fileName: fileNames[index],
+        signedUrl: url.signedUrl,
+      }));
+    }
+
+    // if (formatted.video) {
+    //   formatted.video = (
+    //     await this.fileUploadService.generateGetSignedUrls([formatted.video])
+    //   )[0];
+    // }
+
+    return formatted;
   }
 
   @Get('get/all')
@@ -110,19 +129,24 @@ export class ManutenceController {
     return Promise.all(
       manutences.map(async (manutence: Manutence) => {
         const formatted = ManutenceViewModel.toGetFormatHttp(manutence);
+        if (formatted.photos.length) {
+          const fileNames = formatted.photos.map((photo) => photo.fileName);
 
-        if (formatted.photos?.length) {
-          formatted.photos = await this.fileUploadService.getGenerateSignedUrls(
-            formatted.photos,
-          );
+          const signedUrls =
+            await this.fileUploadService.generateGetSignedUrls(fileNames);
+
+          formatted.photos = signedUrls.map((url, index) => ({
+            fileName: fileNames[index],
+            signedUrl: url.signedUrl,
+          }));
         }
-        if (formatted.video) {
-          formatted.video = (
-            await this.fileUploadService.getGenerateSignedUrls([
-              formatted.video,
-            ])
-          )[0];
-        }
+        // if (formatted.video) {
+        //   formatted.video = (
+        //     await this.fileUploadService.getGenerateSignedUrls([
+        //       formatted.video,
+        //     ])
+        //   )[0];
+        // }
 
         return formatted;
       }),
@@ -145,18 +169,25 @@ export class ManutenceController {
       manutences.map(async (manutence: Manutence) => {
         const formatted = ManutenceViewModel.toGetFormatHttp(manutence);
 
-        if (formatted.photos?.length) {
-          formatted.photos = await this.fileUploadService.getGenerateSignedUrls(
-            formatted.photos,
-          );
+        if (formatted.photos.length) {
+          const fileNames = formatted.photos.map((photo) => photo.fileName);
+
+          const signedUrls =
+            await this.fileUploadService.generateGetSignedUrls(fileNames);
+
+          formatted.photos = signedUrls.map((url, index) => ({
+            fileName: fileNames[index],
+            signedUrl: url.signedUrl,
+          }));
         }
-        if (formatted.video) {
-          formatted.video = (
-            await this.fileUploadService.getGenerateSignedUrls([
-              formatted.video,
-            ])
-          )[0];
-        }
+
+        // if (formatted.video) {
+        //   formatted.video = (
+        //     await this.fileUploadService.getGenerateSignedUrls([
+        //       formatted.video,
+        //     ])
+        //   )[0];
+        // }
 
         return formatted;
       }),
