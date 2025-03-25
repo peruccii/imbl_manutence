@@ -27,10 +27,10 @@ export class PrismaManutenceRepository implements ManutenceRepository {
     pagination: Pagination,
   ): Promise<Manutence[] | []> {
     const statusFilter = filters?.status_manutence
-    ? Array.isArray(filters.status_manutence)
-      ? filters.status_manutence 
-      : [filters.status_manutence] 
-    : undefined;
+      ? Array.isArray(filters.status_manutence)
+        ? filters.status_manutence
+        : [filters.status_manutence]
+      : undefined;
     const manutences = await this.prisma.manutence.findMany({
       skip: pagination.skip,
       take: pagination.limit,
@@ -60,7 +60,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
   }
 
   async create(manutence: Manutence): Promise<void> {
-    console.log(manutence)
+    console.log(manutence);
     const raw = PrismaManutenceMapper.toPrisma(manutence);
     await this.prisma.$transaction(async (prisma) => {
       const createdManutence = await prisma.manutence.create({
@@ -74,37 +74,41 @@ export class PrismaManutenceRepository implements ManutenceRepository {
 
       if (!manutencee) throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
 
-      // TODO make factory
       const RoomUserObject: RoomUser = {
         id: manutencee.user.id,
         email: manutencee.user.email,
         name: manutencee.user.name,
       };
 
-      // TODO make factory
       const createRoomRequest: CreateChatRoomRequest = {
-        name: manutencee.user ? manutencee.user.name : createdManutence.id,
+        name: manutencee.title,
         users: [RoomUserObject],
         messages: [],
       };
 
-      const msg = PrismaCreateRoomMapper.toPrisma(createRoomRequest);
+      const chatRoomData = PrismaCreateRoomMapper.toPrisma(createRoomRequest);
 
-      await prisma.chatRoom.create({
-        data: msg,
+      const createdChatRoom = await prisma.chatRoom.create({
+        data: {
+          ...chatRoomData,
+          manutence: { connect: { id: createdManutence.id } },
+        },
       });
 
-      // todo: review this code below!
-      const rawManutence = PrismaHistoryManutenceMapper.toPrisma(
+      await prisma.manutence.update({
+        where: { id: createdManutence.id },
+        data: { chatRoomId: createdChatRoom.id },
+      });
+
+      const rawManutenceHistory = PrismaHistoryManutenceMapper.toPrisma(
         ActionHistory.MANUTENCE_CREATED,
         manutence,
         createdManutence.userId,
         createdManutence.id,
       );
-      //
 
       await prisma.historicoManutencao.create({
-        data: rawManutence,
+        data: rawManutenceHistory,
       });
     });
   }

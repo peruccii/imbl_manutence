@@ -1,6 +1,4 @@
-import type { User } from '@application/entities/user';
-import { CreateChatRoomRequest } from '@application/interfaces/create-room';
-import type { RoomUser } from '@application/interfaces/room-users-interface';
+import { User } from '@application/entities/user';
 import { SendMessageInterface } from '@application/interfaces/send-message';
 import { ChatRepository } from '@application/repositories/chat-repository';
 import {
@@ -31,29 +29,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private async authenticateClient(client: Socket) {
     const token = client.handshake.headers.authorization?.split(' ')[1];
-    if (!token) {
-      throw new WsException('Token JWT não fornecido');
-    }
-
-    try {
-      const user = await this.authService.validateToken(token);
-      if (!user) {
-        throw new WsException('Token JWT inválido');
-      }
-      client.data.user = user;
-      return user;
-    } catch (err) {
-      throw new WsException('Erro na autenticação do token');
-    }
+    if (!token) throw new WsException('Token JWT não fornecido');
+    const user = await this.authService.validateToken(token);
+    if (!user) throw new WsException('Token JWT inválido');
+    client.data.user = user;
+    return user;
   }
 
-  async handleConnection(client: Socket, ...args: any[]) {
+  async handleConnection(client: Socket) {
     console.log('Conectando usuário...', client.id);
-
     try {
       const user = await this.authenticateClient(client);
       console.log(`Usuário ${user.id} conectado com sucesso.`);
-
       client.broadcast.emit('user-joined', {
         message: `Usuário ${user.name} se conectou ao chat ${client.id}`,
       });
@@ -65,7 +52,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket) {
     console.log('Usuário se desconectando...');
-
     if (client.data?.user) {
       this.server.emit('user-left', {
         message: `Usuário ${client.data.user.name} se desconectou`,
@@ -73,38 +59,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  // i will use this on frontend ( button [ click - join room ])
-  // socket.emit('joinRoom', 'roomNametest')
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(client: Socket, roomName: string) {
     const clientData: ClientData = client.data as ClientData;
+    if (!clientData.user) throw new WsException('Usuário não autenticado');
 
-    if (!clientData.user) {
-      throw new WsException('Usuário não autenticado');
-    }
+    const room = await this.chatRepository.findRoom(roomName);
+    if (!room) throw new WsException('Sala não encontrada');
 
-    const roomExists = await this.chatRepository.findRoom(roomName);
+    const manutence = await this.chatRepository.findManutenceByChatRoom(
+      room.id,
+    );
+    if (!manutence)
+      throw new WsException('Manutenção associada não encontrada');
 
-    const RoomUserObject: RoomUser = {
-      id: clientData?.user.id,
-      email: clientData?.user.email.value,
-      name: clientData?.user.name.value,
-    };
+    const isAuthorized =
+      manutence.userId === clientData.user.id ||
+      manutence.adminId === clientData.user.id;
+    if (!isAuthorized)
+      throw new WsException('Usuário não autorizado para essa sala');
 
-    if (!roomExists) {
-      const createRoomRequest: CreateChatRoomRequest = {
-        name: roomName, // no front vai ser o nome do client
-        users: [RoomUserObject],
-        messages: [],
-      };
-      await this.chatRepository.createRoom(createRoomRequest);
-    }
-
-    const currentUsersInRoom =
-      await this.chatRepository.getUsersInRoom(roomName);
-
-    if (currentUsersInRoom.length > 2) {
-      throw new Error('the room is full'); // todo: revise this
+    const currentUsers = await this.chatRepository.getUsersInRoom(roomName);
+    if (
+      currentUsers.length >= 2 &&
+      !currentUsers.some((u) => u.id === clientData!.user!.id)
+    ) {
+      throw new WsException('A sala já está cheia');
     }
 
     client.join(roomName);
@@ -114,42 +94,34 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('leaveRoom')
   handleLeaveRoom(client: Socket, roomName: string) {
     const clientData: ClientData = client.data as ClientData;
-
-    if (!clientData.user) {
-      throw new WsException('Usuário não autenticado');
-    }
+    if (!clientData.user) throw new WsException('Usuário não autenticado');
 
     client.leave(roomName);
-    client.emit('room-left', { message: `Você saiu na sala: ${roomName}` });
+    client.emit('room-left', { message: `Você saiu da sala: ${roomName}` });
   }
 
-  // front- socket.emit('NewMessage', message: { 'room', 'hello world' })
   @SubscribeMessage('NewMessage')
-  handleNewMessage(
+  async handleNewMessage(
     client: Socket,
     @MessageBody() message: { roomName: string; content: string },
   ) {
     const clientData: ClientData = client.data as ClientData;
-
-    if (!clientData.user) {
-      throw new WsException('Usuário não autenticado');
-    }
+    if (!clientData.user) throw new WsException('Usuário não autenticado');
 
     const { roomName, content } = message;
+    const room = await this.chatRepository.findRoom(roomName);
+    if (!room) throw new WsException('Sala não encontrada');
 
     this.server.to(roomName).emit('message', {
       user: clientData.user.name,
       content,
     });
 
-    const id = clientData.user.id;
-
-    const send_request: SendMessageInterface = {
+    const sendRequest: SendMessageInterface = {
       msg: content,
       roomName: roomName,
-      senderId: id,
+      senderId: clientData.user.id,
     };
-
-    this.chatRepository.sendMessage(send_request);
+    await this.chatRepository.sendMessage(sendRequest);
   }
 }

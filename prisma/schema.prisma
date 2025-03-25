@@ -8,18 +8,18 @@ datasource db {
 }
 
 model User {
-  id         String      @id @unique
-  name       String
-  telephone  String
-  email      String      @unique
-  createdAt  DateTime
-  password   String
-  typeUser   Role
-  manutences Manutence[]
-  messages   Message[]
-  chatRooms  ChatRoom[]
-
-  historico HistoricoManutencao[]
+  id              String      @id @unique
+  name            String
+  telephone       String
+  email           String      @unique
+  createdAt       DateTime    @default(now())
+  password        String
+  typeUser        Role
+  manutences      Manutence[] 
+  messages        Message[]   
+  chatRooms       ChatRoom[]  
+  historico       HistoricoManutencao[]
+  adminManutences Manutence[] @relation(name: "AdminManutence") 
 }
 
 enum Role {
@@ -35,11 +35,14 @@ model Manutence {
   address          String
   message          String
   status_manutence StatusManutence @default(NOVO)
-  createdAt        DateTime
-  userId           String
+  createdAt        DateTime        @default(now())
+  userId           String        
+  adminId          String?        
   user             User            @relation(fields: [userId], references: [id])
-
-  historico HistoricoManutencao[]
+  admin            User?           @relation(fields: [adminId], references: [id], name: "AdminManutence")
+  chatRoomId       String?         @unique 
+  chatRoom         ChatRoom?       @relation(fields: [chatRoomId], references: [id])
+  historico        HistoricoManutencao[]
 }
 
 enum StatusManutence {
@@ -50,33 +53,30 @@ enum StatusManutence {
 }
 
 model ChatRoom {
-  id        String    @id @default(uuid())
-  name      String
-  users     User[]
+  id        String     @id @default(uuid())
+  name      String?  
+  users     User[]    
   messages  Message[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  manutence Manutence? @relation 
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model Message {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   content    String
-  unread      Int
-  lastMessage String
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
   senderId   String
-  chatRoomId String?
-
-  sender User? @relation(fields: [senderId], references: [id])
-
-  chatRoom ChatRoom? @relation(fields: [chatRoomId], references: [id])
+  chatRoomId String
+  sender     User      @relation(fields: [senderId], references: [id])
+  chatRoom   ChatRoom  @relation(fields: [chatRoomId], references: [id])
 }
 
 model HistoricoManutencao {
   id          String    @id @unique
   data        DateTime  @default(now())
-  usuarioId   String
-  action      String
+  usuarioId   String    
+  action      String    
   manutenceId String
   manutencao  Manutence @relation(fields: [manutenceId], references: [id])
   usuario     User      @relation(fields: [usuarioId], references: [id])

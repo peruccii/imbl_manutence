@@ -17,6 +17,7 @@ export interface ManutenceProps {
   status_manutence: StatusManutence;
   createdAt: Date;
   userId: string;
+  adminId?: string;
   user?: User;
   historico?: HistoryManutence;
 }
