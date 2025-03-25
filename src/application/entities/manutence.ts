@@ -81,6 +81,14 @@ export class Manutence {
     this.props.video = video;
   }
 
+  public get adminId(): string | null | undefined {
+    return this.props.adminId;
+  }
+
+  public set adminId(adminId: string | undefined) {
+    this.props.adminId = adminId;
+  }
+
   public get photos(): { fileName: string; signedUrl: string }[] {
     return this.props.photos;
   }

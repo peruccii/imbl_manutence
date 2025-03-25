@@ -8,6 +8,9 @@ import { CreateChatRoomRequest } from '@application/interfaces/create-room';
 import { PrismaCreateRoomMapper } from '../mappers/prisma-create-room-mapper';
 import { RoomUser } from '@application/interfaces/room-users-interface';
 import { Manutence } from '@application/entities/manutence';
+import { PrismaManutenceMapper } from '../mappers/prisma-manutence-mapper';
+import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
+import { ManutenceNotFoundMessage } from '@application/messages/manutence-not-found';
 
 export class PrismaChatRepository implements ChatRepository {
   constructor(private readonly prismaService: PrismaService) {}
@@ -20,9 +23,14 @@ export class PrismaChatRepository implements ChatRepository {
   }
 
   async findManutenceByChatRoom(chatRoomId: string): Promise<Manutence | null> {
-    return this.prismaService.manutence.findFirst({
-      where: { chatRoomId },
+    const manutenceRaw = await this.prismaService.manutence.findUnique({
+      where: { id: chatRoomId },
+      include: { user: true },
     });
+
+    if (!manutenceRaw) throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
+
+    return PrismaManutenceMapper.toDomain(manutenceRaw);
   }
 
   async sendMessage(request: SendMessageInterface): Promise<void> {

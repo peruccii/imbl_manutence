@@ -33,7 +33,10 @@ import { StatusManutence } from '@application/enums/StatusManutence';
 import { RolesGuard } from '@application/guards/role.guards';
 import { UserId } from '@application/utils/extract-user-id';
 import { FileUploadService } from '@application/usecases/file-upload-service';
-
+interface PresignedUrlRequest {
+  fileNames: string;
+  signedUrl?: string;
+}
 @Controller('manutence')
 export class ManutenceController {
   constructor(
@@ -76,8 +79,8 @@ export class ManutenceController {
   }
 
   @Post('get-presigned-urls')
-  async getPresignedUrls(@Body() body: { fileNames: string[] }) {
-    const { fileNames } = body;
+  async getPresignedUrls(@Body() body: PresignedUrlRequest[]) {
+    const fileNames = body.map((item) => item.fileNames);
     const signedUrls =
       await this.fileUploadService.generateGetSignedUrls(fileNames);
     return signedUrls;

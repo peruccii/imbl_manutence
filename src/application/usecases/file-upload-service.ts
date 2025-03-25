@@ -180,6 +180,7 @@ export class FileUploadService {
   async generateGetSignedUrls(
     fileNames: string[],
   ): Promise<{ fileName: string; signedUrl: string }[]> {
+    console.log('filenames', fileNames);
     const getUrls = await Promise.all(
       fileNames.map(async (fileName) => {
         const command = new GetObjectCommand({
