@@ -17,4 +17,5 @@ export abstract class ChatRepository {
   abstract findAllWithMessages(
     pagination: Pagination,
   ): Promise<ChatRoom[] | []>;
+  abstract findAdminChatRooms(adminId: string, pagination: Pagination): Promise<ChatRoom[] | null>;
 }

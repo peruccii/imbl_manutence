@@ -6,6 +6,7 @@ export interface MessageProps {
   createdAt: Date;
   senderId: string;
   chatRoomId: string;
+  isRead: boolean;
 }
 
 export class Message {

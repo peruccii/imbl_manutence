@@ -18,6 +18,7 @@ export interface ManutenceProps {
   createdAt: Date;
   userId: string;
   adminId?: string;
+  chatRoomId?: string;
   user?: User;
   historico?: HistoryManutence;
 }
@@ -123,5 +124,13 @@ export class Manutence {
 
   public set historico(historico: HistoryManutence) {
     this.props.historico = historico;
+  }
+
+  public get chatRoomId(): string | undefined {
+    return this.props.chatRoomId;
+  }
+
+  public set chatRoomId(chatRoomId: string) {
+    this.props.chatRoomId = chatRoomId;
   }
 }

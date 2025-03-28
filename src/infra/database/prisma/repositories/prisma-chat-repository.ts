@@ -11,7 +11,9 @@ import { Manutence } from '@application/entities/manutence';
 import { PrismaManutenceMapper } from '../mappers/prisma-manutence-mapper';
 import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
 import { ManutenceNotFoundMessage } from '@application/messages/manutence-not-found';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class PrismaChatRepository implements ChatRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
@@ -80,5 +82,71 @@ export class PrismaChatRepository implements ChatRepository {
         name: user.name,
       })) || []
     );
+  }
+
+  async findAdminChatRooms(adminId: string, pagination: Pagination): Promise<ChatRoom[] | null> {
+    console.log('adminId', adminId);
+    const chatRooms = await this.prismaService.chatRoom.findMany({
+      where: {
+        users: {
+          some: {
+            id: adminId
+          }
+        },
+        manutence: {
+          OR: [
+            {
+              adminId: adminId
+            },
+            {
+              userId: adminId
+            }
+          ]
+        }
+      },
+      include: {
+        users: true,
+        messages: {
+          include: {
+            sender: true
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        },
+        manutence: {
+          include: {
+            user: true
+          }
+        },
+        lastMessage: {
+          include: {
+            sender: true
+          }
+        }
+      },
+      skip: Number(pagination.skip),
+      take: Number(pagination.limit),
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    console.log('chatRooms found:', chatRooms.length);
+    console.log('First chatRoom:', JSON.stringify(chatRooms[0], null, 2));
+
+    if (!chatRooms || chatRooms.length === 0) {
+      throw new Error(`No chat rooms found for adminId: ${adminId}`);
+    }
+
+    return chatRooms.map(chatRoom => {
+      try {
+        return PrismaChatRoomMapper.toDomain(chatRoom);
+      } catch (error) {
+        console.error('Error mapping chatRoom:', error);
+        console.error('chatRoom data:', JSON.stringify(chatRoom, null, 2));
+        throw error;
+      }
+    });
   }
 }

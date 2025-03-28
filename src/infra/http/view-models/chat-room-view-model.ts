@@ -8,6 +8,16 @@ export class ChatRoomViewModel {
       createdAt: chat_room.createdAt,
       users: chat_room.users,
       updatedAt: chat_room.updatedAt,
+      manutence: chat_room.manutence ? {
+        id: chat_room.manutence.id,
+        title: chat_room.manutence.title,
+        status_manutence: chat_room.manutence.status_manutence,
+        user: chat_room.manutence.user ? {
+          id: chat_room.manutence.user.id,
+          name: chat_room.manutence.user.name.value,
+          email: chat_room.manutence.user.email.value
+        } : null
+      } : null
     };
   }
 }

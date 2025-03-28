@@ -27,6 +27,13 @@ import { S3Module } from '@infra/database/s3/s3.module';
 import { ManutenceModule } from '@infra/database/manutence/manutence.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { GetPreSignedUrlService } from '@application/usecases/get-presigned-url-service';
+import { AcceptManutenceService } from '@application/usecases/accept-manutence-service';
+import { PrismaManutenceRepository } from '@infra/database/prisma/repositories/prisma-manutence-repository';
+import { PrismaService } from '@infra/database/prisma/prisma.service';
+import { ManutenceRepository } from '@application/repositories/manutence-repository';
+import { FindAdminChatRoomsService } from '@application/usecases/find-admin-chat-rooms-service';
+import { ChatRepository } from '@application/repositories/chat-repository';
+import { PrismaChatRepository } from '../database/prisma/repositories/prisma-chat-repository';
 
 @Module({
   imports: [
@@ -40,21 +47,31 @@ import { GetPreSignedUrlService } from '@application/usecases/get-presigned-url-
   ],
   controllers: [ManutenceController, UserController, ChatController],
   providers: [
+    PrismaService,
+    RequestContext,
+    AuthGuard,
+    RolesGuard,
+    ChatGateway,
     DeleteUserService,
     FileUploadService,
     FindOneManutenceService,
     FindAllManutences,
     GetPreSignedUrlService,
-    ChatGateway,
-    AuthGuard,
-    RolesGuard,
     GetAllChatsRoomService,
-    RequestContext,
     DeleteManutenceService,
-
     GetAllChatsRoomWithMessageService,
     GetCountNewManutences,
     FindManutenceByFilters,
+    AcceptManutenceService,
+    FindAdminChatRoomsService,
+    {
+      provide: ManutenceRepository,
+      useClass: PrismaManutenceRepository,
+    },
+    {
+      provide: ChatRepository,
+      useClass: PrismaChatRepository,
+    },
   ],
 })
 export class HttpModule {}

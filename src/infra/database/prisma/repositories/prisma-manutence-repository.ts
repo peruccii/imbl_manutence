@@ -14,6 +14,7 @@ import { PrismaCreateRoomMapper } from '../mappers/prisma-create-room-mapper';
 import { CreateChatRoomRequest } from '@application/interfaces/create-room';
 import { ManutenceNotFoundMessage } from '@application/messages/manutence-not-found';
 import { RoomUser } from '@application/interfaces/room-users-interface';
+import { UpdateManutenceData } from '@application/repositories/manutence-repository';
 
 @Injectable()
 export class PrismaManutenceRepository implements ManutenceRepository {
@@ -37,6 +38,12 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       where: {
         status_manutence: statusFilter ? { in: statusFilter } : undefined,
       },
+      include: {
+        user: true
+      },
+      orderBy: {
+        createdAt: 'desc',
+      }
     });
 
     return manutences.map((manutence) => {
@@ -44,7 +51,21 @@ export class PrismaManutenceRepository implements ManutenceRepository {
     });
   }
 
-  async update(id: string): Promise<void> {}
+  async update(id: string, data: UpdateManutenceData): Promise<void> {
+    const manutence = await this.find(id);
+    if (!manutence) {
+      throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
+    }
+
+    await this.prisma.manutence.update({
+      where: { id },
+      data: {
+        status_manutence: data.status_manutence,
+        adminId: data.adminId,
+        chatRoomId: data.chatRoomId,
+      },
+    });
+  }
 
   async find(id: string): Promise<Manutence | null> {
     const manutence = await this.prisma.manutence.findUnique({
@@ -162,6 +183,9 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       include: {
         user: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      }
     });
     return manutences.map((manutence) => {
       return PrismaManutenceMapper.toDomain(manutence);
@@ -173,5 +197,16 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       where: { status_manutence: status_manutence },
     });
     return count;
+  }
+
+  async updateChatRoom(chatRoomId: string, adminId: string): Promise<void> {
+    await this.prisma.chatRoom.update({
+      where: { id: chatRoomId },
+      data: {
+        users: {
+          connect: { id: adminId }
+        }
+      }
+    });
   }
 }

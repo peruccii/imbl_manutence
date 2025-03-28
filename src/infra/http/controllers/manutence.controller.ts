@@ -33,10 +33,13 @@ import { StatusManutence } from '@application/enums/StatusManutence';
 import { RolesGuard } from '@application/guards/role.guards';
 import { UserId } from '@application/utils/extract-user-id';
 import { FileUploadService } from '@application/usecases/file-upload-service';
+import { AcceptManutenceService } from '@application/usecases/accept-manutence-service';
+
 interface PresignedUrlRequest {
   fileNames: string;
   signedUrl?: string;
 }
+
 @Controller('manutence')
 export class ManutenceController {
   constructor(
@@ -47,6 +50,7 @@ export class ManutenceController {
     private readonly manutenceGetAllNewCount_service: GetCountNewManutences,
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
     private readonly fileUploadService: FileUploadService,
+    private readonly acceptManutenceService: AcceptManutenceService,
   ) {}
 
   @Post('create')
@@ -219,5 +223,20 @@ export class ManutenceController {
   @Roles(Role.ADMIN)
   async takeManutence(@Param('id') param: FindOneParams) {
     // update status_manutence to ANDAMENTO
+  }
+
+  @Post('accept/:id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @Roles(Role.ADMIN)
+  async acceptManutence(
+    @Param() param: FindOneParams,
+    @UserId() adminId: string,
+  ) {
+    console.log(adminId);
+    return await this.acceptManutenceService.execute({
+      manutenceId: param.id,
+      adminId,
+    });
   }
 }

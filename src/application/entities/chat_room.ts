@@ -2,6 +2,7 @@ import { Replace } from '@application/helpers/replace';
 import { randomUUID } from 'crypto';
 import { User } from './user';
 import { Message } from './message';
+import { Manutence } from './manutence';
 
 export interface ChatRoomProps {
   name: string;
@@ -9,6 +10,9 @@ export interface ChatRoomProps {
   updatedAt: Date;
   users: User[];
   messages: Message[];
+  manutence?: Manutence;
+  lastMessage?: Message;
+  unreadCount: number;
 }
 
 export class ChatRoom {
@@ -61,5 +65,29 @@ export class ChatRoom {
 
   public get updatedAt(): Date {
     return this.props.updatedAt;
+  }
+
+  public get manutence(): Manutence | undefined {
+    return this.props.manutence;
+  }
+
+  public set manutence(manutence: Manutence | undefined) {
+    this.props.manutence = manutence;
+  }
+
+  public get lastMessage(): Message | undefined {
+    return this.props.lastMessage;
+  }
+
+  public set lastMessage(lastMessage: Message | undefined) {
+    this.props.lastMessage = lastMessage;
+  }
+
+  public get unreadCount(): number {
+    return this.props.unreadCount;
+  }
+
+  public set unreadCount(unreadCount: number) {
+    this.props.unreadCount = unreadCount;
   }
 }
