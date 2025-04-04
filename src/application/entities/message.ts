@@ -13,7 +13,7 @@ export class Message {
   private props: MessageProps;
   private _id: string;
 
-  constructor(props: Replace<MessageProps, { occuredAt?: Date }>, id?: string) {
+  constructor(props: Replace<MessageProps, { createdAt?: Date }>, id?: string) {
     this._id = id ?? randomUUID();
     this.props = {
       ...props,
@@ -51,5 +51,13 @@ export class Message {
 
   public get createdAt(): Date {
     return this.props.createdAt;
+  }
+
+  public get isRead(): boolean {
+    return this.props.isRead;
+  }
+
+  public set isRead(isRead: boolean) {
+    this.props.isRead = isRead;
   }
 }

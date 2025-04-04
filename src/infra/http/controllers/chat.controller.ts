@@ -1,5 +1,5 @@
 import { GetAllChatsRoomService } from '@application/usecases/get-all-chats-room-service';
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, Post, Body, ValidationPipe, UsePipes } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RolesGuard } from '@application/guards/role.guards';
 import { Roles } from 'src/roles/roles.decorator';
@@ -9,6 +9,15 @@ import { PaginationDto } from '../dto/pagination-dto';
 import { ChatRoom } from '@application/entities/chat_room';
 import { ChatRoomViewModel } from '../view-models/chat-room-view-model';
 import { GetAllChatsRoomWithMessageService } from '@application/usecases/get-chats-with-messages-service';
+import { FindUserChatRoomsService } from '@application/usecases/find-user-chat-rooms-service';
+import { SendMessageService } from '@application/usecases/send-message-service';
+import { RequestContext } from '@application/utils/request-context';
+import { UserId } from '@application/utils/extract-user-id';
+
+class SendMessageDto {
+  content: string;
+  roomName: string;
+}
 
 @Controller('chat')
 export class ChatController {
@@ -16,6 +25,9 @@ export class ChatController {
     private readonly getall: GetAllChatsRoomService,
     private readonly getwithmessages: GetAllChatsRoomWithMessageService,
     private findAdminChatRoomsService: FindAdminChatRoomsService,
+    private findUserChatRoomsService: FindUserChatRoomsService,
+    private readonly sendMessageService: SendMessageService,
+    private readonly requestContext: RequestContext,
   ) {}
 
   @Get('all')
@@ -46,5 +58,30 @@ export class ChatController {
       adminId,
       pagination,
     });
+  }
+
+  @Get('user/:userId/rooms')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.USER)
+  async findUserChatRooms(@Param('userId') userId: string, @Query() pagination: PaginationDto) {
+    return await this.findUserChatRoomsService.execute({
+      userId,
+      pagination,
+    });
+  }
+
+  @Post('message')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async sendMessage(@UserId() userId: string, @Body() messageDto: SendMessageDto) {
+    console.log('oi');
+    await this.sendMessageService.execute({
+      content: messageDto.content,
+      roomName: messageDto.roomName,
+      senderId: userId,
+    });
+
+    return { message: 'Mensagem enviada com sucesso' };
   }
 }

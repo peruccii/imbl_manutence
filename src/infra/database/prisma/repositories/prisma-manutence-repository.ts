@@ -102,6 +102,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       };
 
       const createRoomRequest: CreateChatRoomRequest = {
+        id: createdManutence.id,
         name: manutencee.title,
         users: [RoomUserObject],
         messages: [],
@@ -112,6 +113,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       const createdChatRoom = await prisma.chatRoom.create({
         data: {
           ...chatRoomData,
+          id: createdManutence.id,
           manutence: { connect: { id: createdManutence.id } },
         },
       });
@@ -136,43 +138,26 @@ export class PrismaManutenceRepository implements ManutenceRepository {
 
   async delete(id: string) {
     await this.prisma.$transaction(async (prisma) => {
-      await prisma.manutence.delete({ where: { id: id } });
-      const rs = await prisma.historicoManutencao.findFirst({
-        where: { id: id },
-        include: { manutencao: true, usuario: true },
+      const manutence = await prisma.manutence.findUnique({
+        where: { id },
+        select: { chatRoomId: true }
       });
-      if (rs) {
-        const userId = this.requestContext.get('userId');
 
-        // todo: review this code below!
-        const raw = PrismaHistoryManutenceMapper.toPrisma(
-          ActionHistory.MANUTENCE_DELETED,
-          rs.manutencao as unknown as Manutence,
-          userId,
-          rs.manutencao.id,
-        );
-        //
-
-        await prisma.historicoManutencao.create({
-          data: raw,
-        });
-
-        //await prisma.historicoManutencao.create({
-        //  data: {
-        //  id: rs.id,
-        //  action: ActionHistory.MANUTENCE_DELETED,
-        //  data: rs.data,
-        //  manutencao: {
-        //    connect: { id: rs.manutencao.id }
-        //   },
-        // usuario: {
-        //   connect: { id: userId }
-        // },
-        // },
-        // });
-      } else {
-        return;
+      if (!manutence) {
+        throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
       }
+
+      await prisma.historicoManutencao.deleteMany({
+        where: { manutenceId: id }
+      });
+
+      if (manutence.chatRoomId) {
+        await prisma.chatRoom.delete({
+          where: { id: manutence.chatRoomId }
+        });
+      }
+
+      await prisma.manutence.delete({ where: { id } });
     });
   }
 

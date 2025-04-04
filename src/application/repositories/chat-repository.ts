@@ -4,6 +4,7 @@ import { CreateChatRoomRequest } from '@application/interfaces/create-room';
 import { Pagination } from '@application/interfaces/pagination';
 import { RoomUser } from '@application/interfaces/room-users-interface';
 import { SendMessageInterface } from '@application/interfaces/send-message';
+import { Message } from '@application/entities/message';
 
 export abstract class ChatRepository {
   abstract findRoom(roomName: string): Promise<ChatRoom | null>;
@@ -17,5 +18,9 @@ export abstract class ChatRepository {
   abstract findAllWithMessages(
     pagination: Pagination,
   ): Promise<ChatRoom[] | []>;
-  abstract findAdminChatRooms(adminId: string, pagination: Pagination): Promise<ChatRoom[] | null>;
+  abstract findAdminChatRooms(adminId: string, pagination: Pagination);
+  abstract findUserChatRooms(userId: string, pagination: Pagination);
+  abstract createMessage(message: Message): Promise<void>;
+  abstract getUnreadCount(roomId: string): Promise<number>;
+  abstract markMessagesAsRead(messageIds: string[], userId: string): Promise<void>;
 }

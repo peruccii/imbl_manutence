@@ -23,7 +23,7 @@ export class AuthService {
   async validateToken(token: string) {
     try {
       const payload = this.jwtService.verify(token);
-      const user = await this.usersRepository.findOne(payload.userId);
+      const user = await this.usersRepository.findOne(payload.sub);
       return user;
     } catch (err) {
       return null;

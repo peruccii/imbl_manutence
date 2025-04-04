@@ -203,7 +203,7 @@ export class ManutenceController {
 
   @Delete('delete/:id')
   @UseGuards(AuthGuard, RolesGuard)
-  @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe({ transform: true }))
   @Roles(Role.USER, Role.ADMIN)
   async deleteManutence(@Param('id') param: string) {
     return await this.manutenceDelete_service.execute(param);

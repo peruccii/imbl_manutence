@@ -19,7 +19,6 @@ import { DeleteManutenceService } from '@application/usecases/delete-manutence-s
 import { GetCountNewManutences } from '@application/usecases/count-new-manutences-service';
 import { FindManutenceByFilters } from '@application/usecases/find-by-filter-manutence-dto';
 import { ChatModule } from '@infra/database/chat/chat.module';
-import { ChatGateway } from '@infra/database/chat/chat-gateway';
 import { ChatController } from './controllers/chat.controller';
 import { GetAllChatsRoomService } from '@application/usecases/get-all-chats-room-service';
 import { GetAllChatsRoomWithMessageService } from '@application/usecases/get-chats-with-messages-service';
@@ -34,6 +33,9 @@ import { ManutenceRepository } from '@application/repositories/manutence-reposit
 import { FindAdminChatRoomsService } from '@application/usecases/find-admin-chat-rooms-service';
 import { ChatRepository } from '@application/repositories/chat-repository';
 import { PrismaChatRepository } from '../database/prisma/repositories/prisma-chat-repository';
+import { CreateMessageService } from '@application/usecases/create-message-service';
+import { FindUserChatRoomsService } from '@application/usecases/find-user-chat-rooms-service';
+import { SendMessageService } from '@application/usecases/send-message-service';
 
 @Module({
   imports: [
@@ -51,7 +53,6 @@ import { PrismaChatRepository } from '../database/prisma/repositories/prisma-cha
     RequestContext,
     AuthGuard,
     RolesGuard,
-    ChatGateway,
     DeleteUserService,
     FileUploadService,
     FindOneManutenceService,
@@ -64,6 +65,8 @@ import { PrismaChatRepository } from '../database/prisma/repositories/prisma-cha
     FindManutenceByFilters,
     AcceptManutenceService,
     FindAdminChatRoomsService,
+    FindUserChatRoomsService,
+    CreateMessageService,
     {
       provide: ManutenceRepository,
       useClass: PrismaManutenceRepository,
@@ -72,6 +75,7 @@ import { PrismaChatRepository } from '../database/prisma/repositories/prisma-cha
       provide: ChatRepository,
       useClass: PrismaChatRepository,
     },
+    SendMessageService,
   ],
 })
 export class HttpModule {}

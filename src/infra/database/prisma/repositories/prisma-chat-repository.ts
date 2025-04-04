@@ -12,6 +12,7 @@ import { PrismaManutenceMapper } from '../mappers/prisma-manutence-mapper';
 import { NotFoundErrorHandler } from '@application/errors/not-found-error.error';
 import { ManutenceNotFoundMessage } from '@application/messages/manutence-not-found';
 import { Injectable } from '@nestjs/common';
+import { Message } from '@application/entities/message';
 
 @Injectable()
 export class PrismaChatRepository implements ChatRepository {
@@ -30,7 +31,8 @@ export class PrismaChatRepository implements ChatRepository {
       include: { user: true },
     });
 
-    if (!manutenceRaw) throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
+    // TODO: chat room id must be the same id as manutence id
+    if (!manutenceRaw) throw new NotFoundErrorHandler(ManutenceNotFoundMessage); 
 
     return PrismaManutenceMapper.toDomain(manutenceRaw);
   }
@@ -41,13 +43,19 @@ export class PrismaChatRepository implements ChatRepository {
       where: { name: roomName },
     });
     if (!room) throw new Error('Sala não encontrada');
-    await this.prismaService.message.create({
-      data: {
+    
+    // Criar a mensagem usando o método createMessage
+    const message = new Message(
+      {
         content: msg,
         senderId,
         chatRoomId: room.id,
-      },
-    });
+        createdAt: new Date(),
+        isRead: false,
+      }
+    );
+    
+    await this.createMessage(message);
   }
 
   async findRoom(roomName: string): Promise<ChatRoom | null> {
@@ -84,69 +92,141 @@ export class PrismaChatRepository implements ChatRepository {
     );
   }
 
-  async findAdminChatRooms(adminId: string, pagination: Pagination): Promise<ChatRoom[] | null> {
-    console.log('adminId', adminId);
+  async findAdminChatRooms(adminId: string, pagination: Pagination) {
     const chatRooms = await this.prismaService.chatRoom.findMany({
+      skip: Number(pagination.skip),
+      take: Number(pagination.limit),
       where: {
         users: {
           some: {
-            id: adminId
-          }
+            id: adminId,
+          },
         },
         manutence: {
           OR: [
-            {
-              adminId: adminId
-            },
-            {
-              userId: adminId
-            }
+            { adminId: adminId },
+            { userId: adminId }
           ]
         }
       },
       include: {
         users: true,
         messages: {
-          include: {
-            sender: true
-          },
           orderBy: {
-            createdAt: 'desc'
-          }
+            createdAt: 'desc',
+          },
         },
         manutence: {
           include: {
-            user: true
-          }
+            user: true,
+          },
         },
-        lastMessage: {
-          include: {
-            sender: true
-          }
-        }
       },
-      skip: Number(pagination.skip),
-      take: Number(pagination.limit),
-      orderBy: {
-        createdAt: 'desc'
-      }
     });
 
-    console.log('chatRooms found:', chatRooms.length);
-    console.log('First chatRoom:', JSON.stringify(chatRooms[0], null, 2));
-
-    if (!chatRooms || chatRooms.length === 0) {
-      throw new Error(`No chat rooms found for adminId: ${adminId}`);
+    if (!chatRooms) {
+      throw new Error('Chat rooms not found');
     }
 
-    return chatRooms.map(chatRoom => {
-      try {
-        return PrismaChatRoomMapper.toDomain(chatRoom);
-      } catch (error) {
-        console.error('Error mapping chatRoom:', error);
-        console.error('chatRoom data:', JSON.stringify(chatRoom, null, 2));
-        throw error;
+    return chatRooms
+  }
+
+  async findUserChatRooms(userId: string, pagination: Pagination) {
+    const chatRooms = await this.prismaService.chatRoom.findMany({
+      skip: Number(pagination.skip),
+      take: Number(pagination.limit),
+      where: {
+        users: {
+          some: {
+            id: userId,
+          },
+        },
+      },
+      include: {
+        users: true,
+        messages: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+        manutence: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    if (!chatRooms) {
+      throw new Error('Chat rooms not found');
+    }
+
+    return chatRooms
+  }
+
+  async createMessage(message: Message): Promise<void> {
+    console.log('Criando mensagem:', message);
+    console.log('messageId', message.id);
+  
+    try {
+      // Verificar se o ChatRoom existe
+      const chatRoom = await this.prismaService.chatRoom.findUnique({
+        where: { id: message.chatRoomId },
+      });
+  
+      if (!chatRoom) {
+        throw new Error('Chat room não encontrado!');
       }
+  
+      // Verificar se o senderId (usuário) existe
+      const sender = await this.prismaService.user.findUnique({
+        where: { id: message.senderId },
+      });
+  
+      if (!sender) {
+        throw new Error('Usuário não encontrado!');
+      }
+  
+      // Criar a mensagem sem passar o id (deixe o Prisma gerar o id automaticamente)
+      const createdMessage = await this.prismaService.message.create({
+        data: {
+          content: message.content,
+          senderId: message.senderId,
+          chatRoomId: message.chatRoomId,
+          createdAt: message.createdAt,
+          isRead: message.isRead,
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao criar mensagem:', error);
+      throw error;
+    }
+  }
+
+  async getUnreadCount(roomId: string): Promise<number> {
+    const count = await this.prismaService.message.count({
+      where: {
+        chatRoomId: roomId,
+        isRead: false,
+      },
+    });
+    return count;
+  }
+
+  async markMessagesAsRead(messageIds: string[], userId: string): Promise<void> {
+    await this.prismaService.message.updateMany({
+      where: {
+        id: {
+          in: messageIds,
+        },
+        senderId: {
+          not: userId,
+        },
+        isRead: false,
+      },
+      data: {
+        isRead: true,
+      },
     });
   }
 }

@@ -180,7 +180,6 @@ export class FileUploadService {
   async generateGetSignedUrls(
     fileNames: string[],
   ): Promise<{ fileName: string; signedUrl: string }[]> {
-    console.log('filenames', fileNames);
     const getUrls = await Promise.all(
       fileNames.map(async (fileName) => {
         const command = new GetObjectCommand({
@@ -219,6 +218,30 @@ export class FileUploadService {
       return response;
     } catch (error) {
       throw new Error('Erro ao deletar arquivos: ' + error);
+    }
+  }
+
+  async deleteFilesFromS3ByFilenames(filenames: string[]): Promise<void> {
+    try {
+      const deleteParams = {
+        Bucket: this.bucketName,
+        Delete: {
+          Objects: filenames.map(filename => ({ Key: filename })),
+        },
+      };
+
+      const command = new DeleteObjectsCommand(deleteParams);
+      const response = await this.s3Client.send(command);
+
+      if (response.Errors && response.Errors.length > 0) {
+        console.error('Erros ao deletar arquivos:', response.Errors);
+        throw new Error('Alguns arquivos não puderam ser deletados');
+      }
+
+      console.log('Arquivos deletados com sucesso:', response.Deleted);
+    } catch (error) {
+      console.error('Erro ao deletar arquivos:', error);
+      throw new Error('Erro ao deletar arquivos do S3');
     }
   }
 }
