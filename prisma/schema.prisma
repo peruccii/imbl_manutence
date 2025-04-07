@@ -30,7 +30,7 @@ enum Role {
 model Manutence {
   id               String          @id @unique
   photos           Json
-  video            String    @db.Text        
+  video            Json          
   title            String
   address          String
   message          String
@@ -82,7 +82,7 @@ model HistoricoManutencao {
   data        DateTime  @default(now())
   usuarioId   String    
   action      String    
-  manutenceId String
-  manutencao  Manutence @relation(fields: [manutenceId], references: [id])
+  manutenceId String?
+  manutencao  Manutence? @relation(fields: [manutenceId], references: [id], onDelete: SetNull)
   usuario     User      @relation(fields: [usuarioId], references: [id])
 }

@@ -22,17 +22,21 @@ export class DeleteManutenceService {
 
     const photos = manutenceExists.photos;
     const video = manutenceExists.video;
-
-    const photoFilenames = photos.map(photo => photo.fileName);
-    
-    const filenamesToDelete = [...photoFilenames];
-    
-    if (video && typeof video === 'object' && video !== null) {
-      const videoObj = video as { fileName: string; signedUrl: string };
-      if (videoObj.fileName) {
-        filenamesToDelete.push(videoObj.fileName);
-      }
+    if (photos && photos.length < 0) {
     }
+    const photoFilenames = photos.map((photo) => photo.fileName);
+
+    const filenamesToDelete = [...photoFilenames];
+
+    if (video && video !== null) {
+      const videoObj = video as {
+        fileName: string;
+        signedUrl: string;
+      }[];
+      if (videoObj) {
+        filenamesToDelete.push(videoObj[0].fileName);
+      }
+    } // todo> video nao apagando no s3
 
     if (filenamesToDelete.length > 0) {
       await this.s3Client.deleteFilesFromS3ByFilenames(filenamesToDelete);

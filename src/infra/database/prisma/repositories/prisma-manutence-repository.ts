@@ -15,6 +15,7 @@ import { CreateChatRoomRequest } from '@application/interfaces/create-room';
 import { ManutenceNotFoundMessage } from '@application/messages/manutence-not-found';
 import { RoomUser } from '@application/interfaces/room-users-interface';
 import { UpdateManutenceData } from '@application/repositories/manutence-repository';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class PrismaManutenceRepository implements ManutenceRepository {
@@ -39,11 +40,11 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         status_manutence: statusFilter ? { in: statusFilter } : undefined,
       },
       include: {
-        user: true
+        user: true,
       },
       orderBy: {
         createdAt: 'desc',
-      }
+      },
     });
 
     return manutences.map((manutence) => {
@@ -125,7 +126,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
 
       const rawManutenceHistory = PrismaHistoryManutenceMapper.toPrisma(
         ActionHistory.MANUTENCE_CREATED,
-        manutence,
+        manutence.createdAt,
         createdManutence.userId,
         createdManutence.id,
       );
@@ -140,24 +141,34 @@ export class PrismaManutenceRepository implements ManutenceRepository {
     await this.prisma.$transaction(async (prisma) => {
       const manutence = await prisma.manutence.findUnique({
         where: { id },
-        select: { chatRoomId: true }
+        include: {
+          user: true,
+        },
       });
 
       if (!manutence) {
         throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
       }
 
-      await prisma.historicoManutencao.deleteMany({
-        where: { manutenceId: id }
+      await prisma.historicoManutencao.create({
+        data: {
+          id: randomUUID(),
+          action: ActionHistory.MANUTENCE_DELETED,
+          data: new Date(),
+          usuarioId: manutence.userId,
+          manutenceId: manutence.id,
+        },
       });
 
       if (manutence.chatRoomId) {
         await prisma.chatRoom.delete({
-          where: { id: manutence.chatRoomId }
+          where: { id: manutence.chatRoomId },
         });
       }
 
-      await prisma.manutence.delete({ where: { id } });
+      await prisma.manutence.delete({
+        where: { id },
+      });
     });
   }
 
@@ -170,7 +181,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       },
       orderBy: {
         createdAt: 'desc',
-      }
+      },
     });
     return manutences.map((manutence) => {
       return PrismaManutenceMapper.toDomain(manutence);
@@ -189,9 +200,9 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       where: { id: chatRoomId },
       data: {
         users: {
-          connect: { id: adminId }
-        }
-      }
+          connect: { id: adminId },
+        },
+      },
     });
   }
 }

@@ -7,6 +7,7 @@ import { Role } from '@application/enums/role.enum';
 export interface HistoryManutenceProps {
   data: Date;
   action: string;
+  usuarioId: string;
   usuario: User;
   manutencao: Manutence;
   typeUser: Role;
@@ -33,7 +34,7 @@ export class HistoryManutence {
   }
 
   public get data(): Date {
-    return this.data;
+    return this.props.data;
   }
 
   public set data(data: Date) {
@@ -41,15 +42,23 @@ export class HistoryManutence {
   }
 
   public get action(): string {
-    return this.action;
+    return this.props.action;
   }
 
   public set action(action: string) {
     this.props.action = action;
   }
 
+  public get usuarioId(): string {
+    return this.props.usuarioId;
+  }
+
+  public set usuarioId(usuarioId: string) {
+    this.props.usuarioId = usuarioId;
+  }
+
   public get usuario(): User {
-    return this.usuario;
+    return this.props.usuario;
   }
 
   public set usuario(usuario: User) {
@@ -57,7 +66,7 @@ export class HistoryManutence {
   }
 
   public get manutencao(): Manutence {
-    return this.manutencao;
+    return this.props.manutencao;
   }
 
   public set manutencao(manutencao: Manutence) {
@@ -65,15 +74,15 @@ export class HistoryManutence {
   }
 
   public get typeUser(): Role {
-    return this.typeUser;
+    return this.props.typeUser;
   }
 
   public set typeUser(typeUser: Role) {
     this.props.typeUser = typeUser;
   }
 
-  public get occuredAt(): Date {
-    return this.occuredAt;
+  public get occurredAt(): Date {
+    return this.props.occurredAt;
   }
 
   public set occurredAt(occurredAt: Date) {

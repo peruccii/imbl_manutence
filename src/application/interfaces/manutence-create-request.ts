@@ -4,7 +4,10 @@ export interface CreateManutenceRequest {
     fileName: string;
     signedUrl: string;
   }[];
-  video: string;
+  video: {
+    fileName: string;
+    signedUrl: string;
+  }[];
   title: string;
   address: string;
   userId: string;

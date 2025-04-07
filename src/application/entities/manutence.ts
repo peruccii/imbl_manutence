@@ -12,7 +12,10 @@ export interface ManutenceProps {
     fileName: string;
     signedUrl: string;
   }[];
-  video: string;
+  video: {
+    fileName: string;
+    signedUrl: string;
+  }[];
   address: string;
   status_manutence: StatusManutence;
   createdAt: Date;
@@ -74,11 +77,14 @@ export class Manutence {
     this.props.userId = userId;
   }
 
-  public get video(): string {
+  public get video(): {
+    fileName: string;
+    signedUrl: string;
+  }[] {
     return this.props.video;
   }
 
-  public set video(video: string) {
+  public set video(video: { fileName: string; signedUrl: string }[]) {
     this.props.video = video;
   }
 

@@ -36,6 +36,8 @@ import { PrismaChatRepository } from '../database/prisma/repositories/prisma-cha
 import { CreateMessageService } from '@application/usecases/create-message-service';
 import { FindUserChatRoomsService } from '@application/usecases/find-user-chat-rooms-service';
 import { SendMessageService } from '@application/usecases/send-message-service';
+import { HistoryController } from './controllers/history.contoller';
+import { HistoryModule } from '@infra/database/history/history.module';
 
 @Module({
   imports: [
@@ -46,8 +48,14 @@ import { SendMessageService } from '@application/usecases/send-message-service';
     ManutenceModule,
     S3Module,
     PrismaModule,
+    HistoryModule,
   ],
-  controllers: [ManutenceController, UserController, ChatController],
+  controllers: [
+    ManutenceController,
+    UserController,
+    ChatController,
+    HistoryController,
+  ],
   providers: [
     PrismaService,
     RequestContext,

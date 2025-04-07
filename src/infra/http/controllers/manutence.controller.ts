@@ -65,7 +65,7 @@ export class ManutenceController {
     return await this.manutenceCreate_service.execute(r);
   }
 
-  @Post('get/presigned-url')
+  @Post('put/presigned-url')
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'photos', maxCount: 10 },
@@ -83,8 +83,8 @@ export class ManutenceController {
   }
 
   @Post('get-presigned-urls')
-  async getPresignedUrls(@Body() body: PresignedUrlRequest[]) {
-    const fileNames = body.map((item) => item.fileNames);
+  async getPresignedUrls(@Body() body: { fileNames: string[] }) {
+    const fileNames = body.fileNames;
     const signedUrls =
       await this.fileUploadService.generateGetSignedUrls(fileNames);
     return signedUrls;
@@ -110,11 +110,15 @@ export class ManutenceController {
       }));
     }
 
-    // if (formatted.video) {
-    //   formatted.video = (
-    //     await this.fileUploadService.generateGetSignedUrls([formatted.video])
-    //   )[0];
-    // }
+    if (formatted.video) {
+      const videoUrl = formatted.video.map((video) => video.fileName);
+      const signedUrls =
+        await this.fileUploadService.generateGetSignedUrls(videoUrl);
+      formatted.video = signedUrls.map((url, index) => ({
+        fileName: videoUrl[index],
+        signedUrl: url.signedUrl,
+      }));
+    }
 
     return formatted;
   }

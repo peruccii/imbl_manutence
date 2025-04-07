@@ -20,7 +20,12 @@ export class PrismaManutenceMapper {
             signedUrl: photo.signedUrl,
           }))
         : [],
-      video: manutence.video,
+      video: manutence.video.length
+        ? manutence.video.map((video) => ({
+            fileName: video.fileName,
+            signedUrl: video.signedUrl,
+          }))
+        : [],
       address: manutence.address,
       title: manutence.title,
       status_manutence: manutence.status_manutence,
@@ -28,12 +33,16 @@ export class PrismaManutenceMapper {
       user: {
         connect: { id: manutence.userId },
       },
-      chatRoom: manutence.chatRoomId ? {
-        connect: { id: manutence.chatRoomId }
-      } : undefined,
-      admin: manutence.adminId ? {
-        connect: { id: manutence.adminId }
-      } : undefined,
+      chatRoom: manutence.chatRoomId
+        ? {
+            connect: { id: manutence.chatRoomId },
+          }
+        : undefined,
+      admin: manutence.adminId
+        ? {
+            connect: { id: manutence.adminId },
+          }
+        : undefined,
     };
   }
 
@@ -62,7 +71,26 @@ export class PrismaManutenceMapper {
               })
             : [],
         status_manutence: rawManutence.status_manutence as StatusManutence,
-        video: rawManutence.video,
+        video:
+          Array.isArray(rawManutence.video) && rawManutence.video.length
+            ? rawManutence.video.map((video) => {
+                const fileName =
+                  video &&
+                  typeof video === 'object' &&
+                  'fileName' in video &&
+                  typeof video.fileName === 'string'
+                    ? video.fileName
+                    : '';
+                const signedUrl =
+                  video &&
+                  typeof video === 'object' &&
+                  'signedUrl' in video &&
+                  typeof video.signedUrl === 'string'
+                    ? video.signedUrl
+                    : '';
+                return { fileName, signedUrl };
+              })
+            : [],
         title: rawManutence.title,
         address: rawManutence.address,
         userId: rawManutence.userId,

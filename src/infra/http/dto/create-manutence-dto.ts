@@ -10,7 +10,10 @@ export class ManutenceCreateDto {
     fileName: string;
     signedUrl: string;
   }[];
-  video: string;
+  video: {
+    fileName: string;
+    signedUrl: string;
+  }[];
   @IsNotEmpty({ message: 'userId is required' })
   @IsString()
   userId: string;
