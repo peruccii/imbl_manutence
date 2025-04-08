@@ -27,10 +27,20 @@ enum Role {
   USER
 }
 
+enum Category {
+  Vazamento
+  Problemas_Estruturais
+  Problemas_Eletricidade
+  Problemas_Acabamento
+  Problemas_Acessibilidade
+  Problemas_Impermeabilização
+}
+
 model Manutence {
   id               String          @id @unique
   photos           Json
-  video            Json          
+  video            Json      
+  category         Category?
   title            String
   address          String
   message          String
@@ -38,7 +48,7 @@ model Manutence {
   createdAt        DateTime        @default(now())
   userId           String        
   adminId          String?        
-  user             User            @relation(fields: [userId], references: [id])
+  user             User            @relation(fields: [userId], references: [id],  onDelete: Cascade)
   admin            User?           @relation(fields: [adminId], references: [id], name: "AdminManutence")
   chatRoomId       String?         @unique 
   chatRoom         ChatRoom?       @relation(fields: [chatRoomId], references: [id])

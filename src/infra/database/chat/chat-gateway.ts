@@ -13,17 +13,16 @@ import {
 import { Socket, Server } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { Message } from '@application/entities/message';
-import { randomUUID } from 'crypto';
 
 interface ClientData {
   user?: User;
 }
 
-@WebSocketGateway(3002, { 
-  cors: { 
-    origin: ['http://localhost:3000', 'http://localhost:5173'], 
-    credentials: true 
-  } 
+@WebSocketGateway(3002, {
+  cors: {
+    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    credentials: true,
+  },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
@@ -35,28 +34,29 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private async authenticateClient(client: Socket) {
     try {
-      const token = client.handshake.headers.authorization?.split(' ')[1] || 
-                   client.handshake.auth.token ||
-                   client.handshake.query.token;
-      console.log('Token recebido:', token); 
+      const token =
+        client.handshake.headers.authorization?.split(' ')[1] ||
+        client.handshake.auth.token ||
+        client.handshake.query.token;
+      console.log('Token recebido:', token);
 
       if (!token) {
-        console.log('Token não encontrado'); 
+        console.log('Token não encontrado');
         throw new WsException('Token JWT não fornecido');
       }
-      
+
       const user = await this.authService.validateToken(token);
-      console.log('Usuário validado:', user); 
+      console.log('Usuário validado:', user);
 
       if (!user) {
-        console.log('Usuário não encontrado'); 
+        console.log('Usuário não encontrado');
         throw new WsException('Token JWT inválido');
       }
-      
+
       client.data.user = user;
       return user;
     } catch (error) {
-      console.error('Erro na autenticação:', error); 
+      console.error('Erro na autenticação:', error);
       throw error;
     }
   }
@@ -66,13 +66,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const user = await this.authenticateClient(client);
       console.log(`Usuário ${user.id} conectado com sucesso.`);
-      
+
       client.emit('connection-success', {
         message: 'Conexão estabelecida com sucesso',
         user: {
           id: user.id,
           name: user.name,
-        }
+        },
       });
 
       client.broadcast.emit('user-joined', {
@@ -80,13 +80,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         user: {
           id: user.id,
           name: user.name,
-        }
+        },
       });
     } catch (error: any) {
       console.error('Erro de autenticação:', error);
       client.emit('connection-error', {
         message: 'Erro na autenticação',
-        error: error.message || 'Erro desconhecido'
+        error: error.message || 'Erro desconhecido',
       });
       client.disconnect();
     }
@@ -100,7 +100,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         user: {
           id: client.data.user.id,
           name: client.data.user.name,
-        }
+        },
       });
     }
   }
@@ -114,34 +114,45 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         throw new WsException('Usuário não autenticado');
       }
 
-      console.log(`Usuário ${clientData.user.id} tentando entrar na sala ${roomName}`);
+      console.log(
+        `Usuário ${clientData.user.id} tentando entrar na sala ${roomName}`,
+      );
       console.log('roomName', roomName);
       const room = await this.chatRepository.findRoom(roomName);
       if (!room) throw new WsException('Sala não encontrada');
 
-      const manutence = await this.chatRepository.findManutenceByChatRoom(room.id);
-      if (!manutence) throw new WsException('Manutenção associada não encontrada');
+      const manutence = await this.chatRepository.findManutenceByChatRoom(
+        room.id,
+      );
+      if (!manutence)
+        throw new WsException('Manutenção associada não encontrada');
 
-      const isAuthorized = manutence.userId === clientData.user.id || manutence.adminId === clientData.user.id;
-      if (!isAuthorized) throw new WsException('Usuário não autorizado para essa sala');
+      const isAuthorized =
+        manutence.userId === clientData.user.id ||
+        manutence.adminId === clientData.user.id;
+      if (!isAuthorized)
+        throw new WsException('Usuário não autorizado para essa sala');
 
       const currentUsers = await this.chatRepository.getUsersInRoom(roomName);
-      if (currentUsers.length >= 2 && !currentUsers.some((u) => u.id === clientData.user!.id)) {
+      if (
+        currentUsers.length >= 2 &&
+        !currentUsers.some((u) => u.id === clientData.user!.id)
+      ) {
         throw new WsException('A sala já está cheia');
       }
 
       client.join(roomName);
-      client.emit('room-joined', { 
+      client.emit('room-joined', {
         message: `Você entrou na sala: ${roomName}`,
         room: {
           id: room.id,
-          name: room.name
-        }
+          name: room.name,
+        },
       });
     } catch (error: any) {
       console.error('Erro ao entrar na sala:', error);
       client.emit('room-error', {
-        message: error.message || 'Erro ao entrar na sala'
+        message: error.message || 'Erro ao entrar na sala',
       });
     }
   }
@@ -151,7 +162,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       console.log('Cliente tentando sair da sala:', client.id);
       console.log('Dados do cliente:', client.data);
-      
+
       const clientData: ClientData = client.data as ClientData;
       if (!clientData.user) {
         console.log('Tentativa de sair da sala sem autenticação');
@@ -159,16 +170,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       client.leave(roomName);
-      client.emit('room-left', { 
+      client.emit('room-left', {
         message: `Você saiu da sala: ${roomName}`,
         room: {
-          name: roomName
-        }
+          name: roomName,
+        },
       });
     } catch (error: any) {
       console.error('Erro ao sair da sala:', error);
       client.emit('room-error', {
-        message: error.message || 'Erro ao sair da sala'
+        message: error.message || 'Erro ao sair da sala',
       });
     }
   }
@@ -182,7 +193,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log('Recebendo nova mensagem:', message);
       console.log('Cliente:', client);
       console.log('Dados do cliente:', client.data);
-      
+
       const clientData: ClientData = client.data as ClientData;
       if (!clientData.user) {
         console.log('Tentativa de enviar mensagem sem autenticação');
@@ -217,7 +228,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } catch (error: any) {
       console.error('Erro ao enviar mensagem:', error);
       client.emit('message-error', {
-        message: error.message || 'Erro ao enviar mensagem'
+        message: error.message || 'Erro ao enviar mensagem',
       });
     }
   }
