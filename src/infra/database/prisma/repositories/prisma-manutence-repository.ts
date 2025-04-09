@@ -68,6 +68,15 @@ export class PrismaManutenceRepository implements ManutenceRepository {
     });
   }
 
+  async findByAdminId(adminId: string): Promise<Manutence[] | []> {
+    const manutences = await this.prisma.manutence.findMany({
+      where: { adminId },
+    });
+    return manutences.map((manutence) => {
+      return PrismaManutenceMapper.toDomain(manutence);
+    });
+  }
+
   async find(id: string): Promise<Manutence | null> {
     const manutence = await this.prisma.manutence.findUnique({
       where: { id: id },
@@ -124,11 +133,21 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         data: { chatRoomId: createdChatRoom.id },
       });
 
+      const manutencaoHistoryObject = {
+        title: manutence.title,
+        address: manutence.address,
+        status_manutence: manutence.status_manutence,
+        createdAt: manutence.createdAt,
+        message: manutence.message.value,
+        photos: manutence.photos,
+      };
+
       const rawManutenceHistory = PrismaHistoryManutenceMapper.toPrisma(
         ActionHistory.MANUTENCE_CREATED,
         manutence.createdAt,
         createdManutence.userId,
         createdManutence.id,
+        manutencaoHistoryObject,
       );
 
       await prisma.historicoManutencao.create({
@@ -150,6 +169,15 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
       }
 
+      const manutencaoHistoryObject = {
+        title: manutence.title,
+        address: manutence.address,
+        status_manutence: manutence.status_manutence,
+        createdAt: manutence.createdAt,
+        message: manutence.message,
+        photos: manutence.photos,
+      };
+
       await prisma.historicoManutencao.create({
         data: {
           id: randomUUID(),
@@ -157,6 +185,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
           data: new Date(),
           usuarioId: manutence.userId,
           manutenceId: manutence.id,
+          manutencao: manutencaoHistoryObject,
         },
       });
 

@@ -23,4 +23,5 @@ export abstract class ManutenceRepository {
     filters: FiltersManutence,
     pagination?: Pagination,
   ): Promise<Manutence[] | []>;
+  abstract findByAdminId(adminId: string): Promise<Manutence[] | []>;
 }

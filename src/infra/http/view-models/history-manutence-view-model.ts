@@ -11,9 +11,7 @@ export class HistoryManutenceViewModel {
       usuario: history.usuario
         ? UserViewModel.toGetFormatHttp(history.usuario)
         : null,
-      manutencao: history.manutencao
-        ? ManutenceViewModel.toGetFormatHttp(history.manutencao)
-        : null,
+      manutencao: history.manutencao,
       typeUser: history.typeUser,
       occurredAt: history.occurredAt,
     };

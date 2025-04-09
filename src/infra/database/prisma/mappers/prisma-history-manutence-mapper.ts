@@ -1,4 +1,5 @@
 import { ActionHistory } from '@application/enums/action.enum';
+import type { ManutenceHistoryObjectInterface } from '@application/interfaces/manutence-history-object';
 import { randomUUID } from 'crypto';
 
 export class PrismaHistoryManutenceMapper {
@@ -7,6 +8,7 @@ export class PrismaHistoryManutenceMapper {
     data: Date,
     userId: string,
     manutenceId: string,
+    manutencao: ManutenceHistoryObjectInterface,
   ) {
     return {
       id: randomUUID(),
@@ -14,6 +16,7 @@ export class PrismaHistoryManutenceMapper {
       data: data,
       manutenceId: manutenceId,
       usuarioId: userId,
+      manutencao: JSON.parse(JSON.stringify(manutencao)),
     };
   }
 

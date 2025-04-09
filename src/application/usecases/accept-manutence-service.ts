@@ -27,22 +27,35 @@ export class AcceptManutenceService {
     }
 
     if (manutence.chatRoomId) {
-      await this.manutenceRepository.updateChatRoom(manutence.chatRoomId, adminId);
+      await this.manutenceRepository.updateChatRoom(
+        manutence.chatRoomId,
+        adminId,
+      );
     }
+
+    const manutencaoHistoryObject = {
+      title: manutence.title,
+      address: manutence.address,
+      status_manutence: manutence.status_manutence,
+      createdAt: manutence.createdAt,
+      message: manutence.message.value,
+      photos: manutence.photos,
+    };
 
     await this.historyManutenceRepository.createHistoryEntry({
       id: randomUUID(),
       action: ActionHistory.MANUTENCE_ACCEPTED,
       data: new Date(),
       usuarioId: adminId,
-      manutenceId: manutenceId
+      manutenceId: manutenceId,
+      manutencao: manutencaoHistoryObject,
     });
 
     await this.manutenceRepository.update(manutenceId, {
       status_manutence: StatusManutence.ANDAMENTO,
-      adminId: adminId
+      adminId: adminId,
     });
 
     return { success: true };
   }
-} 
+}

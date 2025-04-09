@@ -1,15 +1,16 @@
 import { Replace } from '@application/helpers/replace';
 import { randomUUID } from 'crypto';
 import { User } from './user';
-import { Manutence } from './manutence';
 import { Role } from '@application/enums/role.enum';
+import type { StatusManutence } from '@application/enums/StatusManutence';
+import type { ManutenceHistoryObjectInterface } from '@application/interfaces/manutence-history-object';
 
 export interface HistoryManutenceProps {
   data: Date;
   action: string;
   usuarioId: string;
   usuario: User;
-  manutencao: Manutence;
+  manutencao: ManutenceHistoryObjectInterface;
   typeUser: Role;
   occurredAt: Date;
 }
@@ -65,11 +66,11 @@ export class HistoryManutence {
     this.props.usuario = usuario;
   }
 
-  public get manutencao(): Manutence {
+  public get manutencao(): ManutenceHistoryObjectInterface {
     return this.props.manutencao;
   }
 
-  public set manutencao(manutencao: Manutence) {
+  public set manutencao(manutencao: ManutenceHistoryObjectInterface) {
     this.props.manutencao = manutencao;
   }
 

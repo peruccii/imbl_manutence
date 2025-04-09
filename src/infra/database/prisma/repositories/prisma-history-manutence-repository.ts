@@ -45,32 +45,20 @@ export class PrismaHistoryManutenceRepository
           },
           history.usuario.id,
         ),
-        manutencao: new Manutence(
-          {
-            message: new Message(history.manutencao.message),
-            photos: Array.isArray(history.manutencao.photos)
-              ? history.manutencao.photos.map((photo: any) => ({
-                  fileName: photo.fileName,
-                  signedUrl: photo.signedUrl,
-                }))
-              : [],
-            video: Array.isArray(history.manutencao.video)
-              ? history.manutencao.video.map((video: any) => ({
-                  fileName: video.fileName,
-                  signedUrl: video.signedUrl,
-                }))
-              : [],
-            title: history.manutencao.title,
-            address: history.manutencao.address,
-            status_manutence: history.manutencao
-              .status_manutence as StatusManutence,
-            createdAt: history.manutencao.createdAt,
-            userId: history.manutencao.userId,
-            adminId: history.manutencao.adminId || undefined,
-            chatRoomId: history.manutencao.chatRoomId || undefined,
-          },
-          history.manutencao.id,
-        ),
+        manutencao: {
+          message: history.manutencao.message,
+          photos: Array.isArray(history.manutencao.photos)
+            ? history.manutencao.photos.map((photo: any) => ({
+                fileName: photo.fileName,
+                signedUrl: photo.signedUrl,
+              }))
+            : [],
+          title: history.manutencao.title,
+          address: history.manutencao.address,
+          status_manutence: history.manutencao
+            .status_manutence as StatusManutence,
+          createdAt: history.manutencao.createdAt,
+        },
         typeUser: history.usuario.typeUser as Role,
         occurredAt: history.data,
       },
@@ -87,7 +75,6 @@ export class PrismaHistoryManutenceRepository
       },
       include: {
         usuario: true,
-        manutencao: true,
       },
     });
 
@@ -111,7 +98,6 @@ export class PrismaHistoryManutenceRepository
       },
       include: {
         usuario: true,
-        manutencao: true,
       },
     });
 

@@ -52,7 +52,6 @@ model Manutence {
   admin            User?           @relation(fields: [adminId], references: [id], name: "AdminManutence")
   chatRoomId       String?         @unique 
   chatRoom         ChatRoom?       @relation(fields: [chatRoomId], references: [id])
-  historico        HistoricoManutencao[]
 }
 
 enum StatusManutence {
@@ -93,6 +92,7 @@ model HistoricoManutencao {
   usuarioId   String    
   action      String    
   manutenceId String?
-  manutencao  Manutence? @relation(fields: [manutenceId], references: [id], onDelete: SetNull)
+  manutencao Json
   usuario     User      @relation(fields: [usuarioId], references: [id])
 }
+

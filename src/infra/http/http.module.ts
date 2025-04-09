@@ -38,6 +38,8 @@ import { FindUserChatRoomsService } from '@application/usecases/find-user-chat-r
 import { SendMessageService } from '@application/usecases/send-message-service';
 import { HistoryController } from './controllers/history.contoller';
 import { HistoryModule } from '@infra/database/history/history.module';
+import { TransferManutencesToNewAdminService } from '@application/usecases/transfer-manutences-to-new-admin-service';
+import { GetAllAdminsService } from '@application/usecases/get-all-admins-service';
 
 @Module({
   imports: [
@@ -68,8 +70,10 @@ import { HistoryModule } from '@infra/database/history/history.module';
     GetPreSignedUrlService,
     GetAllChatsRoomService,
     DeleteManutenceService,
+    GetAllAdminsService,
     GetAllChatsRoomWithMessageService,
     GetCountNewManutences,
+    TransferManutencesToNewAdminService,
     FindManutenceByFilters,
     AcceptManutenceService,
     FindAdminChatRoomsService,

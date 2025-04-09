@@ -22,25 +22,25 @@ export class DeleteManutenceService {
 
     const photos = manutenceExists.photos;
     const video = manutenceExists.video;
-    if (photos && photos.length < 0) {
-    }
-    const photoFilenames = photos.map((photo) => photo.fileName);
+    // if (photos && photos.length < 0) {
+    // }
+    // const photoFilenames = photos.map((photo) => photo.fileName);
 
-    const filenamesToDelete = [...photoFilenames];
+    // const filenamesToDelete = [...photoFilenames];
 
-    if (video && video !== null) {
-      const videoObj = video as {
-        fileName: string;
-        signedUrl: string;
-      }[];
-      if (videoObj) {
-        filenamesToDelete.push(videoObj[0].fileName);
-      }
-    } // todo> video nao apagando no s3
+    // if (video && video !== null) {
+    //   const videoObj = video as {
+    //     fileName: string;
+    //     signedUrl: string;
+    //   }[];
+    //   if (videoObj) {
+    //     filenamesToDelete.push(videoObj[0].fileName);
+    //   }
+    // } // todo> video nao apagando no s3
 
-    if (filenamesToDelete.length > 0) {
-      await this.s3Client.deleteFilesFromS3ByFilenames(filenamesToDelete);
-    }
+    // if (filenamesToDelete.length > 0) {
+    //   await this.s3Client.deleteFilesFromS3ByFilenames(filenamesToDelete);
+    // }
 
     return this.manutenceRepository.delete(id);
   }
