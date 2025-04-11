@@ -15,6 +15,7 @@ import { Password } from '@application/fieldsValidations/password';
 import { Message } from '@application/fieldsValidations/message';
 import { StatusManutence } from '@application/enums/StatusManutence';
 import { HistoricoManutencao } from '@prisma/client';
+import type { ManutenceHistoryObjectInterface } from '@application/interfaces/manutence-history-object';
 
 @Injectable()
 export class PrismaHistoryManutenceRepository
@@ -112,7 +113,17 @@ export class PrismaHistoryManutenceRepository
     data: Date;
     usuarioId: string;
     manutenceId: string;
+    manutencao: ManutenceHistoryObjectInterface;
   }): Promise<void> {
+    const manutencaoHistoryObject = {
+      title: data.manutencao.title,
+      address: data.manutencao.address,
+      status_manutence: data.manutencao.status_manutence,
+      createdAt: data.manutencao.createdAt,
+      message: data.manutencao.message,
+      photos: data.manutencao.photos,
+    };
+
     await this.prisma.historicoManutencao.create({
       data: {
         id: data.id,
@@ -120,6 +131,7 @@ export class PrismaHistoryManutenceRepository
         data: data.data,
         usuarioId: data.usuarioId,
         manutenceId: data.manutenceId,
+        manutencao: manutencaoHistoryObject,
       },
     });
   }

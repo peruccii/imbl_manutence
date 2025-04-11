@@ -1,5 +1,4 @@
 import { Replace } from '@application/helpers/replace';
-import { randomUUID } from 'crypto';
 
 export interface MessageProps {
   content: string;
@@ -11,18 +10,22 @@ export interface MessageProps {
 
 export class Message {
   private props: MessageProps;
-  private _id: string;
+  private _id?: string;
 
   constructor(props: Replace<MessageProps, { createdAt?: Date }>, id?: string) {
-    this._id = id ?? randomUUID();
+    this._id = id; // ❌ NÃO gera randomUUID aqui!
     this.props = {
       ...props,
       createdAt: props.createdAt ?? new Date(),
     };
   }
 
-  public get id(): string {
+  public get id(): string | undefined {
     return this._id;
+  }
+
+  public set id(value: string | undefined) {
+    this._id = value;
   }
 
   public get content(): string {

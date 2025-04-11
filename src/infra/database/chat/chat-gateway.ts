@@ -2,6 +2,7 @@ import { User } from '@application/entities/user';
 import { SendMessageInterface } from '@application/interfaces/send-message';
 import { ChatRepository } from '@application/repositories/chat-repository';
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -20,7 +21,7 @@ interface ClientData {
 
 @WebSocketGateway(3002, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: ['http://localhost:3000'],
     credentials: true,
   },
 })
@@ -71,15 +72,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         message: 'Conexão estabelecida com sucesso',
         user: {
           id: user.id,
-          name: user.name,
+          name: user.name.value,
         },
       });
 
       client.broadcast.emit('user-joined', {
-        message: `Usuário ${user.name} se conectou ao chat`,
+        message: `Usuário ${user.name.value} se conectou ao chat`,
         user: {
           id: user.id,
-          name: user.name,
+          name: user.name.value,
         },
       });
     } catch (error: any) {
@@ -92,32 +93,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  handleDisconnect(client: Socket) {
-    console.log('Usuário se desconectando...');
-    if (client.data?.user) {
-      this.server.emit('user-left', {
-        message: `Usuário ${client.data.user.name} se desconectou`,
-        user: {
-          id: client.data.user.id,
-          name: client.data.user.name,
-        },
-      });
-    }
-  }
-
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(client: Socket, roomName: string) {
     try {
       const clientData: ClientData = client.data as ClientData;
+      console.log('Dados do cliente:', clientData);
       if (!clientData.user) {
         console.log('Tentativa de join sem autenticação');
         throw new WsException('Usuário não autenticado');
       }
-
-      console.log(
-        `Usuário ${clientData.user.id} tentando entrar na sala ${roomName}`,
-      );
-      console.log('roomName', roomName);
+      roomName = 'VAZAMENTO NO TETO';
+      console.log('Cliente tentando entrar na sala:', roomName);
       const room = await this.chatRepository.findRoom(roomName);
       if (!room) throw new WsException('Sala não encontrada');
 
@@ -126,7 +112,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       if (!manutence)
         throw new WsException('Manutenção associada não encontrada');
-
+      console.log('Manutenção admin id:', manutence.adminId);
+      console.log('Manutenção user id:', manutence.userId);
       const isAuthorized =
         manutence.userId === clientData.user.id ||
         manutence.adminId === clientData.user.id;
@@ -134,6 +121,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         throw new WsException('Usuário não autorizado para essa sala');
 
       const currentUsers = await this.chatRepository.getUsersInRoom(roomName);
+      console.log('Usuários atuais na sala:', currentUsers);
       if (
         currentUsers.length >= 2 &&
         !currentUsers.some((u) => u.id === clientData.user!.id)
@@ -184,14 +172,26 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('NewMessage')
+  handleDisconnect(client: Socket) {
+    console.log('Usuário se desconectando...');
+    if (client.data?.user) {
+      this.server.emit('user-left', {
+        message: `Usuário ${client.data.user.name.value} se desconectou`,
+        user: {
+          id: client.data.user.id,
+          name: client.data.user.name.value,
+        },
+      });
+    }
+  }
+
+  @SubscribeMessage('newMessage')
   async handleNewMessage(
-    client: Socket,
     @MessageBody() message: { roomName: string; content: string },
+    @ConnectedSocket() client: Socket,
   ) {
     try {
       console.log('Recebendo nova mensagem:', message);
-      console.log('Cliente:', client);
       console.log('Dados do cliente:', client.data);
 
       const clientData: ClientData = client.data as ClientData;
@@ -216,12 +216,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const messageData = {
         id: newMessage.id,
-        user: clientData.user.name,
+        user: clientData.user.name.value,
         content,
         createdAt: newMessage.createdAt,
         isRead: newMessage.isRead,
         roomName,
       };
+
+      console.log('Mensagem enviada:', messageData);
 
       console.log('Enviando mensagem:', messageData);
       this.server.to(roomName).emit('message', messageData);

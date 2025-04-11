@@ -69,8 +69,6 @@ model ChatRoom {
   manutence        Manutence? @relation 
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
-  lastMessage     Message?   @relation("LastMessage")
-  lastMessageId   String?    @unique
   unreadCount     Int        @default(0)
 }
 
@@ -83,7 +81,6 @@ model Message {
   sender          User      @relation(fields: [senderId], references: [id])
   chatRoom        ChatRoom  @relation(fields: [chatRoomId], references: [id])
   isRead          Boolean   @default(false)
-  lastMessageFor  ChatRoom? @relation("LastMessage", fields: [id], references: [lastMessageId], map: "Message_lastMessageFor_fkey")
 }
 
 model HistoricoManutencao {

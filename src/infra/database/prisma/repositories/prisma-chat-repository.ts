@@ -32,7 +32,7 @@ export class PrismaChatRepository implements ChatRepository {
     });
 
     // TODO: chat room id must be the same id as manutence id
-    if (!manutenceRaw) throw new NotFoundErrorHandler(ManutenceNotFoundMessage); 
+    if (!manutenceRaw) throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
 
     return PrismaManutenceMapper.toDomain(manutenceRaw);
   }
@@ -43,18 +43,16 @@ export class PrismaChatRepository implements ChatRepository {
       where: { name: roomName },
     });
     if (!room) throw new Error('Sala não encontrada');
-    
+
     // Criar a mensagem usando o método createMessage
-    const message = new Message(
-      {
-        content: msg,
-        senderId,
-        chatRoomId: room.id,
-        createdAt: new Date(),
-        isRead: false,
-      }
-    );
-    
+    const message = new Message({
+      content: msg,
+      senderId,
+      chatRoomId: room.id,
+      createdAt: new Date(),
+      isRead: false,
+    });
+
     await this.createMessage(message);
   }
 
@@ -103,11 +101,8 @@ export class PrismaChatRepository implements ChatRepository {
           },
         },
         manutence: {
-          OR: [
-            { adminId: adminId },
-            { userId: adminId }
-          ]
-        }
+          OR: [{ adminId: adminId }, { userId: adminId }],
+        },
       },
       include: {
         users: true,
@@ -128,7 +123,7 @@ export class PrismaChatRepository implements ChatRepository {
       throw new Error('Chat rooms not found');
     }
 
-    return chatRooms
+    return chatRooms;
   }
 
   async findUserChatRooms(userId: string, pagination: Pagination) {
@@ -161,42 +156,42 @@ export class PrismaChatRepository implements ChatRepository {
       throw new Error('Chat rooms not found');
     }
 
-    return chatRooms
+    return chatRooms;
   }
 
   async createMessage(message: Message): Promise<void> {
-    console.log('Criando mensagem:', message);
-    console.log('messageId', message.id);
-  
     try {
-      // Verificar se o ChatRoom existe
       const chatRoom = await this.prismaService.chatRoom.findUnique({
         where: { id: message.chatRoomId },
       });
-  
+
       if (!chatRoom) {
         throw new Error('Chat room não encontrado!');
       }
-  
-      // Verificar se o senderId (usuário) existe
+
       const sender = await this.prismaService.user.findUnique({
         where: { id: message.senderId },
       });
-  
+
       if (!sender) {
         throw new Error('Usuário não encontrado!');
       }
-  
-      // Criar a mensagem sem passar o id (deixe o Prisma gerar o id automaticamente)
+      console.log('message', message);
+      const data = {
+        content: message.content,
+        senderId: message.senderId,
+        chatRoomId: message.chatRoomId,
+        createdAt: message.createdAt,
+        isRead: message.isRead,
+      };
+      console.log('data', data);
       const createdMessage = await this.prismaService.message.create({
-        data: {
-          content: message.content,
-          senderId: message.senderId,
-          chatRoomId: message.chatRoomId,
-          createdAt: message.createdAt,
-          isRead: message.isRead,
-        },
+        data: data,
       });
+
+      message.id = createdMessage.id;
+
+      console.log('Mensagem criada com sucesso:', createdMessage);
     } catch (error) {
       console.error('Erro ao criar mensagem:', error);
       throw error;
@@ -213,7 +208,10 @@ export class PrismaChatRepository implements ChatRepository {
     return count;
   }
 
-  async markMessagesAsRead(messageIds: string[], userId: string): Promise<void> {
+  async markMessagesAsRead(
+    messageIds: string[],
+    userId: string,
+  ): Promise<void> {
     await this.prismaService.message.updateMany({
       where: {
         id: {

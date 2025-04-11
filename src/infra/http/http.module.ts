@@ -36,7 +36,7 @@ import { PrismaChatRepository } from '../database/prisma/repositories/prisma-cha
 import { CreateMessageService } from '@application/usecases/create-message-service';
 import { FindUserChatRoomsService } from '@application/usecases/find-user-chat-rooms-service';
 import { SendMessageService } from '@application/usecases/send-message-service';
-import { HistoryController } from './controllers/history.contoller';
+import { HistoryController } from './controllers/history.controller';
 import { HistoryModule } from '@infra/database/history/history.module';
 import { TransferManutencesToNewAdminService } from '@application/usecases/transfer-manutences-to-new-admin-service';
 import { GetAllAdminsService } from '@application/usecases/get-all-admins-service';

@@ -51,7 +51,7 @@ export class AcceptManutenceService {
       manutencao: manutencaoHistoryObject,
     });
 
-    await this.manutenceRepository.update(manutenceId, {
+    this.manutenceRepository.update(manutenceId, {
       status_manutence: StatusManutence.ANDAMENTO,
       adminId: adminId,
     });
