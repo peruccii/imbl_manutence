@@ -6,6 +6,8 @@ import { User } from 'src/application/entities/user';
 import { Manutence } from '@application/entities/manutence';
 import type { Pagination } from '@application/interfaces/pagination';
 import type { Role } from '@application/enums/role.enum';
+import { randomUUID } from 'crypto';
+import { ActionHistory } from '@application/enums/action.enum';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -27,22 +29,61 @@ export class PrismaUserRepository implements UserRepository {
     adminId: string,
   ): Promise<void> {
     await this.prisma.$transaction(async (prisma) => {
-      await prisma.user.update({
-        where: { id: newAdminId },
-        data: {
-          manutences: {
-            connect: manutences.map((manutence) => ({ id: manutence.id })),
+      await prisma.manutence.updateMany({
+        where: {
+          id: {
+            in: manutences.map((manutence) => manutence.id),
           },
         },
-      });
-      await prisma.user.update({
-        where: { id: adminId },
         data: {
-          manutences: {
-            disconnect: manutences.map((manutence) => ({ id: manutence.id })),
-          },
+          adminId: newAdminId,
         },
       });
+
+      for (const manutence of manutences) {
+        await prisma.historicoManutencao.create({
+          data: {
+            id: randomUUID(),
+            action: ActionHistory.MANUTENCE_TRANSFERRED,
+            data: new Date(),
+            usuarioId: newAdminId,
+            manutenceId: manutence.id,
+            manutencao: {
+              title: manutence.title,
+              address: manutence.address,
+              status_manutence: manutence.status_manutence,
+              createdAt: manutence.createdAt,
+              message: manutence.message.value,
+              photos: manutence.photos,
+            },
+          },
+        });
+      }
+
+      await prisma.chatRoom.update({
+        where: {
+          id: manutences[0].chatRoomId,
+        },
+        data: {
+          users: { connect: { id: newAdminId } },
+        },
+      });
+    });
+  }
+
+  async update(user: User): Promise<void> {
+    const raw = PrismaUserMapper.toPrisma(user);
+    const updateData: Partial<typeof raw> = {};
+
+    if (raw.name !== undefined) updateData.name = raw.name;
+    if (raw.email !== undefined) updateData.email = raw.email;
+    if (raw.telephone !== undefined) updateData.telephone = raw.telephone;
+    if (raw.password !== undefined) updateData.password = raw.password;
+    if (raw.typeUser !== undefined) updateData.typeUser = raw.typeUser;
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: updateData,
     });
   }
 

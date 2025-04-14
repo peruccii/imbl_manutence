@@ -22,48 +22,57 @@ export class PrismaChatRoomMapper {
               createdAt: user.createdAt,
             }),
         ),
-        messages: rawChatRoom.messages?.map(
-          (msg: any) =>
-            new Message({
-              content: msg.content,
-              senderId: msg.senderId,
-              chatRoomId: msg.chatRoomId,
-              createdAt: msg.createdAt,
-              isRead: msg.isRead,
-            }),
-        ) || [],
-        manutence: rawChatRoom.manutence ? new Manutence(
-          {
-            message: rawChatRoom.manutence.message,
-            photos: rawChatRoom.manutence.photos,
-            video: rawChatRoom.manutence.video,
-            title: rawChatRoom.manutence.title,
-            address: rawChatRoom.manutence.address,
-            status_manutence: rawChatRoom.manutence.status_manutence,
-            createdAt: rawChatRoom.manutence.createdAt,
-            userId: rawChatRoom.manutence.userId,
-            adminId: rawChatRoom.manutence.adminId,
-            chatRoomId: rawChatRoom.manutence.chatRoomId,
-            user: rawChatRoom.manutence.user ? new User({
-              manutences: [],
-              name: rawChatRoom.manutence.user.name,
-              email: rawChatRoom.manutence.user.email,
-              password: rawChatRoom.manutence.user.password,
-              telephone: rawChatRoom.manutence.user.telephone,
-              typeUser: rawChatRoom.manutence.user.typeUser,
-              createdAt: rawChatRoom.manutence.user.createdAt,
-            }) : undefined
-          },
-          rawChatRoom.manutence.id
-        ) : undefined,
-        lastMessage: rawChatRoom.lastMessage ? new Message({
-          content: rawChatRoom.lastMessage.content,
-          senderId: rawChatRoom.lastMessage.senderId,
-          chatRoomId: rawChatRoom.lastMessage.chatRoomId,
-          createdAt: rawChatRoom.lastMessage.createdAt,
-          isRead: rawChatRoom.lastMessage.isRead,
-        }) : undefined,
-        unreadCount: rawChatRoom.unreadCount || 0
+        messages:
+          rawChatRoom.messages?.map(
+            (msg: any) =>
+              new Message({
+                content: msg.content,
+                senderId: msg.senderId,
+                chatRoomId: msg.chatRoomId,
+                createdAt: msg.createdAt,
+                isRead: msg.isRead,
+                senderType: msg.senderType,
+              }),
+          ) || [],
+        manutence: rawChatRoom.manutence
+          ? new Manutence(
+              {
+                message: rawChatRoom.manutence.message,
+                photos: rawChatRoom.manutence.photos,
+                video: rawChatRoom.manutence.video,
+                title: rawChatRoom.manutence.title,
+                address: rawChatRoom.manutence.address,
+                status_manutence: rawChatRoom.manutence.status_manutence,
+                createdAt: rawChatRoom.manutence.createdAt,
+                userId: rawChatRoom.manutence.userId,
+                adminId: rawChatRoom.manutence.adminId,
+                chatRoomId: rawChatRoom.manutence.chatRoomId,
+                user: rawChatRoom.manutence.user
+                  ? new User({
+                      manutences: [],
+                      name: rawChatRoom.manutence.user.name,
+                      email: rawChatRoom.manutence.user.email,
+                      password: rawChatRoom.manutence.user.password,
+                      telephone: rawChatRoom.manutence.user.telephone,
+                      typeUser: rawChatRoom.manutence.user.typeUser,
+                      createdAt: rawChatRoom.manutence.user.createdAt,
+                    })
+                  : undefined,
+              },
+              rawChatRoom.manutence.id,
+            )
+          : undefined,
+        lastMessage: rawChatRoom.lastMessage
+          ? new Message({
+              content: rawChatRoom.lastMessage.content,
+              senderId: rawChatRoom.lastMessage.senderId,
+              chatRoomId: rawChatRoom.lastMessage.chatRoomId,
+              createdAt: rawChatRoom.lastMessage.createdAt,
+              isRead: rawChatRoom.lastMessage.isRead,
+              senderType: rawChatRoom.lastMessage.senderType,
+            })
+          : undefined,
+        unreadCount: rawChatRoom.unreadCount || 0,
       },
       rawChatRoom.id,
     );

@@ -16,4 +16,5 @@ export abstract class UserRepository {
     adminId: string,
   ): Promise<void>;
   abstract findByRole(role: Role, pagination: Pagination): Promise<User[] | []>;
+  abstract update(user: User): Promise<void>;
 }

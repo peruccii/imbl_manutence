@@ -81,7 +81,8 @@ export class FileUploadService {
 
     if (files.photos && files.photos.length > 0) {
       for (const photo of files.photos) {
-        const key = `photos/${Date.now()}-${photo.originalname}`;
+        const sanitizedOriginalName = photo.originalname.replace(/\s+/g, '-');
+        const key = `photos/${Date.now()}-${sanitizedOriginalName}`;
         const command = new PutObjectCommand({
           Bucket: this.bucketName,
           Key: key,
@@ -96,7 +97,8 @@ export class FileUploadService {
 
     if (files.video && files.video.length > 0) {
       for (const video of files.video) {
-        const key = `videos/${Date.now()}-${video.originalname}`;
+        const sanitizedOriginalName = video.originalname.replace(/\s+/g, '-');
+        const key = `videos/${Date.now()}-${sanitizedOriginalName}`;
         const command = new PutObjectCommand({
           Bucket: this.bucketName,
           Key: key,
@@ -226,7 +228,7 @@ export class FileUploadService {
       const deleteParams = {
         Bucket: this.bucketName,
         Delete: {
-          Objects: filenames.map(filename => ({ Key: filename })),
+          Objects: filenames.map((filename) => ({ Key: filename })),
         },
       };
 

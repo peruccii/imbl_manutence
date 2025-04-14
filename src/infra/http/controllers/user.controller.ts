@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
   UsePipes,
@@ -26,7 +27,8 @@ import { DeleteUserService } from '@application/usecases/delete-user-service';
 import { TransferManutencesToNewAdminService } from '@application/usecases/transfer-manutences-to-new-admin-service';
 import { UserId } from '@application/utils/extract-user-id';
 import { GetAllAdminsService } from '@application/usecases/get-all-admins-service';
-
+import { UpdateUserDto } from '../dto/update-user-dto';
+import { UpdateUserService } from '@application/usecases/update-user-service';
 @Controller('user')
 export class UserController {
   constructor(
@@ -37,11 +39,20 @@ export class UserController {
     private readonly delete_user: DeleteUserService,
     private readonly transfer_manutences_to_new_admin: TransferManutencesToNewAdminService,
     private readonly get_all_admins: GetAllAdminsService,
+    private readonly update_user: UpdateUserService,
   ) {}
 
   @Post('create')
   async createUser(@Body() request: CreateUserRequest) {
     return await this.create_user.execute(request);
+  }
+
+  @Put('update/:id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateUser(@Param('id') id: string, @Body() request: UpdateUserDto) {
+    return await this.update_user.execute(id, request);
   }
 
   @Get('get/email/:email')

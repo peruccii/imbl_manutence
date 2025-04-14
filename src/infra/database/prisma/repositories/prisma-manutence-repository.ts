@@ -153,6 +153,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       await prisma.historicoManutencao.create({
         data: rawManutenceHistory,
       });
+      console.log(`manutence created: ${createdManutence.id}`);
     });
   }
 

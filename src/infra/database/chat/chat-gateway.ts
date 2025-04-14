@@ -102,7 +102,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         console.log('Tentativa de join sem autenticação');
         throw new WsException('Usuário não autenticado');
       }
-      roomName = 'VAZAMENTO NO TETO';
       console.log('Cliente tentando entrar na sala:', roomName);
       const room = await this.chatRepository.findRoom(roomName);
       if (!room) throw new WsException('Sala não encontrada');
@@ -196,8 +195,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const clientData: ClientData = client.data as ClientData;
       if (!clientData.user) {
-        console.log('Tentativa de enviar mensagem sem autenticação');
-        throw new WsException('Usuário não autenticado');
+        throw new WsException(
+          '[ Tentativa de enviar mensagem sem autenticação] - Usuário não autenticado',
+        );
       }
 
       const { roomName, content } = message;
@@ -207,6 +207,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const newMessage = new Message({
         content,
         senderId: clientData.user.id,
+        senderType: clientData.user.typeUser,
         chatRoomId: room.id,
         createdAt: new Date(),
         isRead: false,
@@ -218,14 +219,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         id: newMessage.id,
         user: clientData.user.name.value,
         content,
+        senderType: clientData.user.typeUser,
         createdAt: newMessage.createdAt,
+        senderId: clientData.user.id,
         isRead: newMessage.isRead,
         roomName,
       };
 
       console.log('Mensagem enviada:', messageData);
-
-      console.log('Enviando mensagem:', messageData);
       this.server.to(roomName).emit('message', messageData);
     } catch (error: any) {
       console.error('Erro ao enviar mensagem:', error);

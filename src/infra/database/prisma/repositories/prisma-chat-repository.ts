@@ -13,6 +13,8 @@ import { NotFoundErrorHandler } from '@application/errors/not-found-error.error'
 import { ManutenceNotFoundMessage } from '@application/messages/manutence-not-found';
 import { Injectable } from '@nestjs/common';
 import { Message } from '@application/entities/message';
+import type { Role } from '@application/enums/role.enum';
+import { User } from '@application/entities/user';
 
 @Injectable()
 export class PrismaChatRepository implements ChatRepository {
@@ -31,7 +33,6 @@ export class PrismaChatRepository implements ChatRepository {
       include: { user: true },
     });
 
-    // TODO: chat room id must be the same id as manutence id
     if (!manutenceRaw) throw new NotFoundErrorHandler(ManutenceNotFoundMessage);
 
     return PrismaManutenceMapper.toDomain(manutenceRaw);
@@ -44,10 +45,10 @@ export class PrismaChatRepository implements ChatRepository {
     });
     if (!room) throw new Error('Sala não encontrada');
 
-    // Criar a mensagem usando o método createMessage
     const message = new Message({
       content: msg,
       senderId,
+      senderType: 'user',
       chatRoomId: room.id,
       createdAt: new Date(),
       isRead: false,
@@ -108,7 +109,7 @@ export class PrismaChatRepository implements ChatRepository {
         users: true,
         messages: {
           orderBy: {
-            createdAt: 'desc',
+            createdAt: 'asc',
           },
         },
         manutence: {
@@ -141,7 +142,7 @@ export class PrismaChatRepository implements ChatRepository {
         users: true,
         messages: {
           orderBy: {
-            createdAt: 'desc',
+            createdAt: 'asc',
           },
         },
         manutence: {
@@ -180,6 +181,7 @@ export class PrismaChatRepository implements ChatRepository {
       const data = {
         content: message.content,
         senderId: message.senderId,
+        senderType: message.senderType as Role,
         chatRoomId: message.chatRoomId,
         createdAt: message.createdAt,
         isRead: message.isRead,
@@ -190,12 +192,39 @@ export class PrismaChatRepository implements ChatRepository {
       });
 
       message.id = createdMessage.id;
-
+      await this.prismaService.chatRoom.update({
+        where: { id: message.chatRoomId },
+        data: {
+          unreadCount: {
+            increment: 1,
+          },
+        },
+      });
       console.log('Mensagem criada com sucesso:', createdMessage);
     } catch (error) {
       console.error('Erro ao criar mensagem:', error);
       throw error;
     }
+  }
+
+  async findMessagesByRoomName(roomName: string): Promise<Message[]> {
+    const messages = await this.prismaService.message.findMany({
+      where: { chatRoom: { name: roomName } },
+      include: {
+        sender: true,
+      },
+    });
+    return messages.map((message) => {
+      return new Message({
+        ...message,
+        senderId: message.sender.id,
+        senderType: message.sender.typeUser as Role,
+        chatRoomId: message.chatRoomId,
+        createdAt: message.createdAt,
+        isRead: message.isRead,
+        content: message.content,
+      });
+    });
   }
 
   async getUnreadCount(roomId: string): Promise<number> {
@@ -208,22 +237,20 @@ export class PrismaChatRepository implements ChatRepository {
     return count;
   }
 
-  async markMessagesAsRead(
-    messageIds: string[],
-    userId: string,
-  ): Promise<void> {
-    await this.prismaService.message.updateMany({
+  async markMessagesAsRead(roomId: string): Promise<void> {
+    const chatRoom = await this.prismaService.chatRoom.findUnique({
+      where: { id: roomId },
+    });
+
+    if (!chatRoom) {
+      throw new Error('Chat room not found');
+    }
+    await this.prismaService.chatRoom.update({
       where: {
-        id: {
-          in: messageIds,
-        },
-        senderId: {
-          not: userId,
-        },
-        isRead: false,
+        id: chatRoom.id,
       },
       data: {
-        isRead: true,
+        unreadCount: 0,
       },
     });
   }

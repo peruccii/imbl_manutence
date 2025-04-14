@@ -6,6 +6,7 @@ export interface MessageProps {
   senderId: string;
   chatRoomId: string;
   isRead: boolean;
+  senderType: string;
 }
 
 export class Message {
@@ -13,7 +14,7 @@ export class Message {
   private _id?: string;
 
   constructor(props: Replace<MessageProps, { createdAt?: Date }>, id?: string) {
-    this._id = id; // ❌ NÃO gera randomUUID aqui!
+    this._id = id;
     this.props = {
       ...props,
       createdAt: props.createdAt ?? new Date(),
@@ -62,5 +63,13 @@ export class Message {
 
   public set isRead(isRead: boolean) {
     this.props.isRead = isRead;
+  }
+
+  public get senderType(): string {
+    return this.props.senderType;
+  }
+
+  public set senderType(senderType: string) {
+    this.props.senderType = senderType;
   }
 }

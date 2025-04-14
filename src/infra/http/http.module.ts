@@ -40,7 +40,9 @@ import { HistoryController } from './controllers/history.controller';
 import { HistoryModule } from '@infra/database/history/history.module';
 import { TransferManutencesToNewAdminService } from '@application/usecases/transfer-manutences-to-new-admin-service';
 import { GetAllAdminsService } from '@application/usecases/get-all-admins-service';
-
+import { ReadMessageService } from '@application/usecases/read-messages-service';
+import { UpdateUserService } from '@application/usecases/update-user-service';
+import { GetMessagesByRoomNameService } from '@application/usecases/get-messages-by-roomname-service';
 @Module({
   imports: [
     AuthModule,
@@ -88,6 +90,9 @@ import { GetAllAdminsService } from '@application/usecases/get-all-admins-servic
       useClass: PrismaChatRepository,
     },
     SendMessageService,
+    ReadMessageService,
+    UpdateUserService,
+    GetMessagesByRoomNameService,
   ],
 })
 export class HttpModule {}
