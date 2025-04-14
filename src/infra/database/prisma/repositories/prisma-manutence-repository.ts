@@ -191,6 +191,9 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       });
 
       if (manutence.chatRoomId) {
+        await prisma.message.deleteMany({
+          where: { chatRoomId: manutence.chatRoomId },
+        });
         await prisma.chatRoom.delete({
           where: { id: manutence.chatRoomId },
         });

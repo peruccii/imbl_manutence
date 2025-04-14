@@ -43,6 +43,8 @@ import { GetAllAdminsService } from '@application/usecases/get-all-admins-servic
 import { ReadMessageService } from '@application/usecases/read-messages-service';
 import { UpdateUserService } from '@application/usecases/update-user-service';
 import { GetMessagesByRoomNameService } from '@application/usecases/get-messages-by-roomname-service';
+import { FinishManutenceService } from '@application/usecases/finish-manutence-service';
+
 @Module({
   imports: [
     AuthModule,
@@ -93,6 +95,7 @@ import { GetMessagesByRoomNameService } from '@application/usecases/get-messages
     ReadMessageService,
     UpdateUserService,
     GetMessagesByRoomNameService,
+    FinishManutenceService,
   ],
 })
 export class HttpModule {}

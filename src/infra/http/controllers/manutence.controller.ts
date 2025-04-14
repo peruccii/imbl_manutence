@@ -34,6 +34,7 @@ import { RolesGuard } from '@application/guards/role.guards';
 import { UserId } from '@application/utils/extract-user-id';
 import { FileUploadService } from '@application/usecases/file-upload-service';
 import { AcceptManutenceService } from '@application/usecases/accept-manutence-service';
+import { FinishManutenceService } from '@application/usecases/finish-manutence-service';
 
 @Controller('manutence')
 export class ManutenceController {
@@ -46,6 +47,7 @@ export class ManutenceController {
     private readonly manutenceGetByFilters_service: FindManutenceByFilters,
     private readonly fileUploadService: FileUploadService,
     private readonly acceptManutenceService: AcceptManutenceService,
+    private readonly finishManutenceService: FinishManutenceService,
   ) {}
 
   @Post('create')
@@ -232,10 +234,20 @@ export class ManutenceController {
     @Param() param: FindOneParams,
     @UserId() adminId: string,
   ) {
-    console.log(adminId);
     return await this.acceptManutenceService.execute({
       manutenceId: param.id,
       adminId,
     });
+  }
+
+  @Post('finish/:id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @Roles(Role.ADMIN)
+  async finishManutence(
+    @Param('id') param: string,
+    @Body() body: { status: StatusManutence },
+  ) {
+    return await this.finishManutenceService.execute(param, body.status);
   }
 }

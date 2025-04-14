@@ -108,7 +108,7 @@ export class User {
       (m) => m.status_manutence === StatusManutence.FINALIZADO,
     ).length;
     const pending = manutences.filter(
-      (m) => m.status_manutence === StatusManutence.NOVO,
+      (m) => m.status_manutence === StatusManutence.ANDAMENTO,
     ).length;
     const completionRate = total > 0 ? (completed / total) * 100 : 0;
 
