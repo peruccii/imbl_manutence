@@ -6,6 +6,15 @@ import { Telefone } from '../fieldsValidations/telefone';
 import { Manutence } from './manutence';
 import { Role } from '../enums/role.enum';
 import { Password } from '@application/fieldsValidations/password';
+import { StatusManutence } from '../enums/StatusManutence';
+
+export interface UserStats {
+  total: number;
+  inProgress: number;
+  completed: number;
+  pending: number;
+  completionRate: number;
+}
 
 export interface UserProps {
   name: Name;
@@ -87,5 +96,28 @@ export class User {
 
   public set manutences(manutences: Manutence[] | []) {
     this.props.manutences = manutences;
+  }
+
+  public getStats(): UserStats {
+    const manutences = this.props.manutences;
+    const total = manutences.length;
+    const inProgress = manutences.filter(
+      (m) => m.status_manutence === StatusManutence.ANDAMENTO,
+    ).length;
+    const completed = manutences.filter(
+      (m) => m.status_manutence === StatusManutence.FINALIZADO,
+    ).length;
+    const pending = manutences.filter(
+      (m) => m.status_manutence === StatusManutence.NOVO,
+    ).length;
+    const completionRate = total > 0 ? (completed / total) * 100 : 0;
+
+    return {
+      total,
+      inProgress,
+      completed,
+      pending,
+      completionRate: Number(completionRate.toFixed(1)),
+    };
   }
 }

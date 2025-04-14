@@ -36,11 +36,12 @@ enum Category {
   Problemas_Impermeabilização
 }
 
+
 model Manutence {
   id               String          @id @unique
   photos           Json
   video            Json      
-  category         Category?
+  specialties      Json
   title            String
   address          String
   message          String

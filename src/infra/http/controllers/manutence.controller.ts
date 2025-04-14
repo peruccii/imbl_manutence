@@ -35,11 +35,6 @@ import { UserId } from '@application/utils/extract-user-id';
 import { FileUploadService } from '@application/usecases/file-upload-service';
 import { AcceptManutenceService } from '@application/usecases/accept-manutence-service';
 
-interface PresignedUrlRequest {
-  fileNames: string;
-  signedUrl?: string;
-}
-
 @Controller('manutence')
 export class ManutenceController {
   constructor(
@@ -61,7 +56,7 @@ export class ManutenceController {
     @Body() request: ManutenceCreateDto,
   ) {
     const r = { ...request, userId };
-    console.log(request);
+    console.log('request', request);
     return await this.manutenceCreate_service.execute(r);
   }
 

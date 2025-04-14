@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+import { Specialty } from '@application/enums/Specialty';
 
 export class ManutenceCreateDto {
   @IsNotEmpty({ message: 'message is required' })
@@ -6,6 +13,9 @@ export class ManutenceCreateDto {
   @MinLength(5)
   @MaxLength(455)
   message: string;
+  @IsNotEmpty({ message: 'specialties is required' })
+  @IsArray()
+  specialties: Specialty[];
   photos: {
     fileName: string;
     signedUrl: string;

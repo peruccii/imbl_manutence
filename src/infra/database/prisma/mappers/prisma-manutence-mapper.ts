@@ -8,6 +8,7 @@ import { Name } from '@application/fieldsValidations/name';
 import { Telefone } from '@application/fieldsValidations/telefone';
 import { Role } from '@application/enums/role.enum';
 import { Password } from '@application/fieldsValidations/password';
+import { Specialty } from '@application/enums/Specialty';
 
 export class PrismaManutenceMapper {
   static toPrisma(manutence: Manutence) {
@@ -43,6 +44,9 @@ export class PrismaManutenceMapper {
             connect: { id: manutence.adminId },
           }
         : undefined,
+      specialties: manutence.specialties.map((specialty) => ({
+        name: specialty.name,
+      })),
     };
   }
 
@@ -97,6 +101,19 @@ export class PrismaManutenceMapper {
         createdAt: rawManutence.createdAt,
         adminId: rawManutence.adminId || undefined,
         chatRoomId: rawManutence.chatRoomId || undefined,
+        specialties: Array.isArray(rawManutence.specialties)
+          ? rawManutence.specialties
+              .filter(
+                (specialty): specialty is { name: string } =>
+                  specialty !== null &&
+                  typeof specialty === 'object' &&
+                  'name' in specialty &&
+                  typeof specialty.name === 'string',
+              )
+              .map((specialty) => ({
+                name: specialty.name as Specialty,
+              }))
+          : [],
       },
       rawManutence.id,
     );

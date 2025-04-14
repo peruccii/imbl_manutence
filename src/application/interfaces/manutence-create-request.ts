@@ -1,3 +1,5 @@
+import type { Specialty } from '@application/enums/Specialty';
+
 export interface CreateManutenceRequest {
   message: string;
   photos: {
@@ -10,5 +12,6 @@ export interface CreateManutenceRequest {
   }[];
   title: string;
   address: string;
+  specialties: Specialty[];
   userId: string;
 }

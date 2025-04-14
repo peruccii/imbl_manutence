@@ -46,6 +46,7 @@ export class PrismaChatRoomMapper {
                 createdAt: rawChatRoom.manutence.createdAt,
                 userId: rawChatRoom.manutence.userId,
                 adminId: rawChatRoom.manutence.adminId,
+                specialties: rawChatRoom.manutence.specialties,
                 chatRoomId: rawChatRoom.manutence.chatRoomId,
                 user: rawChatRoom.manutence.user
                   ? new User({

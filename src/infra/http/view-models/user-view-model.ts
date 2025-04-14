@@ -10,6 +10,7 @@ export class UserViewModel {
       email: user.email.value,
       manutences: user.manutences,
       createdAt: user.createdAt,
+      stats: user.getStats(),
     };
   }
 }

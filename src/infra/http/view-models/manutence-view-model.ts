@@ -8,15 +8,18 @@ export class ManutenceViewModel {
       message: manutence.message.value,
       photos: photos,
       video: manutence.video,
-      client: manutence.user ? {
-        id: manutence.user.id,
-        name: manutence.user.name.value,
-        email: manutence.user.email.value
-      } : null,
+      client: manutence.user
+        ? {
+            id: manutence.user.id,
+            name: manutence.user.name.value,
+            email: manutence.user.email.value,
+          }
+        : null,
       title: manutence.title,
       address: manutence.address,
       status_manutence: manutence.status_manutence,
       createdAt: manutence.createdAt,
+      specialties: manutence.specialties,
     };
   }
 }

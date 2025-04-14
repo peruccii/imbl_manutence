@@ -4,6 +4,11 @@ import { Message } from '../fieldsValidations/message';
 import { Replace } from '../helpers/replace';
 import { User } from './user';
 import { HistoryManutence } from './history_manutence';
+import { Specialty } from '../enums/Specialty';
+
+export interface SpecialtyItem {
+  name: Specialty;
+}
 
 export interface ManutenceProps {
   message: Message;
@@ -24,6 +29,7 @@ export interface ManutenceProps {
   chatRoomId?: string;
   user?: User;
   historico?: HistoryManutence;
+  specialties: SpecialtyItem[];
 }
 
 export class Manutence {
@@ -38,6 +44,7 @@ export class Manutence {
     this.props = {
       ...props,
       createdAt: props.createdAt ?? new Date(),
+      specialties: props.specialties ?? [],
     };
   }
 
@@ -138,5 +145,13 @@ export class Manutence {
 
   public set chatRoomId(chatRoomId: string) {
     this.props.chatRoomId = chatRoomId;
+  }
+
+  public get specialties(): SpecialtyItem[] {
+    return this.props.specialties;
+  }
+
+  public set specialties(specialties: SpecialtyItem[]) {
+    this.props.specialties = specialties;
   }
 }

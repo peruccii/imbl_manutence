@@ -14,5 +14,8 @@ export function makeManutenceFactory(override: Override) {
     title: override.title.toUpperCase(),
     userId: override.userId,
     status_manutence: StatusManutence.NOVO,
+    specialties: override.specialties.map((specialty) => ({
+      name: specialty,
+    })),
   });
 }
