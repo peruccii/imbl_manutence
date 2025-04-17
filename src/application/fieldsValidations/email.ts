@@ -1,4 +1,4 @@
-import  { ValidationErrorDetail } from '@application/errors/validation-error';
+import { ValidationErrorDetail } from '@application/errors/validation-error';
 import {
   EMAIL_FORMAT_INVALID,
   EMAIL_LENGTH_ERROR,
@@ -7,7 +7,7 @@ import {
 export class Email {
   private readonly email: string;
 
-  get value(): string {
+  public get value(): string {
     return this.email;
   }
 
@@ -29,9 +29,11 @@ export class Email {
     const isEmailLengthValid = this.validateEmailLength(this.email);
     const isEmailValid = this.validateEmailIsValid(this.email);
 
-    if (!isEmailLengthValid) errors.push({ field: 'email', message: EMAIL_LENGTH_ERROR });
+    if (!isEmailLengthValid)
+      errors.push({ field: 'email', message: EMAIL_LENGTH_ERROR });
 
-    if (!isEmailValid) errors.push({ field: 'email', message: EMAIL_FORMAT_INVALID });
+    if (!isEmailValid)
+      errors.push({ field: 'email', message: EMAIL_FORMAT_INVALID });
 
     return errors;
   }

@@ -13,9 +13,11 @@ export class PrismaChatRoomMapper {
         users: rawChatRoom.users.map(
           (user: any) =>
             new User({
+              cpf: user.cpf,
               manutences: [],
               name: user.name,
               email: user.email,
+              address: user.address,
               password: user.password,
               telephone: user.telephone,
               typeUser: user.typeUser,
@@ -56,6 +58,8 @@ export class PrismaChatRoomMapper {
                       password: rawChatRoom.manutence.user.password,
                       telephone: rawChatRoom.manutence.user.telephone,
                       typeUser: rawChatRoom.manutence.user.typeUser,
+                      cpf: rawChatRoom.manutence.user.cpf,
+                      address: rawChatRoom.manutence.user.address,
                       createdAt: rawChatRoom.manutence.user.createdAt,
                     })
                   : undefined,

@@ -44,6 +44,8 @@ import { ReadMessageService } from '@application/usecases/read-messages-service'
 import { UpdateUserService } from '@application/usecases/update-user-service';
 import { GetMessagesByRoomNameService } from '@application/usecases/get-messages-by-roomname-service';
 import { FinishManutenceService } from '@application/usecases/finish-manutence-service';
+import { ReportController } from './controllers/report.controller';
+import { ReportModule } from '@infra/database/report/report.module';
 
 @Module({
   imports: [
@@ -55,12 +57,14 @@ import { FinishManutenceService } from '@application/usecases/finish-manutence-s
     S3Module,
     PrismaModule,
     HistoryModule,
+    ReportModule,
   ],
   controllers: [
     ManutenceController,
     UserController,
     ChatController,
     HistoryController,
+    ReportController,
   ],
   providers: [
     PrismaService,

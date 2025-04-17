@@ -16,6 +16,7 @@ import { Message } from '@application/fieldsValidations/message';
 import { StatusManutence } from '@application/enums/StatusManutence';
 import { HistoricoManutencao } from '@prisma/client';
 import type { ManutenceHistoryObjectInterface } from '@application/interfaces/manutence-history-object';
+import { Cpf } from '@application/fieldsValidations/cpf';
 
 @Injectable()
 export class PrismaHistoryManutenceRepository
@@ -36,9 +37,11 @@ export class PrismaHistoryManutenceRepository
         action: history.action as ActionHistory,
         usuario: new User(
           {
+            cpf: new Cpf(history.usuario.cpf),
             email: new Email(history.usuario.email),
             name: new Name(history.usuario.name),
             telephone: new Telefone(history.usuario.telephone),
+            address: history.usuario.address ?? '',
             createdAt: history.usuario.createdAt,
             typeUser: history.usuario.typeUser as Role,
             manutences: [],

@@ -5,7 +5,7 @@ import { Replace } from '../helpers/replace';
 import { User } from './user';
 import { HistoryManutence } from './history_manutence';
 import { Specialty } from '../enums/Specialty';
-
+import { Report } from './report';
 export interface SpecialtyItem {
   name: Specialty;
 }
@@ -30,6 +30,7 @@ export interface ManutenceProps {
   user?: User;
   historico?: HistoryManutence;
   specialties: SpecialtyItem[];
+  reports?: Report[];
 }
 
 export class Manutence {
@@ -129,6 +130,14 @@ export class Manutence {
 
   public set user(user: User) {
     this.props.user = user;
+  }
+
+  public get reports(): Report[] {
+    return this.props.reports ?? [];
+  }
+
+  public set reports(reports: Report[]) {
+    this.props.reports = reports;
   }
 
   public get historico(): HistoryManutence | undefined {

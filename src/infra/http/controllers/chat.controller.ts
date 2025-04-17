@@ -111,7 +111,6 @@ export class ChatController {
     @UserId() userId: string,
     @Body() messageDto: SendMessageDto,
   ) {
-    console.log('oi');
     await this.sendMessageService.execute({
       content: messageDto.content,
       roomName: messageDto.roomName,

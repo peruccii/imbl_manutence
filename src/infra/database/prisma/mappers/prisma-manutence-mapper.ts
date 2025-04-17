@@ -9,6 +9,7 @@ import { Telefone } from '@application/fieldsValidations/telefone';
 import { Role } from '@application/enums/role.enum';
 import { Password } from '@application/fieldsValidations/password';
 import { Specialty } from '@application/enums/Specialty';
+import { Cpf } from '@application/fieldsValidations/cpf';
 
 export class PrismaManutenceMapper {
   static toPrisma(manutence: Manutence) {
@@ -104,14 +105,17 @@ export class PrismaManutenceMapper {
         specialties: Array.isArray(rawManutence.specialties)
           ? rawManutence.specialties
               .filter(
-                (specialty): specialty is { name: string } =>
+                (specialty): specialty is { name: { name: string } } =>
                   specialty !== null &&
                   typeof specialty === 'object' &&
                   'name' in specialty &&
-                  typeof specialty.name === 'string',
+                  specialty.name !== null &&
+                  typeof specialty.name === 'object' &&
+                  'name' in specialty.name &&
+                  typeof specialty.name.name === 'string',
               )
               .map((specialty) => ({
-                name: specialty.name as Specialty,
+                name: specialty.name.name as Specialty,
               }))
           : [],
       },
@@ -125,6 +129,8 @@ export class PrismaManutenceMapper {
           name: new Name(rawManutence.user.name),
           telephone: new Telefone(rawManutence.user.telephone),
           createdAt: rawManutence.user.createdAt,
+          cpf: new Cpf(rawManutence.user.cpf),
+          address: rawManutence.user.address,
           typeUser: rawManutence.user.typeUser as Role,
           manutences: [],
           password: new Password(rawManutence.user.password),

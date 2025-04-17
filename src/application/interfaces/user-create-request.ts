@@ -5,5 +5,7 @@ export interface CreateUserRequest {
   telephone: string;
   password: string;
   email: string;
+  cpf: string;
+  address: string;
   typeUser: Role.USER;
 }

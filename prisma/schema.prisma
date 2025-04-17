@@ -14,12 +14,15 @@ model User {
   email           String      @unique
   createdAt       DateTime    @default(now())
   password        String
+  cpf             String      @unique
+  address         String?
   typeUser        Role
   manutences      Manutence[] 
   messages        Message[]   
   chatRooms       ChatRoom[]  
   historico       HistoricoManutencao[]
   adminManutences Manutence[] @relation(name: "AdminManutence") 
+  reports         Report[]
 }
 
 enum Role {
@@ -36,15 +39,27 @@ enum Category {
   Problemas_Impermeabilização
 }
 
+model Report {
+  id String @id @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  manutenceId String
+  manutence Manutence @relation(fields: [manutenceId], references: [id])
+  description String @db.Text
+  title String @db.VarChar(40)
+}
+
 
 model Manutence {
   id               String          @id @unique
-  photos           Json
-  video            Json      
+  photos           Json?
+  video            Json?     
   specialties      Json
   title            String
   address          String
-  message          String
+  message          String @db.Text
   status_manutence StatusManutence @default(NOVO)
   createdAt        DateTime        @default(now())
   userId           String        
@@ -53,6 +68,7 @@ model Manutence {
   admin            User?           @relation(fields: [adminId], references: [id], name: "AdminManutence")
   chatRoomId       String?         @unique 
   chatRoom         ChatRoom?       @relation(fields: [chatRoomId], references: [id])
+  reports          Report[]
 }
 
 enum StatusManutence {

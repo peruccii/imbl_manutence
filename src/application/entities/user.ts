@@ -7,6 +7,7 @@ import { Manutence } from './manutence';
 import { Role } from '../enums/role.enum';
 import { Password } from '@application/fieldsValidations/password';
 import { StatusManutence } from '../enums/StatusManutence';
+import type { Cpf } from '@application/fieldsValidations/cpf';
 
 export interface UserStats {
   total: number;
@@ -19,6 +20,8 @@ export interface UserStats {
 export interface UserProps {
   name: Name;
   telephone: Telefone;
+  cpf: Cpf;
+  address: string;
   email: Email;
   createdAt: Date;
   typeUser: Role;
@@ -50,8 +53,24 @@ export class User {
     this.props.name = name;
   }
 
+  public get cpf(): Cpf {
+    return this.props.cpf;
+  }
+
+  public set cpf(cpf: Cpf) {
+    this.props.cpf = cpf;
+  }
+
   public get password(): Password {
     return this.props.password;
+  }
+
+  public get address(): string {
+    return this.props.address;
+  }
+
+  public set address(address: string) {
+    this.props.address = address;
   }
 
   public set password(password: Password) {
