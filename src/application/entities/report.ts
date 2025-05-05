@@ -1,5 +1,6 @@
 import type { Replace } from '@application/helpers/replace';
 import { randomUUID } from 'node:crypto';
+import { User } from './user';
 
 export interface ReportProps {
   createdAt: Date;
@@ -8,6 +9,7 @@ export interface ReportProps {
   manutenceId: string;
   title: string;
   description: string;
+  user?: User;
 }
 
 export class Report {
@@ -27,6 +29,10 @@ export class Report {
 
   public get updatedAt() {
     return this.props.updatedAt;
+  }
+
+  public get user() {
+    return this.props.user;
   }
 
   public get userId() {

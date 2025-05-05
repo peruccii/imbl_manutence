@@ -7,6 +7,8 @@ import { PrismaManutenceRepository } from './repositories/prisma-manutence-repos
 import { RequestContext } from '@application/utils/request-context';
 import { HistoryManutenceRepository } from '@application/repositories/history-manutence-repository';
 import { PrismaHistoryManutenceRepository } from './repositories/prisma-history-manutence-repository';
+import { ReportRepository } from '@application/repositories/report-repository';
+import { PrismaReportRepository } from './repositories/prisma-report-repository';
 
 @Module({
   providers: [
@@ -24,11 +26,16 @@ import { PrismaHistoryManutenceRepository } from './repositories/prisma-history-
       provide: HistoryManutenceRepository,
       useClass: PrismaHistoryManutenceRepository,
     },
+    {
+      provide: ReportRepository,
+      useClass: PrismaReportRepository,
+    },
   ],
   exports: [
     PrismaService,
     RequestContext,
     UserRepository,
+    ReportRepository,
     ManutenceRepository,
     HistoryManutenceRepository,
   ],

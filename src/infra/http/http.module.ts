@@ -46,7 +46,7 @@ import { GetMessagesByRoomNameService } from '@application/usecases/get-messages
 import { FinishManutenceService } from '@application/usecases/finish-manutence-service';
 import { ReportController } from './controllers/report.controller';
 import { ReportModule } from '@infra/database/report/report.module';
-
+import { ListAllReportsService } from '@application/usecases/list-all-reports-service';
 @Module({
   imports: [
     AuthModule,
@@ -100,6 +100,7 @@ import { ReportModule } from '@infra/database/report/report.module';
     UpdateUserService,
     GetMessagesByRoomNameService,
     FinishManutenceService,
+    ListAllReportsService,
   ],
 })
 export class HttpModule {}

@@ -47,15 +47,25 @@ export class PrismaReportRepository implements ReportRepository {
   }
 
   async findAll(): Promise<Report[] | []> {
-    const reports = await this.prisma.report.findMany();
+    const reports = await this.prisma.report.findMany({
+      include: {
+        user: true,
+      },
+    });
 
     return reports.map(PrismaReportMapper.toDomain);
   }
 
   async update(id: string, data: Partial<Report>): Promise<void> {
+    const updateData: any = { ...data };
+
+    if (data.userId !== undefined) {
+      updateData.userId = data.userId;
+    }
+
     await this.prisma.report.update({
       where: { id },
-      data,
+      data: updateData,
     });
   }
 }

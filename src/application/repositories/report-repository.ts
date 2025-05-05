@@ -5,7 +5,7 @@ export abstract class ReportRepository {
   abstract findById(id: string): Promise<Report | null>;
   abstract findByManutenceId(manutenceId: string): Promise<Report[]>;
   abstract findByUserId(userId: string): Promise<Report[]>;
-  abstract findAll(): Promise<Report[]>;
+  abstract findAll(): Promise<Report[] | []>;
   abstract update(id: string, data: Partial<Report>): Promise<void>;
   abstract delete(id: string): Promise<void>;
 }
