@@ -46,8 +46,11 @@ export class PrismaReportRepository implements ReportRepository {
     });
   }
 
-  async findAll(): Promise<Report[] | []> {
+  async findAll(manutenceId: string): Promise<Report[] | []> {
     const reports = await this.prisma.report.findMany({
+      where: {
+        manutenceId,
+      },
       include: {
         user: true,
       },

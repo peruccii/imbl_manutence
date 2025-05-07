@@ -6,8 +6,8 @@ import { Injectable } from '@nestjs/common';
 export class ListAllReportsService {
   constructor(private readonly reportRepository: ReportRepository) {}
 
-  async execute(): Promise<Report[] | []> {
-    const reports = await this.reportRepository.findAll();
+  async execute(manutenceId: string): Promise<Report[] | []> {
+    const reports = await this.reportRepository.findAll(manutenceId);
 
     if (!reports) {
       throw new Error('No reports found');

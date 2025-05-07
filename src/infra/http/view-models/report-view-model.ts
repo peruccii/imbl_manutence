@@ -9,6 +9,7 @@ export class ReportViewModel {
       createdAt: report.createdAt,
       updatedAt: report.updatedAt,
       user: {
+        id: report.user?.id,
         name: report.user?.name,
         email: report.user?.email,
       },

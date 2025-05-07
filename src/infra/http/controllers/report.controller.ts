@@ -1,5 +1,13 @@
 import { CreateReportService } from '@application/usecases/create-report-service';
-import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Get,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Role } from '@application/enums/role.enum';
 import { Roles } from 'src/roles/roles.decorator';
 import { RolesGuard } from '@application/guards/role.guards';
@@ -26,8 +34,15 @@ export class ReportController {
   @Get('list')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  async listAllReports() {
-    const reports = await this.reportListService.execute();
+  async listAllReports(
+    @Query(new ValidationPipe({ transform: true }))
+    manutenceId: {
+      manutenceId: string;
+    },
+  ) {
+    const reports = await this.reportListService.execute(
+      manutenceId.manutenceId,
+    );
 
     return reports.map((report: Report) => {
       return ReportViewModel.toGetFormatHttp(report);
