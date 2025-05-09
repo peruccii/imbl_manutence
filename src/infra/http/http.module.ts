@@ -47,6 +47,7 @@ import { FinishManutenceService } from '@application/usecases/finish-manutence-s
 import { ReportController } from './controllers/report.controller';
 import { ReportModule } from '@infra/database/report/report.module';
 import { ListAllReportsService } from '@application/usecases/list-all-reports-service';
+import { UpdateReportService } from '@application/usecases/update-report-service';
 @Module({
   imports: [
     AuthModule,
@@ -86,6 +87,7 @@ import { ListAllReportsService } from '@application/usecases/list-all-reports-se
     AcceptManutenceService,
     FindAdminChatRoomsService,
     FindUserChatRoomsService,
+    UpdateReportService,
     CreateMessageService,
     {
       provide: ManutenceRepository,

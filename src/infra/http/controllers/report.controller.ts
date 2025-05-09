@@ -7,6 +7,9 @@ import {
   Get,
   Query,
   ValidationPipe,
+  Put,
+  UsePipes,
+  Param,
 } from '@nestjs/common';
 import { Role } from '@application/enums/role.enum';
 import { Roles } from 'src/roles/roles.decorator';
@@ -16,12 +19,14 @@ import { CreateReportDto } from '../dto/create-report.dto';
 import { ListAllReportsService } from '@application/usecases/list-all-reports-service';
 import { Report } from '@application/entities/report';
 import { ReportViewModel } from '../view-models/report-view-model';
+import { UpdateReportService } from '@application/usecases/update-report-service';
 
 @Controller('reports')
 export class ReportController {
   constructor(
     private readonly reportCreateService: CreateReportService,
     private readonly reportListService: ListAllReportsService,
+    private readonly reportUpdateContent: UpdateReportService,
   ) {}
 
   @Post('create')
@@ -29,6 +34,14 @@ export class ReportController {
   @Roles(Role.ADMIN)
   async create(@Body() createReportDto: CreateReportDto) {
     return this.reportCreateService.execute(createReportDto);
+  }
+
+  @Put('update/:id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateReport(@Param('id') id: string, @Body() request: {}) {
+    return await this.reportUpdateContent.execute(id, request);
   }
 
   @Get('list')

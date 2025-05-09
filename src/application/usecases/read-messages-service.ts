@@ -5,12 +5,12 @@ import { ChatRepository } from '../repositories/chat-repository';
 export class ReadMessageService {
   constructor(private readonly chatRepository: ChatRepository) {}
 
-  async execute(roomId: string) {
-    const chatRoom = await this.chatRepository.findRoom(roomId);
+  async execute(roomName: string) {
+    const chatRoom = await this.chatRepository.findRoom(roomName);
     if (!chatRoom) {
       throw new Error('Chat room not found');
     }
 
-    await this.chatRepository.markMessagesAsRead(chatRoom.id);
+    await this.chatRepository.markMessagesAsRead(roomName);
   }
 }

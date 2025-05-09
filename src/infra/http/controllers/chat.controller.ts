@@ -99,8 +99,9 @@ export class ChatController {
   @Post('message/read')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
-  async readMessage(@Body() roomId: string) {
-    return await this.readMessageService.execute(roomId);
+  async readMessage(@Body() roomName: { roomName: string }) {
+    console.log('roooom', roomName);
+    return await this.readMessageService.execute(roomName.roomName);
   }
 
   @Post('message')

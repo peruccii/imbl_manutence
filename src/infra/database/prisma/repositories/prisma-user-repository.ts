@@ -87,11 +87,25 @@ export class PrismaUserRepository implements UserRepository {
     });
   }
 
-  async findOne(id: string): Promise<User | null> {
+  async findOne(id: string, pagination: Pagination): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: id },
       include: {
-        manutences: true,
+        manutences: {
+          select: {
+            title: true,
+            photos: true,
+            video: true,
+            specialties: true,
+            status_manutence: true,
+            id: true,
+            address: true,
+            message: true,
+            createdAt: true,
+          },
+          skip: Number(pagination.skip),
+          take: Number(pagination.limit),
+        },
         adminManutences: true,
       },
     });

@@ -59,12 +59,15 @@ export class PrismaReportRepository implements ReportRepository {
     return reports.map(PrismaReportMapper.toDomain);
   }
 
-  async update(id: string, data: Partial<Report>): Promise<void> {
-    const updateData: any = { ...data };
+  async update(id: string, data: Report): Promise<void> {
+    const raw = PrismaReportMapper.toPrisma(data);
+    const updateData: Partial<typeof raw> = {};
 
-    if (data.userId !== undefined) {
-      updateData.userId = data.userId;
-    }
+    if (raw.userId !== undefined) updateData.userId = raw.userId;
+    if (raw.manutenceId !== undefined) updateData.manutenceId = raw.manutenceId;
+
+    if (raw.title !== undefined) updateData.title = raw.title;
+    if (raw.description !== undefined) updateData.description = raw.description;
 
     await this.prisma.report.update({
       where: { id },

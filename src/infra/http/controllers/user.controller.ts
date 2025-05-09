@@ -67,8 +67,11 @@ export class UserController {
   @Get('get/id/:id')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.USER)
-  async getUserById(@Param('id') id: string) {
-    const { user } = await this.get_user_byid.execute(id);
+  async getUserById(
+    @Param('id') id: string,
+    @Query() pagination: PaginationDto,
+  ) {
+    const { user } = await this.get_user_byid.execute(id, pagination);
 
     return UserViewModel.toGetFormatHttp(user);
   }

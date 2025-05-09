@@ -62,4 +62,8 @@ export class Report {
   public get id() {
     return this._id;
   }
+
+  public exibireOi() {
+    return 'oi';
+  }
 }

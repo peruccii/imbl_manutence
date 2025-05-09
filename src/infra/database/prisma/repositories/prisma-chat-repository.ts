@@ -237,11 +237,11 @@ export class PrismaChatRepository implements ChatRepository {
     return count;
   }
 
-  async markMessagesAsRead(roomId: string): Promise<void> {
-    const chatRoom = await this.prismaService.chatRoom.findUnique({
-      where: { id: roomId },
+  async markMessagesAsRead(roomName: string): Promise<void> {
+    const chatRoom = await this.prismaService.chatRoom.findFirst({
+      where: { name: roomName },
     });
-
+    console.log('room name que esta chegandk', roomName);
     if (!chatRoom) {
       throw new Error('Chat room not found');
     }
