@@ -227,7 +227,10 @@ export class PrismaChatRepository implements ChatRepository {
     });
   }
 
-  async getUnreadCount(roomId: string): Promise<number> {
+  async getUnreadCount(roomId: string, userId?: string): Promise<number> {
+    if (userId) {
+      return this.getUnreadCountByUser(roomId, userId);
+    }
     const count = await this.prismaService.message.count({
       where: {
         chatRoomId: roomId,
@@ -237,7 +240,18 @@ export class PrismaChatRepository implements ChatRepository {
     return count;
   }
 
-  async markMessagesAsRead(roomId: string): Promise<void> {
+  async getUnreadCountByUser(roomId: string, userId: string): Promise<number> {
+    const count = await this.prismaService.message.count({
+      where: {
+        chatRoomId: roomId,
+        senderId: { not: userId },
+        isRead: false
+      },
+    });
+    return count;
+  }
+
+  async markMessagesAsRead(roomId: string, userId: string): Promise<void> {
     const chatRoom = await this.prismaService.chatRoom.findUnique({
       where: { id: roomId },
     });
@@ -245,12 +259,28 @@ export class PrismaChatRepository implements ChatRepository {
     if (!chatRoom) {
       throw new Error('Chat room not found');
     }
+
+    // Atualiza as mensagens para marcar como lidas pelo usuário
+    await this.prismaService.message.updateMany({
+      where: {
+        chatRoomId: roomId,
+        senderId: { not: userId },
+        isRead: false
+      },
+      data: {
+        isRead: true,
+        readAt: new Date()
+      }
+    });
+
+    // Atualiza o contador de não lidas do chat room baseado no usuário atual
+    const newUnreadCount = await this.getUnreadCountByUser(roomId, userId);
     await this.prismaService.chatRoom.update({
       where: {
         id: chatRoom.id,
       },
       data: {
-        unreadCount: 0,
+        unreadCount: newUnreadCount,
       },
     });
   }

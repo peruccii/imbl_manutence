@@ -36,7 +36,7 @@ import { FileUploadService } from '@application/usecases/file-upload-service';
 import { AcceptManutenceService } from '@application/usecases/accept-manutence-service';
 import { FinishManutenceService } from '@application/usecases/finish-manutence-service';
 
-@Controller('manutence')
+@Controller('manutences')
 export class ManutenceController {
   constructor(
     private readonly manutenceCreate_service: ManutenceCreateService,
@@ -120,45 +120,54 @@ export class ManutenceController {
     return formatted;
   }
 
-  @Get('get/all')
+  @Get()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   async getAllManutences(
-    @Query(
-      new ValidationPipe({
-        transform: true,
-      }),
-    )
-    pagination: PaginationDto,
+    @Query('status') status?: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
   ) {
-    const { manutences } =
-      await this.manutencesGetAll_service.execute(pagination);
+    try {
+      // Convert page-based pagination to skip-based for internal service
+      const skip = (page - 1) * limit;
+      const pagination = { skip, limit };
+      const result = await this.manutencesGetAll_service.execute(pagination);
+      const { manutences } = result;
 
-    return Promise.all(
-      manutences.map(async (manutence: Manutence) => {
-        const formatted = ManutenceViewModel.toGetFormatHttp(manutence);
-        if (formatted.photos.length) {
-          const fileNames = formatted.photos.map((photo) => photo.fileName);
+      const formattedManutences = await Promise.all(
+        manutences.map(async (manutence: Manutence) => {
+          const formatted = ManutenceViewModel.toGetFormatHttp(manutence);
+          if (formatted.photos.length) {
+            const fileNames = formatted.photos.map((photo) => photo.fileName);
 
-          const signedUrls =
-            await this.fileUploadService.generateGetSignedUrls(fileNames);
+            const signedUrls =
+              await this.fileUploadService.generateGetSignedUrls(fileNames);
 
-          formatted.photos = signedUrls.map((url, index) => ({
-            fileName: fileNames[index],
-            signedUrl: url.signedUrl,
-          }));
+            formatted.photos = signedUrls.map((url, index) => ({
+              fileName: fileNames[index],
+              signedUrl: url.signedUrl,
+            }));
+          }
+
+          return formatted;
+        }),
+      );
+
+      // Retorna dados paginados estruturados
+      return {
+        data: formattedManutences,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total: result.total || manutences.length,
+          totalPages: Math.ceil((result.total || manutences.length) / Number(limit))
         }
-        // if (formatted.video) {
-        //   formatted.video = (
-        //     await this.fileUploadService.getGenerateSignedUrls([
-        //       formatted.video,
-        //     ])
-        //   )[0];
-        // }
-
-        return formatted;
-      }),
-    );
+      };
+    } catch (error) {
+      console.error('Error in getAllManutences:', error);
+      throw error;
+    }
   }
   @Get('get/filters')
   @UseGuards(AuthGuard, RolesGuard)

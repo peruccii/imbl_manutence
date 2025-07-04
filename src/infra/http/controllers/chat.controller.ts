@@ -25,6 +25,7 @@ import { UserId } from '@application/utils/extract-user-id';
 import { ReadMessageService } from '@application/usecases/read-messages-service';
 import { GetMessagesByRoomNameService } from '@application/usecases/get-messages-by-roomname-service';
 import { MessageViewModel } from '../view-models/message-view-model';
+import { ChatRepository } from '@application/repositories/chat-repository';
 class SendMessageDto {
   content: string;
   roomName: string;
@@ -41,6 +42,7 @@ export class ChatController {
     private readonly sendMessageService: SendMessageService,
     private readonly readMessageService: ReadMessageService,
     private readonly getMessagesByRoomNameService: GetMessagesByRoomNameService,
+    private readonly chatRepository: ChatRepository,
   ) {}
 
   @Get('all')
@@ -99,8 +101,25 @@ export class ChatController {
   @Post('message/read')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
-  async readMessage(@Body() roomId: string) {
-    return await this.readMessageService.execute(roomId);
+  async readMessage(
+    @UserId() userId: string,
+    @Body() body: { roomId: string }
+  ) {
+    return await this.readMessageService.execute({ 
+      roomId: body.roomId, 
+      userId 
+    });
+  }
+
+  @Get('unread-count/:roomId')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  async getUnreadCount(
+    @Param('roomId') roomId: string,
+    @UserId() userId: string
+  ) {
+    const count = await this.chatRepository.getUnreadCountByUser(roomId, userId);
+    return { unreadCount: count };
   }
 
   @Post('message')

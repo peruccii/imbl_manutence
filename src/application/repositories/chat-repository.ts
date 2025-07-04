@@ -21,7 +21,8 @@ export abstract class ChatRepository {
   abstract findAdminChatRooms(adminId: string, pagination: Pagination);
   abstract findUserChatRooms(userId: string, pagination: Pagination);
   abstract createMessage(message: Message): Promise<void>;
-  abstract getUnreadCount(roomId: string): Promise<number>;
-  abstract markMessagesAsRead(roomId: string): Promise<void>;
+  abstract getUnreadCount(roomId: string, userId?: string): Promise<number>;
+  abstract markMessagesAsRead(roomId: string, userId: string): Promise<void>;
   abstract findMessagesByRoomName(roomName: string): Promise<Message[]>;
+  abstract getUnreadCountByUser(roomId: string, userId: string): Promise<number>;
 }

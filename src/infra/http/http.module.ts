@@ -47,6 +47,11 @@ import { FinishManutenceService } from '@application/usecases/finish-manutence-s
 import { ReportController } from './controllers/report.controller';
 import { ReportModule } from '@infra/database/report/report.module';
 import { ListAllReportsService } from '@application/usecases/list-all-reports-service';
+import { NotificationModule } from '@infra/database/notification/notification.module';
+import { CreateNotificationService } from '@application/usecases/create-notification-service';
+import { NotificationController } from './controllers/notification.controller';
+import { GetUserNotificationsService } from '@application/usecases/get-user-notifications-service';
+import { MarkNotificationReadService } from '@application/usecases/mark-notification-read-service';
 @Module({
   imports: [
     AuthModule,
@@ -58,6 +63,7 @@ import { ListAllReportsService } from '@application/usecases/list-all-reports-se
     PrismaModule,
     HistoryModule,
     ReportModule,
+    NotificationModule,
   ],
   controllers: [
     ManutenceController,
@@ -65,6 +71,7 @@ import { ListAllReportsService } from '@application/usecases/list-all-reports-se
     ChatController,
     HistoryController,
     ReportController,
+    NotificationController,
   ],
   providers: [
     PrismaService,
@@ -101,6 +108,9 @@ import { ListAllReportsService } from '@application/usecases/list-all-reports-se
     GetMessagesByRoomNameService,
     FinishManutenceService,
     ListAllReportsService,
+    CreateNotificationService,
+    GetUserNotificationsService,
+    MarkNotificationReadService,
   ],
 })
 export class HttpModule {}

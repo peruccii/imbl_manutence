@@ -35,7 +35,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
       : undefined;
     const manutences = await this.prisma.manutence.findMany({
       skip: pagination.skip,
-      take: pagination.limit,
+      take: Number(pagination.limit),
       where: {
         status_manutence: statusFilter ? { in: statusFilter } : undefined,
       },
@@ -208,7 +208,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
   async findMany(pagination: Pagination): Promise<Manutence[] | []> {
     const manutences = await this.prisma.manutence.findMany({
       skip: pagination.skip,
-      take: pagination.limit,
+      take: Number(pagination.limit),
       include: {
         user: true,
       },
@@ -237,5 +237,9 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         },
       },
     });
+  }
+
+  async count(): Promise<number> {
+    return await this.prisma.manutence.count();
   }
 }

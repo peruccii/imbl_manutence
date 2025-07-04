@@ -228,10 +228,48 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       console.log('Mensagem enviada:', messageData);
       this.server.to(roomName).emit('message', messageData);
+
+      // Emit global unread count update for all users who might be interested
+      this.server.emit('unreadCountUpdate', {
+        roomId: room.id,
+        roomName: roomName,
+      });
     } catch (error: any) {
       console.error('Erro ao enviar mensagem:', error);
       client.emit('message-error', {
         message: error.message || 'Erro ao enviar mensagem',
+      });
+    }
+  }
+
+  @SubscribeMessage('markMessagesAsRead')
+  async handleMarkMessagesAsRead(
+    @MessageBody() data: { roomId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const clientData: ClientData = client.data as ClientData;
+      if (!clientData.user) {
+        throw new WsException('Usuário não autenticado');
+      }
+
+      const { roomId } = data;
+      await this.chatRepository.markMessagesAsRead(roomId, clientData.user.id);
+
+      // Emit unread count update for this specific room
+      this.server.emit('unreadCountUpdate', {
+        roomId: roomId,
+        userId: clientData.user.id,
+      });
+
+      client.emit('messagesMarkedAsRead', {
+        roomId: roomId,
+        success: true,
+      });
+    } catch (error: any) {
+      console.error('Erro ao marcar mensagens como lidas:', error);
+      client.emit('markAsRead-error', {
+        message: error.message || 'Erro ao marcar mensagens como lidas',
       });
     }
   }

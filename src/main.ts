@@ -14,6 +14,8 @@ async function bootstrap() {
     rawBody: true,
     bodyParser: true,
   });
+
+  app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new InternalServerErrorHandlerFilter());
   app.useGlobalFilters(new NotFoundErrorErrorHandlerFilter());
@@ -26,7 +28,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
-
+  
   app.useBodyParser('json', { limit: '50mb' });
 
   await app.listen(process.env.PORT ?? 4000);

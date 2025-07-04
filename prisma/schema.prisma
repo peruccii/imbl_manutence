@@ -23,6 +23,7 @@ model User {
   historico       HistoricoManutencao[]
   adminManutences Manutence[] @relation(name: "AdminManutence") 
   reports         Report[]
+  notifications   Notification[]
 }
 
 enum Role {
@@ -69,6 +70,7 @@ model Manutence {
   chatRoomId       String?         @unique 
   chatRoom         ChatRoom?       @relation(fields: [chatRoomId], references: [id])
   reports          Report[]
+  notifications    Notification[]
 }
 
 enum StatusManutence {
@@ -99,6 +101,29 @@ model Message {
   sender          User      @relation(fields: [senderId], references: [id])
   chatRoom        ChatRoom  @relation(fields: [chatRoomId], references: [id])
   isRead          Boolean   @default(false)
+  readBy          Json?     
+  readAt          DateTime?
+}
+
+model Notification {
+  id          String    @id @default(uuid())
+  title       String
+  message     String    @db.Text
+  type        NotificationType @default(INFO)
+  isRead      Boolean   @default(false)
+  userId      String
+  manutenceId String?
+  createdAt   DateTime  @default(now())
+  readAt      DateTime?
+  user        User      @relation(fields: [userId], references: [id])
+  manutence   Manutence? @relation(fields: [manutenceId], references: [id])
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  SUCCESS
+  ERROR
 }
 
 model HistoricoManutencao {

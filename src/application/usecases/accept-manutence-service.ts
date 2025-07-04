@@ -6,6 +6,8 @@ import { ManutenceNotFoundMessage } from '../messages/manutence-not-found';
 import { randomUUID } from 'crypto';
 import { ActionHistory } from '../enums/action.enum';
 import { HistoryManutenceRepository } from '../repositories/history-manutence-repository';
+import { CreateNotificationService } from './create-notification-service';
+import { NotificationType } from '../entities/notification';
 
 interface AcceptManutenceRequest {
   manutenceId: string;
@@ -17,6 +19,7 @@ export class AcceptManutenceService {
   constructor(
     private manutenceRepository: ManutenceRepository,
     private historyManutenceRepository: HistoryManutenceRepository,
+    private createNotificationService: CreateNotificationService,
   ) {}
 
   async execute({ manutenceId, adminId }: AcceptManutenceRequest) {
@@ -54,6 +57,15 @@ export class AcceptManutenceService {
     this.manutenceRepository.update(manutenceId, {
       status_manutence: StatusManutence.ANDAMENTO,
       adminId: adminId,
+    });
+
+    // Criar notificação para o cliente
+    await this.createNotificationService.execute({
+      title: 'Manutenção Aceita',
+      message: `Sua manutenção "${manutence.title}" foi aceita e está em andamento.`,
+      type: NotificationType.SUCCESS,
+      userId: manutence.userId,
+      manutenceId: manutenceId,
     });
 
     return { success: true };

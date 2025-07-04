@@ -10,9 +10,10 @@ import { PrismaManutenceRepository } from '../prisma/repositories/prisma-manuten
 import { ManutenceRepository } from '@application/repositories/manutence-repository';
 import { FileUploadService } from '@application/usecases/file-upload-service';
 import { GetPreSignedUrlService } from '@application/usecases/get-presigned-url-service';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, NotificationModule],
   providers: [
     FileUploadService,
     ManutenceCreateService,

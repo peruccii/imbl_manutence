@@ -8,7 +8,8 @@ export class FindAllManutences {
 
   async execute(pagination: Pagination) {
     const manutences = await this.manutenceRepository.findMany(pagination);
+    const total = await this.manutenceRepository.count();
 
-    return { manutences };
+    return { manutences, total };
   }
 }
