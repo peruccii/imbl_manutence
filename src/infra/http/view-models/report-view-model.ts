@@ -9,8 +9,10 @@ export class ReportViewModel {
       createdAt: report.createdAt,
       updatedAt: report.updatedAt,
       user: {
-        name: report.user?.name,
-        email: report.user?.email,
+        id: report.user?.id || report.userId,
+        name: report.user?.name?.value || report.user?.name || '',
+        email: report.user?.email?.value || report.user?.email || '',
+        avatar: "/placeholder.svg?height=40&width=40",
       },
     };
   }

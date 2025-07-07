@@ -34,10 +34,16 @@ export class AuthGuard implements CanActivate {
         secret: this.jwtSecret,
       });
 
+      console.log('=== AUTH GUARD DEBUG ===');
+      console.log('Token:', token?.substring(0, 20) + '...');
+      console.log('Payload:', payload);
+      console.log('User ID (sub):', payload.sub);
+
       // this.requestContext.set('userId', payload.sub);
 
       request['user'] = payload;
-    } catch {
+    } catch (error) {
+      console.error('JWT verification failed:', error);
       throw new UnauthorizedException();
     }
     return true;

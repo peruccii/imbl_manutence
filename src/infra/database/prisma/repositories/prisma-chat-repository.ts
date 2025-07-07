@@ -72,6 +72,21 @@ export class PrismaChatRepository implements ChatRepository {
     return PrismaChatRoomMapper.toDomain(room);
   }
 
+  async findRoomById(roomId: string): Promise<ChatRoom | null> {
+    const room = await this.prismaService.chatRoom.findUnique({
+      where: { id: roomId },
+      include: {
+        users: true,
+      },
+    });
+
+    if (!room) {
+      return null;
+    }
+
+    return PrismaChatRoomMapper.toDomain(room);
+  }
+
   async createRoom(request: CreateChatRoomRequest): Promise<void> {
     const data = PrismaCreateRoomMapper.toPrisma(request);
     await this.prismaService.chatRoom.create({ data });
@@ -252,36 +267,50 @@ export class PrismaChatRepository implements ChatRepository {
   }
 
   async markMessagesAsRead(roomId: string, userId: string): Promise<void> {
-    const chatRoom = await this.prismaService.chatRoom.findUnique({
-      where: { id: roomId },
-    });
+    try {
+      console.log(`Marking messages as read for room: ${roomId}, user: ${userId}`);
+      
+      const chatRoom = await this.prismaService.chatRoom.findUnique({
+        where: { id: roomId },
+      });
 
-    if (!chatRoom) {
-      throw new Error('Chat room not found');
-    }
-
-    // Atualiza as mensagens para marcar como lidas pelo usuário
-    await this.prismaService.message.updateMany({
-      where: {
-        chatRoomId: roomId,
-        senderId: { not: userId },
-        isRead: false
-      },
-      data: {
-        isRead: true,
-        readAt: new Date()
+      if (!chatRoom) {
+        console.error(`Chat room not found: ${roomId}`);
+        throw new Error('Chat room not found');
       }
-    });
 
-    // Atualiza o contador de não lidas do chat room baseado no usuário atual
-    const newUnreadCount = await this.getUnreadCountByUser(roomId, userId);
-    await this.prismaService.chatRoom.update({
-      where: {
-        id: chatRoom.id,
-      },
-      data: {
-        unreadCount: newUnreadCount,
-      },
-    });
+      // Atualiza as mensagens para marcar como lidas pelo usuário
+      const updateResult = await this.prismaService.message.updateMany({
+        where: {
+          chatRoomId: roomId,
+          senderId: { not: userId },
+          isRead: false
+        },
+        data: {
+          isRead: true,
+          readAt: new Date()
+        }
+      });
+      
+      console.log(`Updated ${updateResult.count} messages as read`);
+
+      // Atualiza o contador de não lidas do chat room baseado no usuário atual
+      const newUnreadCount = await this.getUnreadCountByUser(roomId, userId);
+      console.log(`New unread count: ${newUnreadCount}`);
+      
+      await this.prismaService.chatRoom.update({
+        where: {
+          id: chatRoom.id,
+        },
+        data: {
+          unreadCount: newUnreadCount,
+        },
+      });
+      
+      console.log(`Successfully marked messages as read for room ${roomId}`);
+    } catch (error) {
+      console.error('Error in markMessagesAsRead:', error);
+      throw error;
+    }
   }
 }

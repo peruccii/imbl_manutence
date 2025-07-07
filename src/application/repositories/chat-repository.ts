@@ -8,6 +8,7 @@ import { Message } from '@application/entities/message';
 
 export abstract class ChatRepository {
   abstract findRoom(roomName: string): Promise<ChatRoom | null>;
+  abstract findRoomById(roomId: string): Promise<ChatRoom | null>;
   abstract findManutenceByChatRoom(
     chatRoomId: string,
   ): Promise<Manutence | null>;

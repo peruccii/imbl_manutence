@@ -11,7 +11,7 @@ export class ReadMessageService {
   constructor(private readonly chatRepository: ChatRepository) {}
 
   async execute({ roomId, userId }: ReadMessageRequest) {
-    const chatRoom = await this.chatRepository.findRoom(roomId);
+    const chatRoom = await this.chatRepository.findRoomById(roomId);
     if (!chatRoom) {
       throw new Error('Chat room not found');
     }

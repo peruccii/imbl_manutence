@@ -98,6 +98,19 @@ export class ChatController {
     });
   }
 
+  @Post('message/read/test')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  async testReadMessage(
+    @UserId() userId: string,
+    @Body() body: { roomId: string }
+  ) {
+    console.log('=== TEST READ MESSAGE ENDPOINT ===');
+    console.log('User ID:', userId);
+    console.log('Room ID:', body.roomId);
+    return { success: true, userId, roomId: body.roomId, message: 'Test endpoint working' };
+  }
+
   @Post('message/read')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.USER, Role.ADMIN)
@@ -105,10 +118,32 @@ export class ChatController {
     @UserId() userId: string,
     @Body() body: { roomId: string }
   ) {
-    return await this.readMessageService.execute({ 
-      roomId: body.roomId, 
-      userId 
-    });
+    console.log('=== READ MESSAGE ENDPOINT ===');
+    console.log('User ID:', userId);
+    console.log('Room ID:', body.roomId);
+    console.log('Body:', body);
+    
+    if (!userId) {
+      console.error('User ID is undefined or null');
+      throw new Error('User ID not found in token');
+    }
+    
+    if (!body.roomId) {
+      console.error('Room ID is missing from request body');
+      throw new Error('Room ID is required');
+    }
+    
+    try {
+      const result = await this.readMessageService.execute({ 
+        roomId: body.roomId, 
+        userId 
+      });
+      console.log('Read message service result:', result);
+      return result;
+    } catch (error) {
+      console.error('Error in readMessage endpoint:', error);
+      throw error;
+    }
   }
 
   @Get('unread-count/:roomId')

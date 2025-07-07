@@ -18,14 +18,14 @@ export class ReportController {
 
   @Post('create')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.USER)
   async create(@Body() createReportDto: CreateReportDto) {
-    return this.reportCreateService.execute(createReportDto);
+    return await this.reportCreateService.execute(createReportDto);
   }
 
   @Get('list')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.USER)
   async listAllReports() {
     const reports = await this.reportListService.execute();
 
