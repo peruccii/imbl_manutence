@@ -259,4 +259,11 @@ export class ManutenceController {
   ) {
     return await this.finishManutenceService.execute(param, body.status);
   }
+
+  @Delete('delete/file/:fileName')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  async deleteFile(@Param('fileName') fileName: string) {
+    return await this.fileUploadService.deleteFilesFromS3ByFilenames([fileName]);
+  }
 }
