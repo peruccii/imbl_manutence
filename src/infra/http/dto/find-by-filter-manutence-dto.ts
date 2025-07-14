@@ -11,4 +11,8 @@ export class ManutenceFiltersDto {
       'status_manutence deve ser ANDAMENTO, NOVO, FINALIZADO ou CANCELADO',
   })
   status_manutence?: StatusManutence[];
+
+  @IsOptional()
+  @Type(() => String)
+  userId?: string;
 }

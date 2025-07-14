@@ -15,16 +15,14 @@ export class PrismaReportMapper {
   }
 
   static toDomain(rawReport: any): Report {
-    const report = new Report({
-      ...rawReport,
-      updatedAt: rawReport.updatedAt || rawReport.createdAt,
-    });
-    
-    // Se há dados do usuário incluídos, adiciona ao report
-    if (rawReport.user) {
-      report.user = rawReport.user;
-    }
-    
+    const report = new Report(
+      {
+        ...rawReport,
+        updatedAt: rawReport.updatedAt || rawReport.createdAt,
+      },
+      rawReport.id,
+    );
+
     return report;
   }
 }

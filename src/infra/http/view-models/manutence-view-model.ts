@@ -18,6 +18,7 @@ export class ManutenceViewModel {
       title: manutence.title,
       address: manutence.address,
       status_manutence: manutence.status_manutence,
+      priority: manutence.priority,
       createdAt: manutence.createdAt,
       specialties: manutence.specialties,
     };

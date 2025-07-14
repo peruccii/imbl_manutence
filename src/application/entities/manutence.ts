@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { StatusManutence } from '../enums/StatusManutence';
+import { Priority } from '../enums/Priority';
 import { Message } from '../fieldsValidations/message';
 import { Replace } from '../helpers/replace';
 import { User } from './user';
@@ -27,6 +28,7 @@ export interface ManutenceProps {
   userId: string;
   adminId?: string;
   chatRoomId?: string;
+  priority?: Priority;
   user?: User;
   historico?: HistoryManutence;
   specialties: SpecialtyItem[];
@@ -162,5 +164,13 @@ export class Manutence {
 
   public set specialties(specialties: SpecialtyItem[]) {
     this.props.specialties = specialties;
+  }
+
+  public get priority(): Priority | undefined {
+    return this.props.priority;
+  }
+
+  public set priority(priority: Priority | undefined) {
+    this.props.priority = priority;
   }
 }

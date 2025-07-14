@@ -2,6 +2,7 @@ import { Manutence as RawManutence } from '@prisma/client';
 import { Manutence } from 'src/application/entities/manutence';
 import { Message } from 'src/application/fieldsValidations/message';
 import { StatusManutence } from 'src/application/enums/StatusManutence';
+import { Priority } from 'src/application/enums/Priority';
 import { User } from '@application/entities/user';
 import { Email } from '@application/fieldsValidations/email';
 import { Name } from '@application/fieldsValidations/name';
@@ -31,6 +32,7 @@ export class PrismaManutenceMapper {
       address: manutence.address,
       title: manutence.title,
       status_manutence: manutence.status_manutence,
+      priority: manutence.priority,
       createdAt: manutence.createdAt,
       user: {
         connect: { id: manutence.userId },
@@ -102,6 +104,7 @@ export class PrismaManutenceMapper {
         createdAt: rawManutence.createdAt,
         adminId: rawManutence.adminId || undefined,
         chatRoomId: rawManutence.chatRoomId || undefined,
+        priority: rawManutence.priority as Priority,
         specialties: Array.isArray(rawManutence.specialties)
           ? rawManutence.specialties
               .filter(

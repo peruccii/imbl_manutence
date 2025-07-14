@@ -62,6 +62,7 @@ model Manutence {
   address          String
   message          String @db.Text
   status_manutence StatusManutence @default(NOVO)
+  priority         Priority?       @default(MEDIA)
   createdAt        DateTime        @default(now())
   userId           String        
   adminId          String?        
@@ -78,6 +79,13 @@ enum StatusManutence {
   ANDAMENTO
   CANCELADO
   NOVO
+}
+
+enum Priority {
+  BAIXA
+  MEDIA
+  ALTA
+  CRITICA
 }
 
 model ChatRoom {

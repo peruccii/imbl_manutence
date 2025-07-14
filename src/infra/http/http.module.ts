@@ -52,6 +52,7 @@ import { CreateNotificationService } from '@application/usecases/create-notifica
 import { NotificationController } from './controllers/notification.controller';
 import { GetUserNotificationsService } from '@application/usecases/get-user-notifications-service';
 import { MarkNotificationReadService } from '@application/usecases/mark-notification-read-service';
+import { UpdatePriorityService } from '@application/usecases/update-priority-service';
 @Module({
   imports: [
     AuthModule,
@@ -111,6 +112,7 @@ import { MarkNotificationReadService } from '@application/usecases/mark-notifica
     CreateNotificationService,
     GetUserNotificationsService,
     MarkNotificationReadService,
+    UpdatePriorityService,
   ],
 })
 export class HttpModule {}

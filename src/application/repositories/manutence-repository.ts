@@ -2,11 +2,13 @@ import { Pagination } from '@application/interfaces/pagination';
 import { Manutence } from '../entities/manutence';
 import { FiltersManutence } from '@application/interfaces/filters-manutence';
 import { StatusManutence } from '@application/enums/StatusManutence';
+import { Priority } from '@application/enums/Priority';
 
 export interface UpdateManutenceData {
   status_manutence?: StatusManutence;
   adminId?: string;
   chatRoomId?: string;
+  priority?: Priority;
 }
 
 export abstract class ManutenceRepository {
@@ -22,7 +24,7 @@ export abstract class ManutenceRepository {
   abstract findByFilters(
     filters: FiltersManutence,
     pagination?: Pagination,
-  ): Promise<Manutence[] | []>;
+  ): Promise<{ manutences: Manutence[] | []; total: number }>;
   abstract findByAdminId(adminId: string): Promise<Manutence[] | []>;
   abstract count(): Promise<number>;
 }

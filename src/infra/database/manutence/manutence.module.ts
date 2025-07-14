@@ -10,6 +10,7 @@ import { PrismaManutenceRepository } from '../prisma/repositories/prisma-manuten
 import { ManutenceRepository } from '@application/repositories/manutence-repository';
 import { FileUploadService } from '@application/usecases/file-upload-service';
 import { GetPreSignedUrlService } from '@application/usecases/get-presigned-url-service';
+import { UpdatePriorityService } from '@application/usecases/update-priority-service';
 import { NotificationModule } from '../notification/notification.module';
 
 @Module({
@@ -23,6 +24,7 @@ import { NotificationModule } from '../notification/notification.module';
     GetPreSignedUrlService,
     GetCountNewManutences,
     FindManutenceByFilters,
+    UpdatePriorityService,
     {
       provide: ManutenceRepository,
       useClass: PrismaManutenceRepository,
@@ -37,6 +39,7 @@ import { NotificationModule } from '../notification/notification.module';
     GetCountNewManutences,
     FindManutenceByFilters,
     GetPreSignedUrlService,
+    UpdatePriorityService,
     ManutenceRepository,
   ],
 })

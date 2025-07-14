@@ -12,7 +12,9 @@ import {
   UseInterceptors,
   UsePipes,
   ValidationPipe,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Role } from 'src/application/enums/role.enum';
 import { ManutenceCreateService } from 'src/application/usecases/manutence-create-service';
@@ -35,6 +37,17 @@ import { UserId } from '@application/utils/extract-user-id';
 import { FileUploadService } from '@application/usecases/file-upload-service';
 import { AcceptManutenceService } from '@application/usecases/accept-manutence-service';
 import { FinishManutenceService } from '@application/usecases/finish-manutence-service';
+import { UpdatePriorityService } from '@application/usecases/update-priority-service';
+import { UpdatePriorityDto } from '../dto/update-priority-dto';
+
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    id: string;
+    typeUser: Role;
+    // Add other user properties as needed
+  };
+}
 
 @Controller('manutences')
 export class ManutenceController {
@@ -48,6 +61,7 @@ export class ManutenceController {
     private readonly fileUploadService: FileUploadService,
     private readonly acceptManutenceService: AcceptManutenceService,
     private readonly finishManutenceService: FinishManutenceService,
+    private readonly updatePriorityService: UpdatePriorityService,
   ) {}
 
   @Post('create')
@@ -171,44 +185,63 @@ export class ManutenceController {
   }
   @Get('get/filters')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.USER, Role.ADMIN)
   async getManutencesByFilters(
+    @UserId() userId: string,
+    @Req() req: AuthenticatedRequest,
     @Query(new ValidationPipe({ transform: true }))
     filters: ManutenceFiltersDto,
-    @Query(new ValidationPipe({ transform: true })) pagination: PaginationDto,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
   ) {
-    const { manutences } = await this.manutenceGetByFilters_service.execute(
-      filters,
-      pagination,
-    );
+    try {
+      const skip = (page - 1) * limit;
+      const pagination = { skip, limit };
 
-    return Promise.all(
-      manutences.map(async (manutence: Manutence) => {
-        const formatted = ManutenceViewModel.toGetFormatHttp(manutence);
+      const userRole = req.user.typeUser; 
 
-        if (formatted.photos.length) {
-          const fileNames = formatted.photos.map((photo) => photo.fileName);
+      // If the user is not an ADMIN, filter by their userId
+      if (userRole !== Role.ADMIN) {
+        filters.userId = userId;
+      }
 
-          const signedUrls =
-            await this.fileUploadService.generateGetSignedUrls(fileNames);
+      const { manutences, total } = await this.manutenceGetByFilters_service.execute(
+        filters,
+        pagination,
+      );
 
-          formatted.photos = signedUrls.map((url, index) => ({
-            fileName: fileNames[index],
-            signedUrl: url.signedUrl,
-          }));
-        }
+      const formattedManutences = await Promise.all(
+        manutences.map(async (manutence: Manutence) => {
+          const formatted = ManutenceViewModel.toGetFormatHttp(manutence);
+          if (formatted.photos.length) {
+            const fileNames = formatted.photos.map((photo) => photo.fileName);
 
-        // if (formatted.video) {
-        //   formatted.video = (
-        //     await this.fileUploadService.getGenerateSignedUrls([
-        //       formatted.video,
-        //     ])
-        //   )[0];
-        // }
+            const signedUrls =
+              await this.fileUploadService.generateGetSignedUrls(fileNames);
 
-        return formatted;
-      }),
-    );
+            formatted.photos = signedUrls.map((url, index) => ({
+              fileName: fileNames[index],
+              signedUrl: url.signedUrl,
+            }));
+          }
+
+          return formatted;
+        }),
+      );
+
+      return {
+        data: formattedManutences,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total: total,
+          totalPages: Math.ceil(total / Number(limit)),
+        },
+      };
+    } catch (error) {
+      console.error('Error in getManutencesByFilters:', error);
+      throw error;
+    }
   }
 
   @Delete('delete/:id')
@@ -265,5 +298,19 @@ export class ManutenceController {
   @Roles(Role.USER, Role.ADMIN)
   async deleteFile(@Param('fileName') fileName: string) {
     return await this.fileUploadService.deleteFilesFromS3ByFilenames([fileName]);
+  }
+
+  @Post('priority/:id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @Roles(Role.ADMIN)
+  async updatePriority(
+    @Param() param: FindOneParams,
+    @Body() body: UpdatePriorityDto,
+  ) {
+    return await this.updatePriorityService.execute({
+      manutenceId: param.id,
+      priority: body.priority,
+    });
   }
 }

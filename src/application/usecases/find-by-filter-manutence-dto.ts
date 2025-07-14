@@ -8,7 +8,7 @@ export class FindManutenceByFilters {
   constructor(private readonly manutenceRepository: ManutenceRepository) {}
 
   async execute(filters: FiltersManutence, pagination: Pagination) {
-    const manutences = await this.manutenceRepository.findByFilters(filters, pagination);
-    return { manutences }
+    const { manutences, total } = await this.manutenceRepository.findByFilters(filters, pagination);
+    return { manutences, total }
   }
 }

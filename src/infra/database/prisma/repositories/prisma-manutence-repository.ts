@@ -27,29 +27,46 @@ export class PrismaManutenceRepository implements ManutenceRepository {
   async findByFilters(
     filters: FiltersManutence,
     pagination: Pagination,
-  ): Promise<Manutence[] | []> {
+  ): Promise<{ manutences: Manutence[] | []; total: number }> {
     const statusFilter = filters?.status_manutence
       ? Array.isArray(filters.status_manutence)
         ? filters.status_manutence
         : [filters.status_manutence]
       : undefined;
-    const manutences = await this.prisma.manutence.findMany({
-      skip: pagination.skip,
-      take: Number(pagination.limit),
-      where: {
-        status_manutence: statusFilter ? { in: statusFilter } : undefined,
-      },
-      include: {
-        user: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
 
-    return manutences.map((manutence) => {
-      return PrismaManutenceMapper.toDomain(manutence);
-    });
+    const whereClause: any = {
+      status_manutence: statusFilter ? { in: statusFilter } : undefined,
+    };
+
+    if (filters.userId) {
+      whereClause.userId = filters.userId;
+    }
+
+  const paginationToUse = pagination || { skip: 0, limit: 10 };
+
+    const [manutences, total] = await this.prisma.$transaction([
+      this.prisma.manutence.findMany({
+        skip: paginationToUse.skip,
+        take: Number(paginationToUse.limit),
+        where: whereClause,
+        include: {
+          user: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.manutence.count({
+        where: whereClause,
+      }),
+    ]);
+
+    return {
+      manutences: manutences.map((manutence) => {
+        return PrismaManutenceMapper.toDomain(manutence);
+      }),
+      total,
+    };
   }
 
   async update(id: string, data: UpdateManutenceData): Promise<void> {
@@ -64,6 +81,7 @@ export class PrismaManutenceRepository implements ManutenceRepository {
         status_manutence: data.status_manutence,
         adminId: data.adminId,
         chatRoomId: data.chatRoomId,
+        priority: data.priority,
       },
     });
   }
